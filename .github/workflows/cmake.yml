@@ -71,6 +71,5 @@ jobs:
         with:
           name: Stardust-Celeste-PSP
           path: |
-            stardust-celeste-psp/EBOOT.PBP
-            stardust-celeste-psp/LICENSE
+            stardust-celeste-psp
             README.md
