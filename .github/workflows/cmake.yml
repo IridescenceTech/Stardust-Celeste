@@ -29,7 +29,9 @@ jobs:
         with:
           name: Stardust-Celeste-Linux
           path: |
-            stardust-celeste-ubuntu
+            stardust-celeste-ubuntu/Test/bin/Stardust-Test
+            stardust-celeste-ubuntu/Test/bin/lib/libStardust-Celeste.a
+            stardust-celeste-ubuntu/LICENSE
             README.md
 
   Windows:
@@ -45,9 +47,10 @@ jobs:
       - name: Publish artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: Stardust-Celeste-Windows
+          name: stardust-celeste-windows
           path: |
-            Release
+            Test\bin\Release\Stardust-Test.exe
+            Test\bin\lib\Release\Stardust-Celeste.lib
             LICENSE
             README.md
 
@@ -73,5 +76,7 @@ jobs:
         with:
           name: Stardust-Celeste-PSP
           path: |
-            stardust-celeste-psp
+            stardust-celeste-psp/Test/bin/EBOOT.PBP
+            stardust-celeste-psp/Test/bin/lib/libStardust-Celeste.a
+            stardust-celeste-psp/LICENSE
             README.md
