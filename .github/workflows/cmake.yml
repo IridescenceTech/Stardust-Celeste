@@ -19,15 +19,17 @@ jobs:
         uses: actions/checkout@v2
       - name: Build
         run: |
-          cmake -DCMAKE_BUILD_TYPE=Release .
+          mkdir stardust-celeste-ubuntu
+          cd stardust-celeste-ubuntu
+          cmake -DCMAKE_BUILD_TYPE=Release ..
           make
+          cp ../LICENSE ./
       - name: Publish artifacts
         uses: actions/upload-artifact@v2
         with:
           name: Stardust-Celeste-Linux
           path: |
-            libStardust-Celeste.a
-            LICENSE
+            stardust-celeste-ubuntu
             README.md
 
   Windows:
