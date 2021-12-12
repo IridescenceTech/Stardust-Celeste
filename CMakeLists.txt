@@ -10,3 +10,6 @@ add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES})
 
 target_include_directories(Stardust-Celeste PUBLIC include/)
 target_precompile_headers(Stardust-Celeste PRIVATE include/scpch.hpp)
+
+enable_testing()
+add_subdirectory(tests)
