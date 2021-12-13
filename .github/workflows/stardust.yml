@@ -60,22 +60,16 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          apk add cmake gmp mpc1 mpfr4 make
-      - name: Install PPSSPP Headless
-        run: |
-          apt-get -y update
-          apt-get install -y build-essential git libsdl2-dev python libglew-dev
-          git clone https://github.com/hrydgard/ppsspp --recursive
-          cd ppsspp/
-          mkdir -p build
-          cd build/
-          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_SKIP_RPATH=ON -DHEADLESS=ON -DUSE_SYSTEM_LIBZIP=ON
-          make
-          make install 
-          cd ..
-          cd ..
+          apk add bash cmake gmp mpc1 mpfr4 make
+      
       - name: Checkout
         uses: actions/checkout@v2
+          
+      - name: Install PPSSPP Headless
+        run: |
+          wget https://github.com/Iridescence-Technologies/PPSSPP-Headless/raw/edge/ppsspp_headless.tar.xz
+          tar -xvf ppsspp_headless.tar.xz -C ./
+      
       - name: Build
         run: |
           mkdir -p build
@@ -83,8 +77,9 @@ jobs:
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$PSPDEV/psp/share/pspdev.cmake ..
           make
           cd ..
-          chmod +x ./test_runner_psp.sh
-          ./test_runner_psp.sh
+          chmod +x test_runner_psp.sh
+          bash test_runner_psp.sh
+      
       - name: Publish artifacts
         uses: actions/upload-artifact@v2
         with:
