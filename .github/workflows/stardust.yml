@@ -63,7 +63,6 @@ jobs:
           apk add cmake gmp mpc1 mpfr4 make
       - name: Install PPSSPP Headless
         run: |
-        # From https://github.com/overdrivenpotato/rust-psp/blob/master/ci/Dockerfile-ppsspp
           apt-get -y update
           apt-get install -y build-essential git libsdl2-dev python libglew-dev
           git clone https://github.com/hrydgard/ppsspp --recursive
