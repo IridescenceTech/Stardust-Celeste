@@ -61,6 +61,20 @@ jobs:
       - name: Install dependencies
         run: |
           apk add cmake gmp mpc1 mpfr4 make
+      - name: Install PPSSPP Headless
+        run: |
+        # From https://github.com/overdrivenpotato/rust-psp/blob/master/ci/Dockerfile-ppsspp
+          apt-get -y update
+          apt-get install -y build-essential git libsdl2-dev python libglew-dev
+          git clone https://github.com/hrydgard/ppsspp --recursive
+          cd ppsspp/
+          mkdir -p build
+          cd build/
+          cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_SKIP_RPATH=ON -DHEADLESS=ON -DUSE_SYSTEM_LIBZIP=ON
+          make
+          make install 
+          cd ..
+          cd ..
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
@@ -69,8 +83,9 @@ jobs:
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$PSPDEV/psp/share/pspdev.cmake ..
           make
-          make test
-          #Make test will fail :/
+          cd ..
+          chmod +x ./test_runner_psp.sh
+          ./test_runner_psp.sh
       - name: Publish artifacts
         uses: actions/upload-artifact@v2
         with:
