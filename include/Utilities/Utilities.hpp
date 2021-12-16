@@ -7,5 +7,5 @@
 #include "Types.hpp"
 #include "Logger.hpp"
 #include "Assertion.hpp"
-//#include "Timer.hpp"
+#include "Timer.hpp"
 //#include "Profiler.hpp"

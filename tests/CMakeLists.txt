@@ -21,8 +21,12 @@ add_test(log test_log)
 target_link_libraries(test_log Stardust-Celeste)
 
 add_executable(test_assert test_assert.cpp)
-add_test(log test_assert)
+add_test(assert test_assert)
 target_link_libraries(test_assert Stardust-Celeste)
+
+add_executable(test_timer test_timer.cpp)
+add_test(timer test_timer)
+target_link_libraries(test_timer Stardust-Celeste)
 
 if(PSP)
 create_pbp_file(
@@ -58,6 +62,11 @@ create_pbp_file(
 create_pbp_file(
     TARGET test_assert
     TITLE test_assert
+    BUILD_PRX
+)
+create_pbp_file(
+    TARGET test_timer
+    TITLE test_timer
     BUILD_PRX
 )
 endif()

@@ -8,6 +8,7 @@
  * @copyright Copyright (c) 2021
  * 
  */
+#pragma once
 #include "../Platform.hpp"
 #include "Logger.hpp"
 
