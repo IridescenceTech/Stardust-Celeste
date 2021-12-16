@@ -13,6 +13,40 @@
 #include <thread>
 #include <mutex>
 
+#ifdef PSP
+namespace std {
+    class mutex {
+        public:
+
+            mutex() : is_locked(false) {}
+            ~mutex() = default;
+
+            mutex (const mutex&) = delete;
+            mutex& operator = (const mutex&) = delete;
+
+            void lock() {
+                while(is_locked) {
+                    //Wait for unlock
+                }
+
+                is_locked = true;
+            }
+
+            void try_lock() {
+                if(!is_locked)
+                    is_locked = true;
+            }
+
+            void unlock() {
+                is_locked = false;
+            }
+
+        private:
+            volatile bool is_locked;
+    };
+}
+#endif
+
 template <typename T>
 class ThreadSafe final {
     T data;
