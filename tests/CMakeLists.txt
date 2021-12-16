@@ -28,6 +28,10 @@ add_executable(test_timer test_timer.cpp)
 add_test(timer test_timer)
 target_link_libraries(test_timer Stardust-Celeste)
 
+add_executable(test_profiler test_profiler.cpp)
+add_test(profiler test_profiler)
+target_link_libraries(test_profiler Stardust-Celeste)
+
 if(PSP)
 create_pbp_file(
     TARGET test_basic
@@ -67,6 +71,11 @@ create_pbp_file(
 create_pbp_file(
     TARGET test_timer
     TITLE test_timer
+    BUILD_PRX
+)
+create_pbp_file(
+    TARGET test_profiler
+    TITLE test_profiler
     BUILD_PRX
 )
 endif()
