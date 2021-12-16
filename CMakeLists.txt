@@ -8,6 +8,14 @@ file(GLOB_RECURSE INC_FILES include/*.hpp)
 
 add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES})
 
+if(WIN32)
+    add_compile_definitions(BUILD_PLAT=0)
+elseif(PSP)
+    add_compile_definitions(BUILD_PLAT=2)
+else()
+    add_compile_definitions(BUILD_PLAT=1)
+endif()
+
 target_include_directories(Stardust-Celeste PUBLIC include/)
 target_precompile_headers(Stardust-Celeste PRIVATE include/scpch.hpp)
 
