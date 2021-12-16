@@ -7,8 +7,23 @@
                 "/usr/local/pspdev/psp/sdk/include/**",
                 "/usr/local/pspdev/psp/include/**"
             ],
-            "defines": [],
+            "defines": [
+                "BUILD_PLAT=2"
+            ],
             "compilerPath": "/usr/local/pspdev/bin/psp-gcc",
+            "cStandard": "c17",
+            "intelliSenseMode": "linux-clang-x64",
+            "cppStandard": "c++17"
+        },
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "BUILD_PLAT=1"
+            ],
+            "compilerPath": "/usr/bin/clang",
             "cStandard": "c17",
             "intelliSenseMode": "linux-clang-x64",
             "cppStandard": "c++17"
