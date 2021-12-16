@@ -8,6 +8,9 @@ add_test(scope_ptr test_scope_ptr)
 add_executable(test_ref_ptr test_ref_ptr.cpp)
 add_test(ref_ptr test_ref_ptr)
 
+add_executable(test_threadsafe_simple test_threadsafe_simple.cpp)
+add_test(threadsafe_simple test_threadsafe_simple)
+
 if(PSP)
 create_pbp_file(
     TARGET test_basic
@@ -20,5 +23,9 @@ create_pbp_file(
 create_pbp_file(
     TARGET test_ref_ptr
     TITLE test_ref_ptr
+)
+create_pbp_file(
+    TARGET test_threadsafe_simple
+    TITLE test_threadsafe_simple
 )
 endif()
