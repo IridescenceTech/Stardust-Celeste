@@ -9,3 +9,5 @@ do
         exit 1
     fi
 done
+
+echo "All tests passed!"

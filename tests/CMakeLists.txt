@@ -15,6 +15,11 @@ add_executable(test_fmt test_fmt.cpp)
 add_test(fmt test_fmt)
 target_link_libraries(test_fmt Stardust-Celeste)
 
+
+add_executable(test_log test_log.cpp)
+add_test(log test_log)
+target_link_libraries(test_log Stardust-Celeste)
+
 if(PSP)
 create_pbp_file(
     TARGET test_basic
@@ -35,5 +40,9 @@ create_pbp_file(
 create_pbp_file(
     TARGET test_fmt
     TITLE test_fmt
+)
+create_pbp_file(
+    TARGET test_log
+    TITLE test_log
 )
 endif()

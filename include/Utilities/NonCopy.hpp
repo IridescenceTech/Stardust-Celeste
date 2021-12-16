@@ -15,6 +15,7 @@ public:
     NonCopy (const NonCopy&) = delete;
     NonCopy& operator = (const NonCopy&) = delete;
 
-private:
+protected:
     NonCopy () = default;
+    ~NonCopy () = default;
 };

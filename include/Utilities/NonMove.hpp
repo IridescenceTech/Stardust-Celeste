@@ -15,6 +15,7 @@ public:
     NonMove (const NonMove&&) = delete;
     NonMove& operator = (const NonMove&&) = delete;
 
-private:
+protected:
     NonMove () = default;
+    ~NonMove () = default;
 };
