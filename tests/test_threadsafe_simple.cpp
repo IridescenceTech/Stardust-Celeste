@@ -24,6 +24,8 @@ struct MyData {
 void test_all() {
     auto ts = new ThreadSafe<MyData>(1, 2, 'b', 3.0f);
 
+    SC_TEST_ASSERT(ts);
+
     printf("%d\n", (*ts)->x);
 
     delete ts;

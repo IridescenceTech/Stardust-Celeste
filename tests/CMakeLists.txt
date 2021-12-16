@@ -11,6 +11,10 @@ add_test(ref_ptr test_ref_ptr)
 add_executable(test_threadsafe_simple test_threadsafe_simple.cpp)
 add_test(threadsafe_simple test_threadsafe_simple)
 
+add_executable(test_fmt test_fmt.cpp)
+add_test(fmt test_fmt)
+target_link_libraries(test_fmt Stardust-Celeste)
+
 if(PSP)
 create_pbp_file(
     TARGET test_basic
@@ -27,5 +31,9 @@ create_pbp_file(
 create_pbp_file(
     TARGET test_threadsafe_simple
     TITLE test_threadsafe_simple
+)
+create_pbp_file(
+    TARGET test_fmt
+    TITLE test_fmt
 )
 endif()

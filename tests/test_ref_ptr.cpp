@@ -13,6 +13,8 @@ void print_ref_ptr(Stardust_Celeste::RefPtr<int> ptr) {
 
 void test_all() {
     auto ptr = Stardust_Celeste::createRefPtr<int>(2);
+    SC_TEST_ASSERT(ptr);
+    
     print_ref_ptr(ptr);
 }
 
