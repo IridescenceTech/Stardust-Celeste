@@ -30,6 +30,7 @@ jobs:
           name: Stardust-Celeste-Linux
           path: |
             build/libStardust-Celeste.a
+            build/libSC-Entry.a
             LICENSE
             README.md
 
@@ -50,6 +51,7 @@ jobs:
           name: Stardust-Celeste-Windows
           path: |
             Release\Stardust-Celeste.lib
+            Release\SC-Entry.lib
             LICENSE
             README.md
 
@@ -60,15 +62,10 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          apk add bash cmake gmp mpc1 mpfr4 make
+          apk add bash cmake gmp mpc1 mpfr4 make glew sdl2 binutils libc6-compat
       
       - name: Checkout
         uses: actions/checkout@v2
-          
-      - name: Install PPSSPP Headless
-        run: |
-          wget https://github.com/Iridescence-Technologies/PPSSPP-Headless/raw/edge/ppsspp_headless.tar.xz
-          tar -xvf ppsspp_headless.tar.xz -C ./
       
       - name: Build
         run: |
@@ -76,15 +73,12 @@ jobs:
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$PSPDEV/psp/share/pspdev.cmake ..
           make
-          cd ..
-          chmod +x test_runner_psp.sh
-          bash test_runner_psp.sh
-      
       - name: Publish artifacts
         uses: actions/upload-artifact@v2
         with:
           name: Stardust-Celeste-PSP
           path: |
             build/libStardust-Celeste.a
+            build/libSC-Entry.a
             LICENSE
             README.md

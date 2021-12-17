@@ -13,6 +13,8 @@
 #include "State.hpp"
 #include <vector>
 
+int main(int argc, char** argv);
+
 namespace Stardust_Celeste::Core {
 class Application {
 public:
@@ -59,5 +61,7 @@ private:
   bool frameTime;
 
   std::vector<RefPtr<ApplicationState>> stateStack;
+
+  friend int ::main(int argc, char** argv);
 };
 } // namespace Stardust_Celeste::Core
