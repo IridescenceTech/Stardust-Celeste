@@ -36,46 +36,37 @@ if(PSP)
 create_pbp_file(
     TARGET test_basic
     TITLE test_basic
-    BUILD_PRX
 )
 create_pbp_file(
     TARGET test_scope_ptr
     TITLE test_scope_ptr
-    BUILD_PRX
 )
 create_pbp_file(
     TARGET test_ref_ptr
     TITLE test_ref_ptr
-    BUILD_PRX
 )
 create_pbp_file(
     TARGET test_threadsafe_simple
     TITLE test_threadsafe_simple
-    BUILD_PRX
 )
 create_pbp_file(
     TARGET test_fmt
     TITLE test_fmt
-    BUILD_PRX
 )
 create_pbp_file(
     TARGET test_log
     TITLE test_log
-    BUILD_PRX
 )
 create_pbp_file(
     TARGET test_assert
     TITLE test_assert
-    BUILD_PRX
 )
 create_pbp_file(
     TARGET test_timer
     TITLE test_timer
-    BUILD_PRX
 )
 create_pbp_file(
     TARGET test_profiler
     TITLE test_profiler
-    BUILD_PRX
 )
 endif()

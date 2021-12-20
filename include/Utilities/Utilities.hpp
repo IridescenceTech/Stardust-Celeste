@@ -8,4 +8,4 @@
 #include "Logger.hpp"
 #include "Assertion.hpp"
 #include "Timer.hpp"
-//#include "Profiler.hpp"
+#include "Profiler.hpp"

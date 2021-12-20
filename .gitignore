@@ -35,3 +35,5 @@ cmake-build-debug
 cmake-build-release
 build
 psp_output
+ppsspp_headless
+ppsspp_headless.*

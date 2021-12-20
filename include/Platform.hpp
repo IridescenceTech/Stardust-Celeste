@@ -1,12 +1,12 @@
 /**
  * @file Platform.hpp
  * @author Nathan Bourgeois <iridescentrosesfall@gmail.com>
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2021-12-15
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 #pragma once
 
@@ -39,25 +39,25 @@
 #endif
 
 namespace Stardust_Celeste {
-    enum class PlatformType {
-        Windows     = 0,
-        Posix       = 1,
-        Psp         = 2,
-        Psvita      = 3,
-        Ps2         = 4,
-        Ps3         = 5,
-        Gamecube    = 6,
-        N3DS        = 7,
-        NSwitch     = 8,
-    };
+enum class PlatformType {
+  Windows = 0,
+  Posix = 1,
+  Psp = 2,
+  Psvita = 3,
+  Ps2 = 4,
+  Ps3 = 5,
+  Gamecube = 6,
+  N3DS = 7,
+  NSwitch = 8,
+};
 
 #if BUILD_PLAT == BUILD_WINDOWS
-    constexpr auto BUILD_PLATFORM = Stardust_Celeste::PlatformType::Windows;
+constexpr auto BUILD_PLATFORM = Stardust_Celeste::PlatformType::Windows;
 #elif BUILD_PLAT == BUILD_POSIX
-    constexpr auto BUILD_PLATFORM = Stardust_Celeste::PlatformType::Posix;
+constexpr auto BUILD_PLATFORM = Stardust_Celeste::PlatformType::Posix;
 #elif BUILD_PLAT == BUILD_PSP
-    constexpr auto BUILD_PLATFORM = Stardust_Celeste::PlatformType::Psp;
+constexpr auto BUILD_PLATFORM = Stardust_Celeste::PlatformType::Psp;
 #else
 #error Invalid Platform!
 #endif
-}
+} // namespace Stardust_Celeste
