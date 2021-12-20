@@ -2,9 +2,7 @@
 
 #if BUILD_PLAT == BUILD_WINDOWS
 #include <winsock2.h>
-#endif
-
-#if BUILD_PLAT == BUILD_PSP
+#elif BUILD_PLAT == BUILD_PSP
 #include <pspkernel.h>
 #include <pspmodulemgr.h>
 #include <pspnet.h>
