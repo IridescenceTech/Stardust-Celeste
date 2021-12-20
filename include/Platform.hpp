@@ -38,6 +38,14 @@
 #error PLATFORM NOT SUPPORTED
 #endif
 
+#if BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX
+#include <thread>
+#elif BUILD_PSP
+#include <pspkernel.h>
+#endif
+
+#include <Utilities/Types.hpp>
+
 namespace Stardust_Celeste {
 enum class PlatformType {
   Windows = 0,
@@ -60,4 +68,14 @@ constexpr auto BUILD_PLATFORM = Stardust_Celeste::PlatformType::Psp;
 #else
 #error Invalid Platform!
 #endif
+
+
+  inline auto delayForMS(u32 millis) -> void {
+
+    #if BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX
+        std::this_thread::sleep_for(std::chrono::milliseconds(millis));
+    #else 
+        sceKernelDelayThread(millis * 1000);
+    #endif
+  }
 } // namespace Stardust_Celeste
