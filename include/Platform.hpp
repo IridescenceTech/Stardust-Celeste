@@ -44,7 +44,7 @@
 #include <pspkernel.h>
 #endif
 
-#include "Types.hpp"
+#include <Utilities/Types.hpp>
 
 namespace Stardust_Celeste {
 enum class PlatformType {
