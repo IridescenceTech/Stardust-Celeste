@@ -12,6 +12,8 @@
         "new": "cpp",
         "tuple": "cpp",
         "type_traits": "cpp",
-        "utility": "cpp"
+        "utility": "cpp",
+        "*.tcc": "cpp",
+        "fstream": "cpp"
     }
 }
