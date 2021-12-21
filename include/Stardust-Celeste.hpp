@@ -8,3 +8,6 @@
 
 #include "Platform.hpp"
 #include "Utilities/Utilities.hpp"
+#include "Core/Core.hpp"
+#include "Network/Network.hpp"
+#include "Events/Event.hpp"
