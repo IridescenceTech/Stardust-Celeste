@@ -2,7 +2,7 @@
 
 namespace Stardust_Celeste::Core {
 
-auto PlatformLayer::initialize(const AppConfig &app) -> void {
+auto PlatformLayer::initialize(const AppConfig app) -> void {
   // TODO: Add layers as needed
 }
 

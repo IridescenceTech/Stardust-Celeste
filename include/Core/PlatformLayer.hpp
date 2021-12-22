@@ -21,7 +21,7 @@ class PlatformLayer : Singleton {
 public:
   PlatformLayer() = default;
 
-  auto initialize(const AppConfig &app) -> void;
+  auto initialize(const AppConfig app) -> void;
   auto terminate() -> void;
 
   inline static auto Get() -> PlatformLayer & {

@@ -18,8 +18,17 @@ else()
 endif()
 
 target_include_directories(Stardust-Celeste PUBLIC include/)
+target_include_directories(Stardust-Celeste PUBLIC ./)
 target_include_directories(SC-Entry PUBLIC include/)
 target_precompile_headers(Stardust-Celeste PRIVATE include/scpch.hpp)
+
+if(PSP)
+else() 
+    set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build GLFW without examples")
+    set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build GLFW without tests")
+    set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build GLFW without docs")
+    add_subdirectory(ext/glfw)
+endif()
 
 enable_testing()
 add_subdirectory(tests)

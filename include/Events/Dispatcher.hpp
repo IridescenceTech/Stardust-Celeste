@@ -17,6 +17,9 @@
 namespace Stardust_Celeste::Event {
 
     template <typename T>
+    class Event;
+
+    template <typename T>
     class Dispatcher {
     private:
         using SlotType = std::function<void(const Event<T>&)>;
@@ -28,10 +31,10 @@ namespace Stardust_Celeste::Event {
         }
 
         void post(Event<T>& event) {
-            if(observers.find(event.type()) == observers.end())
+            if(observers.find(event.getType()) == observers.end())
                 return;
 
-            for(auto&& observer : _observers.at(event.type()))
+            for(auto&& observer : observers.at(event.getType()))
                 if(!event.isHandled())
                     observer(event);  
         }

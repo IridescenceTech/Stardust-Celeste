@@ -25,7 +25,7 @@ namespace Stardust_Celeste::Event {
         
         Event(T t, const std::string& n = "") : type(t), name(n) {};
 
-        inline const T type() const {
+        inline const T getType() const {
             return type;
         }
 
