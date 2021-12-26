@@ -32,6 +32,8 @@ Looks a little empty right now 🙁
 
 Stardust-Celeste is licensed under The Apache License 2.0 and is a completely free and open-source project.
 
+Further information about the dependencies of this project and their licenses can be found in the licenses folder.
+
 ## Links
 
 - [Website](https://iridescence.me)
