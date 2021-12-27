@@ -1,6 +1,11 @@
 #include <Core/Application.hpp>
 #include <Utilities/Utilities.hpp>
 
+#if PSP
+#include <pspkernel.h>
+PSP_MODULE_INFO("Stardust-Celeste-App", 0, 1, 0);
+#endif
+
 using namespace Stardust_Celeste::Utilities;
 
 auto init_sc() -> void {

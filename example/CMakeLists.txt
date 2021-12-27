@@ -16,3 +16,13 @@ add_subdirectory(.. Stardust/)
 add_executable(Example example.cpp)
 target_include_directories(Example PUBLIC ../include/ ../ext/glm/glm/)
 target_link_libraries(Example Stardust-Celeste SC-Entry)
+
+if(PSP)
+
+create_pbp_file(
+    TARGET Example
+    TITLE Example
+    BUILD_PRX 1
+)
+
+endif()
