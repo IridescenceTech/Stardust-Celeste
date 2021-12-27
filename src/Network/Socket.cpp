@@ -14,6 +14,7 @@
 #include <unistd.h>
 #endif
 
+#include <vector>
 #include <Platform.hpp>
 
 namespace Stardust_Celeste::Network {

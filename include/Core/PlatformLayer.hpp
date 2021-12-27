@@ -10,11 +10,13 @@
  */
 #pragma once
 #include <Utilities/Utilities.hpp>
+#include <Rendering/RenderContext.hpp>
 
 namespace Stardust_Celeste::Core {
 
 struct AppConfig {
     bool headless = false;
+    Rendering::RenderContextSettings render_settings;
 };
 
 class PlatformLayer : Singleton {

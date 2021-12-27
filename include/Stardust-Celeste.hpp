@@ -11,3 +11,4 @@
 #include "Core/Core.hpp"
 #include "Network/Network.hpp"
 #include "Events/Event.hpp"
+#include "Rendering/Rendering.hpp"

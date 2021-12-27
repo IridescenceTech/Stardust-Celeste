@@ -9,7 +9,12 @@
  * 
  */
 #pragma once
-#include <scpch.hpp>
+#include <fstream>
+#include <iostream>
+#include <iomanip>
+#include <cmath>
+#include <limits>
+#include <sstream>
 #include "Singleton.hpp"
 #include "Timer.hpp"
 

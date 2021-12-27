@@ -66,13 +66,14 @@ jobs:
     steps:
       - name: Install dependencies
         run: |
-          apk add bash cmake gmp mpc1 mpfr4 make glew sdl2 binutils libc6-compat
+          apk add bash cmake git gmp mpc1 mpfr4 make glew sdl2 binutils libc6-compat
       
       - name: Checkout
         uses: actions/checkout@v2
       
       - name: Build
         run: |
+          git submodule update --init --recursive --remote
           mkdir -p build
           cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$PSPDEV/psp/share/pspdev.cmake ..

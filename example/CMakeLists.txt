@@ -11,9 +11,8 @@ else()
     add_compile_definitions(BUILD_PLAT=1)
 endif()
 
-add_subdirectory(.. StardustLib/)
+add_subdirectory(.. Stardust/)
 
 add_executable(Example example.cpp)
-target_include_directories(Example PUBLIC ../include/)
-target_link_libraries(Example Stardust-Celeste)
-target_link_libraries(Example SC-Entry)
+target_include_directories(Example PUBLIC ../include/ ../ext/glm/glm/)
+target_link_libraries(Example Stardust-Celeste SC-Entry)

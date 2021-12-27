@@ -14,6 +14,12 @@
         "type_traits": "cpp",
         "utility": "cpp",
         "*.tcc": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "atomic": "cpp",
+        "deque": "cpp",
+        "unordered_set": "cpp",
+        "limits": "cpp",
+        "sstream": "cpp",
+        "system_error": "cpp"
     }
 }

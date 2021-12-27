@@ -11,6 +11,7 @@
 #pragma once
 #include "../Utilities/Utilities.hpp"
 #include "State.hpp"
+#include "../Rendering/Rendering.hpp"
 #include <vector>
 
 int main(int argc, char** argv);
@@ -50,7 +51,16 @@ private:
 
       if (!stateStack.empty()) {
         stateStack.back()->onUpdate(this, frameTime);
+
+        auto r = Rendering::RenderContext::Get().initialized();
+
+        if(r)
+          Rendering::RenderContext::Get().clear();
+        
         stateStack.back()->onDraw(this, frameTime);
+
+        if(r)
+          Rendering::RenderContext::Get().render();
       }
     }
   }
