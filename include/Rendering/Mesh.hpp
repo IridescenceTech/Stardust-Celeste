@@ -17,12 +17,17 @@
 
 #include "RenderTypes.hpp"
 
+#if BUILD_PLAT == BUILD_PSP
+#define PACKED __attribute__((__packed__))
+#else
+#define PACKED 
+#endif
 namespace Stardust_Celeste::Rendering
 {
     /**
      * @brief Packed vertices
      */
-    struct __attribute__((__packed__)) Vertex {
+    struct PACKED Vertex {
         float x, y, z;
         Color color;
         float u, v;
