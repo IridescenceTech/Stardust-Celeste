@@ -22,15 +22,37 @@
 #else
 #define PACKED 
 #endif
+
+
+#define BUILD_PC (BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX)
+
+#if BUILD_PC
+#include <glad/glad.h>
+#elif BUILD_PLAT == BUILD_PSP
+#include <pspgu.h>
+#include <pspgum.h>
+#include <pspctrl.h>
+#include <pspkernel.h>
+#include <pspdisplay.h>
+#include <pspdebug.h>
+#include <psppower.h>
+#include <psptypes.h>
+#include <pspge.h>
+#include <psputils.h>
+#include <stdarg.h>
+#include <intraFont.h>
+#endif
+
+
 namespace Stardust_Celeste::Rendering
 {
     /**
      * @brief Packed vertices
      */
     struct PACKED Vertex {
-        float x, y, z;
-        Color color;
         float u, v;
+        Color color;
+        float x, y, z;
     };
 
     //TODO: Optimized Vertex structure - u16 x,y,z - u16 color - u16 u,v
@@ -43,14 +65,53 @@ namespace Stardust_Celeste::Rendering
     public:
         Mesh() = default;
 
-        Mesh(Vertex* vertices, u16* indices, size_t idx_count);
-        ~Mesh();
+        Mesh(Vertex* vertices, u16* indices, size_t idx_count) {
+            add_data(vertices, indices, idx_count);
+        }
 
-        auto add_data(Vertex* vertices, u16* indices, size_t idx_count) -> void;
-        auto delete_data() -> void;
+        ~Mesh() {
+            delete_data();
+        }
 
-        auto draw() -> void;
-        auto bind() -> void;
+
+    auto add_data(Vertex* vertices, u16* indices, size_t idxc) -> void {
+        vert_data = vertices;
+        idx_data = indices;
+        idx_count = idxc;
+
+#if BUILD_PC
+        //TODO: Setup GL Buffers
+#endif
+    }
+
+    auto delete_data() -> void {
+        delete vert_data;
+        delete idx_data;
+        idx_count = 0;
+
+#if BUILD_PC
+        //TODO: Delete GL Buffers
+#endif
+    }
+
+    auto draw() -> void {
+        bind();
+
+#if BUILD_PC
+        //TODO: Bind Program
+        //TODO: Draw
+#else
+        //TODO: Draw PSP
+        sceGuShadeModel(GU_SMOOTH);
+        sceGumDrawArray(GU_TRIANGLES, GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 | GU_VERTEX_32BITF | GU_TRANSFORM_3D, idx_count, idx_data, vert_data);
+#endif
+    }
+
+    auto bind() -> void {
+#if BUILD_PC
+        //TODO: Bind GL Buffers
+#endif
+    }
 
         inline auto get_index_count() -> s32 {
             return idx_count;

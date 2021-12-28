@@ -30,15 +30,22 @@ public:
 
   void SetState(RefPtr<ApplicationState> state) {
     stateStack.clear();
+    state->onStart();
     stateStack.emplace_back(state);
     stateStack.shrink_to_fit();
   }
 
   void PushState(RefPtr<ApplicationState> state) {
+    state->onStart();
     stateStack.emplace_back(state);
   }
 
-  void PopState() { stateStack.pop_back(); }
+  void PopState() { 
+    stateStack.back()->onCleanup();
+    stateStack.pop_back();  
+  }
+
+  virtual void OnStart() = 0;
 
   void Exit() { running = false; }
 

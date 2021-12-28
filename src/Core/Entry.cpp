@@ -28,6 +28,7 @@ int main(int, char**) {
     SC_PROFILE_FUNCTION(init_sc, __LINE__, __FILE__);
     
     auto app = CreateNewSCApp();
+    app->OnStart();
     
     SC_PROFILE_END_SESSION();
 

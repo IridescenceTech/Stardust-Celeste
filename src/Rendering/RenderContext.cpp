@@ -111,6 +111,24 @@ namespace Stardust_Celeste::Rendering {
 		sceGuStencilOp(GU_KEEP, GU_KEEP, GU_REPLACE); // keep value on failed test (fail and zfail) and replace on pass
 
 		sceGuTexFilter(GU_LINEAR, GU_LINEAR);
+
+		sceGuShadeModel(GU_SMOOTH);
+
+		sceGuFrontFace(GU_CCW);
+		sceGuEnable(GU_CULL_FACE);
+		sceGuEnable(GU_BLEND);
+		sceGuEnable(GU_TEXTURE_2D);
+
+        sceGuDisable(GU_DEPTH_TEST);
+
+        sceGumMatrixMode(GU_PROJECTION);
+        sceGumLoadIdentity();
+        sceGumOrtho(-1, 1, -1, 1, -1, 1);
+        sceGumMatrixMode(GU_VIEW);
+        sceGumLoadIdentity();
+        sceGumMatrixMode(GU_MODEL);
+        sceGumLoadIdentity();
+
 		sceGuFinish();
 		sceGuSync(0, 0);
 
@@ -119,12 +137,6 @@ namespace Stardust_Celeste::Rendering {
 
 		sceCtrlSetSamplingCycle(0);
 		sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
-		sceGuShadeModel(GU_SMOOTH);
-
-		sceGuFrontFace(GU_CCW);
-		sceGuEnable(GU_CULL_FACE);
-		sceGuEnable(GU_BLEND);
-		sceGuEnable(GU_TEXTURE_2D);
 #endif
         c.color = 0xFFFFFFFF;
         is_init = true;
