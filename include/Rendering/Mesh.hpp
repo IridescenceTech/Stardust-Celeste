@@ -80,7 +80,30 @@ namespace Stardust_Celeste::Rendering
         idx_count = idxc;
 
 #if BUILD_PC
-        //TODO: Setup GL Buffers
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+    bind();
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * idxc, vert_data, GL_STATIC_DRAW);
+
+    const auto stride = sizeof(Vertex);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(sizeof(float) * 3));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, stride, reinterpret_cast<void*>(sizeof(float) * 2));
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
+
+
+    glGenBuffers(1, &ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * idxc, idx_data, GL_STATIC_DRAW);
+
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 #endif
     }
 
@@ -90,7 +113,9 @@ namespace Stardust_Celeste::Rendering
         idx_count = 0;
 
 #if BUILD_PC
-        //TODO: Delete GL Buffers
+        glDeleteVertexArrays(1, &vao);
+        glDeleteBuffers(1, &vbo);
+        glDeleteBuffers(1, &ebo);
 #endif
     }
 
@@ -99,9 +124,8 @@ namespace Stardust_Celeste::Rendering
 
 #if BUILD_PC
         //TODO: Bind Program
-        //TODO: Draw
+        glDrawElements(GL_TRIANGLES, idx_count, GL_UNSIGNED_SHORT, nullptr);
 #else
-        //TODO: Draw PSP
         sceGuShadeModel(GU_SMOOTH);
         sceGumDrawArray(GU_TRIANGLES, GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 | GU_VERTEX_32BITF | GU_TRANSFORM_3D, idx_count, idx_data, vert_data);
 #endif
@@ -109,7 +133,7 @@ namespace Stardust_Celeste::Rendering
 
     auto bind() -> void {
 #if BUILD_PC
-        //TODO: Bind GL Buffers
+        glBindVertexArray(vao);
 #endif
     }
 
@@ -121,6 +145,10 @@ namespace Stardust_Celeste::Rendering
         size_t idx_count = 0;
         Vertex* vert_data = nullptr;
         u16* idx_data = nullptr;
+
+        #if BUILD_PC
+        GLuint vbo, vao, ebo;
+        #endif
     };
 
 }

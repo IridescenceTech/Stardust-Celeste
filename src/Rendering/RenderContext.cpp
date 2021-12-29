@@ -8,6 +8,7 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
+#include <string>
 #elif BUILD_PSP
 
 #define BUF_WIDTH (512)
@@ -35,6 +36,7 @@
 namespace Stardust_Celeste::Rendering {
 #if BUILD_PC
     GLFWwindow* window;
+    GLuint programID;
 #elif BUILD_PLAT == BUILD_PSP
 	char list[0x100000] __attribute__((aligned(64)));
 	void* _fbp0;
@@ -51,6 +53,90 @@ namespace Stardust_Celeste::Rendering {
             };
     }
 
+
+#if BUILD_PC
+    auto compileShader(const char* source, GLenum shaderType) -> GLuint{
+        auto shader = glCreateShader(shaderType);
+
+        glShaderSource(shader, 1, &source, nullptr);
+        glCompileShader(shader);
+
+        GLint status = 0;
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+
+        if(!status){
+            char log[512];
+            glGetShaderInfoLog(shader, 512, nullptr, log);
+            throw std::runtime_error("Shader compile failed: " + std::string(log));
+        }
+
+        return shader;
+    }
+
+    auto linkShaders(GLuint vshader, GLuint fshader) -> GLuint{
+        auto prog = glCreateProgram();
+        glAttachShader(prog, vshader);
+        glAttachShader(prog, fshader);
+
+        glLinkProgram(prog);
+
+        GLint status = 0;
+        glGetProgramiv(prog, GL_LINK_STATUS, &status);
+
+        if(!status){
+            char log[512];
+            glGetProgramInfoLog(prog, 512, nullptr, log);
+            throw std::runtime_error("Shader linking failed: " + std::string(log));
+        }
+
+        return prog;
+    }
+
+    auto loadShaders(std::string vs, std::string fs) -> GLuint {
+        GLuint vertShader, fragShader;
+
+        vertShader = compileShader(vs.c_str(), GL_VERTEX_SHADER);
+        fragShader = compileShader(fs.c_str(), GL_FRAGMENT_SHADER);
+
+        auto programID = linkShaders(vertShader, fragShader);
+
+        glDeleteShader(vertShader);
+        glDeleteShader(fragShader);
+
+        glUseProgram(programID);
+
+        return programID;
+    }
+
+    const std::string vert_source = std::string("#version 400\n") +
+                                    "layout (location = 0) in vec3 aPos;\n" +
+                                    "layout (location = 2) in vec2 aTex;\n" +
+                                    "layout (location = 1) in vec4 aCol;\n" +
+                                    "uniform mat4 proj;\n" +
+                                    "uniform mat4 view;\n" +
+                                    "uniform mat4 model;\n" +
+                                    "out vec2 uv;\n" +
+                                    "out vec4 color;\n" +
+                                    "void main() {\n" +
+                                    "    gl_Position = /* proj * view * model * */ vec4(aPos, 1.0);\n" +
+                                    "    uv = aTex;\n" +
+                                    "    color = aCol;\n" +
+                                    "}\n";
+    const std::string frag_source = std::string("#version 400\n") +
+                                    "out vec4 FragColor;\n" +
+                                    "uniform sampler2D tex;\n" +
+                                    "in vec2 uv;\n" +
+                                    "in vec4 color;\n" +
+                                    "void main() {\n" +
+                                    "    vec4 mc = vec4(1.0f / 255.0f);\n" +
+                                    //"    mc = texture(tex, uv);\n" +
+                                    "    mc *= color;\n" +
+                                    "    FragColor = mc;\n" +
+                                    "    if(FragColor.a == 0.0f)\n" +
+                                    "        discard;\n" +
+                                    "}\n";
+#endif
+
     auto RenderContext::initialize(const RenderContextSettings app) -> void {
 #if BUILD_PC
         SC_CORE_ASSERT(glfwInit(), "GLFW Init Failed!");
@@ -65,6 +151,8 @@ namespace Stardust_Celeste::Rendering {
         glfwMakeContextCurrent(window);
 
         SC_CORE_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress), "OpenGL Init Failed!");
+
+        programID = loadShaders(vert_source, frag_source);
 #else 
 
         //Get static vram buffer starts at offset 0
