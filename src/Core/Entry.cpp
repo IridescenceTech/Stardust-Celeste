@@ -4,6 +4,28 @@
 #if PSP
 #include <pspkernel.h>
 PSP_MODULE_INFO("Stardust-Celeste-App", 0, 1, 0);
+
+int exit_callback(int arg1, int arg2, void* common){
+	sceKernelExitGame();
+	return 0;
+}
+ 
+int CallbackThread(SceSize args, void* argp) {
+	int cbid = sceKernelCreateCallback("Exit Callback", exit_callback, NULL);
+	sceKernelRegisterExitCallback(cbid);
+	sceKernelSleepThreadCB();
+ 
+	return 0;
+}
+ 
+int SetupCallbacks(void) {
+	int thid = sceKernelCreateThread("update_thread", CallbackThread, 0x11, 0xFA0, 0, 0);
+	if (thid >= 0) {
+		sceKernelStartThread(thid, 0, 0);
+	}
+	return thid;
+}
+
 #endif
 
 using namespace Stardust_Celeste::Utilities;
@@ -23,6 +45,10 @@ auto cleanup_sc() -> void {
 extern Stardust_Celeste::Core::Application* CreateNewSCApp();
 
 int main(int, char**) {
+
+    #if PSP
+    SetupCallbacks();
+    #endif
 
     SC_PROFILE_BEGIN_SESSION("Init", "SC-Init.json");
     SC_PROFILE_FUNCTION(init_sc, __LINE__, __FILE__);

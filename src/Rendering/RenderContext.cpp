@@ -9,7 +9,7 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 #include <string>
-#elif BUILD_PSP
+#elif BUILD_PLAT == BUILD_PSP
 
 #define BUF_WIDTH (512)
 #define SCR_WIDTH (480)
@@ -128,9 +128,8 @@ namespace Stardust_Celeste::Rendering {
                                     "in vec2 uv;\n" +
                                     "in vec4 color;\n" +
                                     "void main() {\n" +
-                                    "    vec4 mc = vec4(1.0f / 255.0f);\n" +
-                                    //"    mc = texture(tex, uv);\n" +
-                                    "    mc *= color;\n" +
+                                    "    vec4 mc = texture(tex, uv);\n" +
+                                    "    mc *= vec4(1.0f / 255.0f) * color;\n" +
                                     "    FragColor = mc;\n" +
                                     "    if(FragColor.a == 0.0f)\n" +
                                     "        discard;\n" +
