@@ -32,6 +32,8 @@ class GameState : public Core::ApplicationState {
         mesh = createScopePtr<Rendering::Mesh>(vertex_array, idx_array, 6);
 
         texture = Rendering::TextureManager::Get().load_texture("container.jpg", SC_TEX_FILTER_NEAREST, SC_TEX_FILTER_NEAREST, true);
+
+        Rendering::RenderContext::Get().matrix_ortho(-1, 1, -1, 1, -1, 1);
     }
 
     void onCleanup() {

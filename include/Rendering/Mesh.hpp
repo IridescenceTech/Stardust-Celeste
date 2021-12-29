@@ -43,6 +43,7 @@
 #include <intraFont.h>
 #endif
 
+#include <Rendering/RenderContext.hpp>
 
 namespace Stardust_Celeste::Rendering
 {
@@ -121,6 +122,8 @@ namespace Stardust_Celeste::Rendering
 
     auto draw() -> void {
         bind();
+        
+        Rendering::RenderContext::Get().set_matrices();
 
 #if BUILD_PC
         //TODO: Bind Program

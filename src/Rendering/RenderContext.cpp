@@ -122,7 +122,7 @@ namespace Stardust_Celeste::Rendering {
                                     "out vec2 uv;\n" +
                                     "out vec4 color;\n" +
                                     "void main() {\n" +
-                                    "    gl_Position = /* proj * view * model * */ vec4(aPos, 1.0);\n" +
+                                    "    gl_Position = proj * view * model * vec4(aPos, 1.0);\n" +
                                     "    uv = aTex;\n" +
                                     "    color = aCol;\n" +
                                     "}\n";
@@ -335,20 +335,32 @@ namespace Stardust_Celeste::Rendering {
     auto RenderContext::matrix_perspective(float fovy, float aspect, float zn, float zf) -> void {
 #if BUILD_PC
         _gfx_proj = glm::perspective(fovy, aspect, zn, zf);
+        _gfx_view = glm::mat4(1.0f);
+        _gfx_model = glm::mat4(1.0f);
 #else
         sceGumMatrixMode(GU_PROJECTION);
         sceGumLoadIdentity();
         sceGumPerspective(fovy, aspect, zn, zf);
+        sceGumMatrixMode(GU_VIEW);
+        sceGumLoadIdentity();
+        sceGumMatrixMode(GU_MODEL);
+        sceGumLoadIdentity();
 #endif
     }
 
     auto RenderContext::matrix_ortho(float l, float r, float b, float t, float zn, float zf) -> void {
 #if BUILD_PC
         _gfx_proj = glm::ortho(l, r, b, t, zn, zf);
+        _gfx_view = glm::mat4(1.0f);
+        _gfx_model = glm::mat4(1.0f);
 #else
         sceGumMatrixMode(GU_PROJECTION);
         sceGumLoadIdentity();
         sceGumOrtho(l, r, b, t, zn, zf);
+        sceGumMatrixMode(GU_VIEW);
+        sceGumLoadIdentity();
+        sceGumMatrixMode(GU_MODEL);
+        sceGumLoadIdentity();
 #endif
     }
 
