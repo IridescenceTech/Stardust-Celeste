@@ -9,6 +9,10 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 #include <string>
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
+#include <gtx/string_cast.hpp>
 #elif BUILD_PLAT == BUILD_PSP
 
 #define BUF_WIDTH (512)
@@ -266,4 +270,101 @@ namespace Stardust_Celeste::Rendering {
 		sceGuSwapBuffers();
 #endif
     }
+
+    auto RenderContext::matrix_push() -> void {
+#if BUILD_PC
+        _matrixStack.push_back(_gfx_model);
+        _gfx_model = glm::mat4(1.0f);
+#else
+        sceGumPushMatrix();
+#endif
+    }
+
+    auto RenderContext::matrix_pop() -> void {
+#if BUILD_PC
+        _gfx_model = _matrixStack[_matrixStack.size() - 1];
+        _matrixStack.pop_back();
+#else
+        sceGumPopMatrix();
+#endif
+    }
+
+    auto RenderContext::matrix_clear() -> void {
+#if BUILD_PC
+        _gfx_model = glm::mat4(1.0f);
+#else
+        sceGumMatrixMode(GU_MODEL);
+        sceGumLoadIdentity();
+#endif
+    }
+
+    auto RenderContext::matrix_translate(glm::vec3 v) -> void {
+#if BUILD_PC
+        _gfx_model = glm::translate(_gfx_model, v);
+#else
+        sceGumMatrixMode(GU_MODEL);
+        ScePspFVector3 vv = { v.x, v.y, v.z };
+        sceGumTranslate(&vv);
+#endif
+    }
+
+    auto RenderContext::matrix_rotate(glm::vec3 v) -> void {
+#if BUILD_PC
+        _gfx_model = glm::rotate(_gfx_model, v.x, { 1, 0, 0 });
+        _gfx_model = glm::rotate(_gfx_model, v.y, { 0, 1, 0 });
+        _gfx_model = glm::rotate(_gfx_model, v.z, { 0, 0, 1 });
+#else
+        sceGumMatrixMode(GU_MODEL);
+        sceGumRotateX(v.x / 180.0f * 3.14159f);
+        sceGumRotateY(v.y / 180.0f * 3.14159f);
+        sceGumRotateZ(v.z / 180.0f * 3.14159f);
+#endif
+    }
+
+    auto RenderContext::matrix_scale(glm::vec3 v) -> void {
+#if BUILD_PC
+        _gfx_model = glm::scale(_gfx_model, v);
+#else
+        sceGumMatrixMode(GU_MODEL);
+        ScePspFVector3 vv = { v.x, v.y, v.z };
+        sceGumScale(&vv);
+#endif
+    }
+
+
+    auto RenderContext::matrix_perspective(float fovy, float aspect, float zn, float zf) -> void {
+#if BUILD_PC
+        _gfx_proj = glm::perspective(fovy, aspect, zn, zf);
+#else
+        sceGumMatrixMode(GU_PROJECTION);
+        sceGumLoadIdentity();
+        sceGumPerspective(fovy, aspect, zn, zf);
+#endif
+    }
+
+    auto RenderContext::matrix_ortho(float l, float r, float b, float t, float zn, float zf) -> void {
+#if BUILD_PC
+        _gfx_proj = glm::ortho(l, r, b, t, zn, zf);
+#else
+        sceGumMatrixMode(GU_PROJECTION);
+        sceGumLoadIdentity();
+        sceGumOrtho(l, r, b, t, zn, zf);
+#endif
+    }
+
+    auto RenderContext::set_matrices() -> void {
+#if BUILD_PC
+        glUniformMatrix4fv(glGetUniformLocation(programID, "proj"), 1, GL_FALSE, glm::value_ptr(_gfx_proj));
+        glUniformMatrix4fv(glGetUniformLocation(programID, "view"), 1, GL_FALSE, glm::value_ptr(_gfx_view));
+
+        glm::mat4 newModel = glm::mat4(1.0f);
+        for (int i = 0; i < _matrixStack.size(); i++) {
+            newModel *= _matrixStack[i];
+        }
+        newModel *= _gfx_model;
+
+        glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE, glm::value_ptr(newModel));
+#endif
+    }
+
 }

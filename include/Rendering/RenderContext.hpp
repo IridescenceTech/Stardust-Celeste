@@ -10,6 +10,8 @@
  */
 #pragma once
 
+#include <vector>
+#include <glm.hpp>
 #include "Utilities/Singleton.hpp"
 #include "Utilities/Logger.hpp"
 #include "Utilities/Assertion.hpp"
@@ -17,6 +19,7 @@
 
 #include "RenderTypes.hpp"
 
+#include <Platform.hpp>
 namespace Stardust_Celeste::Rendering
 {
 
@@ -47,9 +50,28 @@ namespace Stardust_Celeste::Rendering
     inline auto initialized() -> bool {
         return is_init;
     }
+    
+    auto set_matrices() -> void;
+
+    auto matrix_push() -> void;
+    auto matrix_pop() -> void;
+
+    auto matrix_clear() -> void;
+
+    auto matrix_translate(glm::vec3 v) -> void;
+    auto matrix_rotate(glm::vec3 v) -> void;
+    auto matrix_scale(glm::vec3 v) -> void;
+
+    auto matrix_perspective(float fovy, float aspect, float zn, float zf) -> void;
+    auto matrix_ortho(float l, float r, float b, float t, float zn, float zf) -> void;
 
     private:
     bool is_init = false;
     Color c;
+
+#if BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX
+    glm::mat4 _gfx_proj, _gfx_view, _gfx_model;
+    std::vector<glm::mat4> _matrixStack;
+#endif
     }; 
 } // namespace Stardust_Celeste::Rendering
