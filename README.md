@@ -12,7 +12,19 @@ Stardust-Celeste is a 2D and 3D Game Engine designed and specialized around bein
 
 ## Work In Progress
 
-This project is currently in early development.
+This project is currently in development.
+
+**If you're seeing this page - it is not ready to be released!**
+
+Current Modules Until Intial V0.6 Release:
+
+- [x] Graphics Base
+- [ ] Graphics 2D
+- [ ] Graphics 3D
+- [ ] Audio Core
+- [ ] Mathematics Library
+- [ ] Scene Manager
+- [ ] Scripting System
 
 ## Projects Using Stardust-Celeste
 
@@ -21,6 +33,8 @@ Looks a little empty right now 🙁
 ## License
 
 Stardust-Celeste is licensed under The Apache License 2.0 and is a completely free and open-source project.
+
+Further information about the dependencies of this project and their licenses can be found in the licenses folder.
 
 ## Links
 

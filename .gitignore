@@ -31,9 +31,10 @@
 *.out
 *.app
 
-cmake-build-debug
-cmake-build-release
 build
+build-linux
+build-example
+build-example-psp
 psp_output
 ppsspp_headless
 ppsspp_headless.*

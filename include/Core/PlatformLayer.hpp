@@ -10,18 +10,21 @@
  */
 #pragma once
 #include <Utilities/Utilities.hpp>
+#include <Rendering/RenderContext.hpp>
 
 namespace Stardust_Celeste::Core {
 
 struct AppConfig {
     bool headless = false;
+    Rendering::RenderContextSettings render_settings;
+    bool networking = false;
 };
 
 class PlatformLayer : Singleton {
 public:
   PlatformLayer() = default;
 
-  auto initialize(const AppConfig &app) -> void;
+  auto initialize(const AppConfig app) -> void;
   auto terminate() -> void;
 
   inline static auto Get() -> PlatformLayer & {

@@ -15,16 +15,16 @@ class Application;
 
 class ApplicationState {
 public:
-  ApplicationState() { onStart(); };
+  ApplicationState() = default;
 
-  ~ApplicationState() { onCleanup(); }
+  ~ApplicationState() = default;
 
   virtual void onUpdate(Application *app, double dt) = 0;
   virtual void onDraw(Application *app, double dt) = 0;
 
   // Note: Cannot use = default because virtual
 
-  void onStart(){};
-  void onCleanup(){};
+  virtual void onStart() = 0;
+  virtual void onCleanup() = 0;
 };
 } // namespace Stardust_Celeste::Core

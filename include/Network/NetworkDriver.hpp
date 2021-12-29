@@ -10,6 +10,7 @@
  */
 #pragma once
 #include <Utilities/Singleton.hpp>
+#include <Platform.hpp>
 
 namespace Stardust_Celeste::Network {
 
@@ -22,6 +23,10 @@ public:
    * @return - successful?
    */
   static auto init() -> bool;
+
+  #if BUILD_PLAT == BUILD_PSP
+  static auto initGUI() -> bool;
+  #endif
 
   /**
    * @brief Cleans up the network code

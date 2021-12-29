@@ -11,6 +11,7 @@
 #pragma once
 #include "../Utilities/Utilities.hpp"
 #include "State.hpp"
+#include "../Rendering/Rendering.hpp"
 #include <vector>
 
 int main(int argc, char** argv);
@@ -29,15 +30,22 @@ public:
 
   void SetState(RefPtr<ApplicationState> state) {
     stateStack.clear();
+    state->onStart();
     stateStack.emplace_back(state);
     stateStack.shrink_to_fit();
   }
 
   void PushState(RefPtr<ApplicationState> state) {
+    state->onStart();
     stateStack.emplace_back(state);
   }
 
-  void PopState() { stateStack.pop_back(); }
+  void PopState() { 
+    stateStack.back()->onCleanup();
+    stateStack.pop_back();  
+  }
+
+  virtual void OnStart() = 0;
 
   void Exit() { running = false; }
 
@@ -50,7 +58,16 @@ private:
 
       if (!stateStack.empty()) {
         stateStack.back()->onUpdate(this, frameTime);
+
+        auto r = Rendering::RenderContext::Get().initialized();
+
+        if(r)
+          Rendering::RenderContext::Get().clear();
+        
         stateStack.back()->onDraw(this, frameTime);
+
+        if(r)
+          Rendering::RenderContext::Get().render();
       }
     }
   }
