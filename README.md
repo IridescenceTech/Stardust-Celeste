@@ -19,6 +19,7 @@ This project is currently in development.
 Current Modules Until Intial V0.6 Release:
 
 - [x] Graphics Base
+- [ ] Input / Game Utils
 - [ ] Graphics 2D
 - [ ] Graphics 3D
 - [ ] Audio Core
