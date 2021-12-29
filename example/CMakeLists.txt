@@ -15,7 +15,7 @@ add_subdirectory(.. Stardust/)
 
 add_executable(Example example.cpp)
 target_include_directories(Example PUBLIC ../include/ ../ext/glm/glm/)
-target_link_libraries(Example Stardust-Celeste SC-Entry)
+target_link_libraries(Example SC-Entry Stardust-Celeste)
 
 if(PSP)
 

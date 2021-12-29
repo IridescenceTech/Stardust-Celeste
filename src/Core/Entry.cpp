@@ -1,11 +1,13 @@
-#include <Core/Application.hpp>
+#include <Core/Core.hpp>
 #include <Utilities/Utilities.hpp>
 
 #if PSP
 #include <pspkernel.h>
 PSP_MODULE_INFO("Stardust-Celeste-App", 0, 1, 0);
-
+auto cleanup_sc() -> void;
 int exit_callback(int arg1, int arg2, void* common){
+    Stardust_Celeste::Core::PlatformLayer::Get().terminate();
+    cleanup_sc();
 	sceKernelExitGame();
 	return 0;
 }

@@ -17,6 +17,7 @@ namespace Stardust_Celeste::Core {
 struct AppConfig {
     bool headless = false;
     Rendering::RenderContextSettings render_settings;
+    bool networking = false;
 };
 
 class PlatformLayer : Singleton {
