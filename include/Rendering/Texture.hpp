@@ -11,7 +11,7 @@
 #include "RenderTypes.hpp"
 #include <Utilities/Singleton.hpp>
 #include <map>
-
+#include <string>
 
 #if (BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX)
 #include <glad/glad.h>
