@@ -27,7 +27,7 @@
 #define BUILD_PC (BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX)
 
 #if BUILD_PC
-#include <glad/glad.h>
+#include <glad/glad.hpp>
 #elif BUILD_PLAT == BUILD_PSP
 #include <pspgu.h>
 #include <pspgum.h>

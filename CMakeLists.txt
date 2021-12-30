@@ -8,6 +8,7 @@ file(GLOB_RECURSE INC_FILES include/*.hpp)
 
 
 if(PSP)
+    list(REMOVE_ITEM SRC_FILES "src/glad.cpp")
     add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES})
     target_link_libraries(Stardust-Celeste PUBLIC pspgum pspgu pspge psputility pspdisplay pspctrl pspnet pspnet_apctl)
 else() 
@@ -16,7 +17,7 @@ else()
     set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build GLFW without docs")
     add_subdirectory(ext/glfw)
 
-    add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES} src/glad.c)
+    add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES})
 
     target_include_directories(Stardust-Celeste PUBLIC ext/glfw/include/)
     target_link_libraries(Stardust-Celeste PUBLIC glfw)

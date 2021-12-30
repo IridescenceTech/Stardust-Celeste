@@ -14,7 +14,7 @@
 #include <string>
 
 #if (BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX)
-#include <glad/glad.h>
+#include <glad/glad.hpp>
 
 #define SC_TEX_FILTER_NEAREST   GL_NEAREST
 #define SC_TEX_FILTER_LINEAR    GL_LINEAR

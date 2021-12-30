@@ -6,7 +6,7 @@
 #if BUILD_PC
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
-#include <glad/glad.h>
+#include <glad/glad.hpp>
 #elif BUILD_PLAT == BUILD_PSP
 #include <pspgu.h>
 #include <pspgum.h>
@@ -27,7 +27,7 @@
 
 #include <string>
 #include <glm.hpp>
-#include <ext/stb_image.h>
+#include <ext/stb_image.hpp>
 
 #if BUILD_PLAT == BUILD_PSP
 inline auto swizzle_fast(u8* out, const u8* in, unsigned int width, unsigned int height) -> void {
