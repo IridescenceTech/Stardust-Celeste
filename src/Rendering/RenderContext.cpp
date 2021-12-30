@@ -9,10 +9,6 @@
 #include <GLFW/glfw3.h>
 #include <glad/glad.hpp>
 #include <string>
-#include <glm.hpp>
-#include <gtc/matrix_transform.hpp>
-#include <gtc/type_ptr.hpp>
-#include <gtx/string_cast.hpp>
 #elif BUILD_PLAT == BUILD_PSP
 
 #define BUF_WIDTH (512)
@@ -35,7 +31,11 @@
 
 #endif
 
+
 #include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
+#include <gtx/string_cast.hpp>
 
 namespace Stardust_Celeste::Rendering {
 #if BUILD_PC
@@ -378,5 +378,16 @@ namespace Stardust_Celeste::Rendering {
         glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE, glm::value_ptr(newModel));
 #endif
     }
+
+    auto RenderContext::matrix_view(glm::mat4 mat) -> void {
+#if BUILD_PC
+        _gfx_view = mat;
+#elif BUILD_PLAT == BUILD_PSP
+        sceGumMatrixMode(GU_VIEW);
+        ScePspFMatrix4 m1 = *((ScePspFMatrix4*)glm::value_ptr(mat));
+        sceGumLoadMatrix(&m1);
+#endif
+    }
+
 
 }

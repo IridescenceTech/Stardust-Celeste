@@ -65,6 +65,8 @@ namespace Stardust_Celeste::Rendering
     auto matrix_perspective(float fovy, float aspect, float zn, float zf) -> void;
     auto matrix_ortho(float l, float r, float b, float t, float zn, float zf) -> void;
 
+    auto matrix_view(glm::mat4 mat) -> void;
+
     private:
     bool is_init = false;
     Color c;
