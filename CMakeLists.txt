@@ -8,7 +8,7 @@ file(GLOB_RECURSE INC_FILES include/*.hpp)
 
 
 if(PSP)
-    list(REMOVE_ITEM SRC_FILES "src/glad.cpp")
+    list(REMOVE_ITEM SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/glad.cpp")
     add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES})
     target_link_libraries(Stardust-Celeste PUBLIC pspgum pspgu pspge psputility pspdisplay pspctrl pspnet pspnet_apctl)
 else() 
