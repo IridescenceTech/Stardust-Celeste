@@ -4,13 +4,12 @@
  * @brief Implements a socket base class
  * @version 0.1
  * @date 2021-12-20
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 #pragma once
 #include <Utilities/Types.hpp>
-
 
 #if BUILD_PLAT == BUILD_WINDOWS
 #ifndef WIN32_LEAN_AND_MEAN
@@ -25,47 +24,48 @@
 
 namespace Stardust_Celeste::Network {
 
-    class Socket {
-    public: 
-        virtual ~Socket();
+class Socket {
+  public:
+    virtual ~Socket();
 
-        auto Send(ScopePtr<PacketOut>) const -> void;
-        auto Recv() const -> RefPtr<PacketIn>;
+    auto send(ScopePtr<PacketOut>) const -> void;
+    auto recv() const -> RefPtr<PacketIn>;
 
-        auto SetBlocking(bool blocking) -> bool;
+    auto set_blocking(bool blocking) -> bool;
 
-        auto Close() const -> void;
-        auto IsAlive() const -> bool;
-    protected:
-        s32 my_socket = 0;
-    };
+    auto close() const -> void;
+    auto is_alive() const -> bool;
 
-    class ClientSocket : public Socket {
-    public:
-        ClientSocket();
-        ~ClientSocket() override = default;
+  protected:
+    s32 my_socket = 0;
+};
 
-        /**
-         * Connects to an IP at a port number.
-        **/
-        auto Connect(unsigned short port, const char* ip) -> bool;
-    };
+class ClientSocket : public Socket {
+  public:
+    ClientSocket();
+    ~ClientSocket() override = default;
 
-    class Connection : public Socket {
-    public:
-        Connection(s32 sock);
-    };
+    /**
+     * Connects to an IP at a port number.
+     **/
+    auto connect(unsigned short port, const char *ip) -> bool;
+};
 
-    class ServerSocket {
-    public:
-        ServerSocket(u16 port_number);
-        ~ServerSocket();
+class Connection : public Socket {
+  public:
+    Connection(s32 sock);
+};
 
-        auto ListenState() const -> RefPtr<Connection>;
-        auto Close() const -> void;
+class ServerSocket {
+  public:
+    ServerSocket(u16 port_number);
+    ~ServerSocket();
 
-    private:
-        s32 my_socket;
-        u16 port;
-    };
-}
+    auto listen() const -> RefPtr<Connection>;
+    auto close() const -> void;
+
+  private:
+    s32 my_socket;
+    u16 port;
+};
+} // namespace Stardust_Celeste::Network

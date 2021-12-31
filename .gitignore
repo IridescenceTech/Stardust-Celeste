@@ -32,6 +32,7 @@
 *.app
 
 build
+build-psp
 build-linux
 build-example
 build-example-psp

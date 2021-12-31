@@ -6,9 +6,9 @@
 #define STARDUST_CELESTE_VERSION_MAJOR 0
 #define STARDUST_CELESTE_VERSION_MINOR 1
 
-#include "Platform.hpp"
-#include "Utilities/Utilities.hpp"
 #include "Core/Core.hpp"
-#include "Network/Network.hpp"
 #include "Events/Event.hpp"
+#include "Network/Network.hpp"
+#include "Platform/Platform.hpp"
 #include "Rendering/Rendering.hpp"
+#include "Utilities/Utilities.hpp"

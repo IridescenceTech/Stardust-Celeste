@@ -9,8 +9,8 @@
  *
  */
 #pragma once
-#include <Utilities/Utilities.hpp>
 #include <Rendering/RenderContext.hpp>
+#include <Utilities/Utilities.hpp>
 
 namespace Stardust_Celeste::Core {
 
@@ -20,18 +20,15 @@ struct AppConfig {
     bool networking = false;
 };
 
-class PlatformLayer : Singleton {
-public:
-  PlatformLayer() = default;
+struct PlatformLayer : Singleton {
+    PlatformLayer() = default;
 
-  auto initialize(const AppConfig app) -> void;
-  auto terminate() -> void;
+    auto initialize(const AppConfig app) -> void;
+    auto terminate() -> void;
 
-  inline static auto Get() -> PlatformLayer & {
-    static PlatformLayer ply;
-    return ply;
-  }
-
-private:
+    inline static auto get() -> PlatformLayer & {
+        static PlatformLayer ply;
+        return ply;
+    }
 };
 } // namespace Stardust_Celeste::Core

@@ -10,7 +10,7 @@ void test_all() {
     SC_TEST_EQUAL(2 + 2, 4);
 }
 
-int main(int, char**) {
+int main(int, char **) {
     test_all();
 
     return 0;

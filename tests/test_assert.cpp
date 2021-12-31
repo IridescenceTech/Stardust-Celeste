@@ -8,7 +8,7 @@ PSP_MODULE_INFO("Test", 0, 1, 0);
 
 void test_all() {
     SC_TEST_ASSERT(true);
-    
+
     using namespace Stardust_Celeste;
     Utilities::Logger::init();
 
@@ -17,7 +17,7 @@ void test_all() {
     Utilities::Logger::cleanup();
 }
 
-int main(int, char**) {
+int main(int, char **) {
     test_all();
 
     return 0;

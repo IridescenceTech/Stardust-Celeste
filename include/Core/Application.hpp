@@ -9,76 +9,77 @@
  *
  */
 #pragma once
-#include "../Utilities/Utilities.hpp"
-#include "State.hpp"
-#include "../Rendering/Rendering.hpp"
 #include <vector>
 
-int main(int argc, char** argv);
+#include "../Rendering/Rendering.hpp"
+#include "../Utilities/Utilities.hpp"
+#include "State.hpp"
+
+int main(int argc, char **argv);
 
 namespace Stardust_Celeste::Core {
 class Application {
-public:
-  Application() : running(true), frameTime(0.0f) {
-    SC_CORE_ASSERT(!s_Instance, "Instance shouldn't exist!");
-    s_Instance = this;
-  }
-
-  ~Application() = default;
-
-  static Application &Get() { return *s_Instance; }
-
-  void SetState(RefPtr<ApplicationState> state) {
-    stateStack.clear();
-    state->onStart();
-    stateStack.emplace_back(state);
-    stateStack.shrink_to_fit();
-  }
-
-  void PushState(RefPtr<ApplicationState> state) {
-    state->onStart();
-    stateStack.emplace_back(state);
-  }
-
-  void PopState() { 
-    stateStack.back()->onCleanup();
-    stateStack.pop_back();  
-  }
-
-  virtual void OnStart() = 0;
-
-  void Exit() { running = false; }
-
-private:
-  void Run() {
-    Utilities::Timer timer;
-
-    while (running) {
-      frameTime = static_cast<float>(timer.getDeltaTime());
-
-      if (!stateStack.empty()) {
-        stateStack.back()->onUpdate(this, frameTime);
-
-        auto r = Rendering::RenderContext::Get().initialized();
-
-        if(r)
-          Rendering::RenderContext::Get().clear();
-        
-        stateStack.back()->onDraw(this, frameTime);
-
-        if(r)
-          Rendering::RenderContext::Get().render();
-      }
+  public:
+    Application() : running(true), frameTime(0.0f) {
+        SC_CORE_ASSERT(!s_Instance, "Instance shouldn't exist!");
+        s_Instance = this;
     }
-  }
 
-  static Application *s_Instance;
+    ~Application() = default;
 
-  bool running;
-  bool frameTime;
+    static Application &get() { return *s_Instance; }
 
-  std::vector<RefPtr<ApplicationState>> stateStack;
+    void set_state(RefPtr<ApplicationState> state) {
+        stateStack.clear();
+        state->on_start();
+        stateStack.emplace_back(state);
+        stateStack.shrink_to_fit();
+    }
 
-  friend int ::main(int argc, char** argv);
+    void push_state(RefPtr<ApplicationState> state) {
+        state->on_start();
+        stateStack.emplace_back(state);
+    }
+
+    void pop_state() {
+        stateStack.back()->on_cleanup();
+        stateStack.pop_back();
+    }
+
+    virtual void on_start() = 0;
+
+    void exit() { running = false; }
+
+  private:
+    void run() {
+        Utilities::Timer timer;
+
+        while (running) {
+            frameTime = static_cast<float>(timer.get_delta_time());
+
+            if (!stateStack.empty()) {
+                stateStack.back()->on_update(this, frameTime);
+
+                auto r = Rendering::RenderContext::get().initialized();
+
+                if (r)
+                    Rendering::RenderContext::get().clear();
+
+                stateStack.back()->on_draw(this, frameTime);
+
+                if (r)
+                    Rendering::RenderContext::get().render();
+            }
+        }
+    }
+
+    static Application *s_Instance;
+
+    bool running;
+    bool frameTime;
+
+    std::vector<RefPtr<ApplicationState>> stateStack;
+
+    friend int ::main(int argc, char **argv);
 };
 } // namespace Stardust_Celeste::Core

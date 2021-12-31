@@ -58,5 +58,7 @@
         "thread": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp"
-    }
+    },
+    "editor.formatOnSave": true,
+    "cmake.configureOnOpen": false
 }

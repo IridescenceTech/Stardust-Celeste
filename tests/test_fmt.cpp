@@ -11,7 +11,7 @@ void test_all() {
     fmt::print("Hello, {}!\n", "world");
 }
 
-int main(int, char**) {
+int main(int, char **) {
     test_all();
 
     return 0;

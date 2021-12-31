@@ -1,36 +1,35 @@
 #pragma once
 #include <Utilities/Types.hpp>
 
-namespace Stardust_Celeste::Rendering
-{
-    union Color {
-        struct RGBA {
-            u8 r;
-            u8 g;
-            u8 b;
-            u8 a;
-        };
-
-        RGBA rgba;
-        u32 color;
+namespace Stardust_Celeste::Rendering {
+union Color {
+    struct RGBA {
+        u8 r;
+        u8 g;
+        u8 b;
+        u8 a;
     };
 
-    struct Texture {
-        u32 width, height;
+    RGBA rgba;
+    u32 color;
+};
 
-        u16* data;
+struct Texture {
+    u32 width, height;
 
-        u32 minFilter, magFilter;
-        bool repeating;
+    u16 *data;
 
-        //Identity for texture management system OR OpenGL
-        u32 id;
+    u32 minFilter, magFilter;
+    bool repeating;
 
-        //Internal power-of-2 width / height
-        u32 pW, pH;
+    // Identity for texture management system OR OpenGL
+    u32 id;
 
-        //Internal properties
-        u32 ramSpace, colorMode, swizzle;
-    };
+    // Internal power-of-2 width / height
+    u32 pW, pH;
 
-}
+    // Internal properties
+    u32 ramSpace, colorMode, swizzle;
+};
+
+} // namespace Stardust_Celeste::Rendering

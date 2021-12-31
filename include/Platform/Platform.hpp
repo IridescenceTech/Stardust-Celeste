@@ -48,15 +48,15 @@
 
 namespace Stardust_Celeste {
 enum class PlatformType {
-  Windows = 0,
-  Posix = 1,
-  Psp = 2,
-  Psvita = 3,
-  Ps2 = 4,
-  Ps3 = 5,
-  Gamecube = 6,
-  N3DS = 7,
-  NSwitch = 8,
+    Windows = 0,
+    Posix = 1,
+    Psp = 2,
+    Psvita = 3,
+    Ps2 = 4,
+    Ps3 = 5,
+    Gamecube = 6,
+    N3DS = 7,
+    NSwitch = 8,
 };
 
 #if BUILD_PLAT == BUILD_WINDOWS
@@ -69,13 +69,12 @@ constexpr auto BUILD_PLATFORM = Stardust_Celeste::PlatformType::Psp;
 #error Invalid Platform!
 #endif
 
+inline auto delay(u32 millis) -> void {
 
-  inline auto delayForMS(u32 millis) -> void {
-
-    #if BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX
-        std::this_thread::sleep_for(std::chrono::milliseconds(millis));
-    #else 
-        sceKernelDelayThread(millis * 1000);
-    #endif
-  }
+#if BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX
+    std::this_thread::sleep_for(std::chrono::milliseconds(millis));
+#else
+    sceKernelDelayThread(millis * 1000);
+#endif
+}
 } // namespace Stardust_Celeste

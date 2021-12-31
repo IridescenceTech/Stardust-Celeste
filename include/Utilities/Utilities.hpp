@@ -1,11 +1,12 @@
 #pragma once
 
+#include "Assertion.hpp"
+#include "Input.hpp"
+#include "Logger.hpp"
 #include "NonCopy.hpp"
 #include "NonMove.hpp"
+#include "Profiler.hpp"
 #include "Singleton.hpp"
 #include "ThreadSafe.hpp"
-#include "Types.hpp"
-#include "Logger.hpp"
-#include "Assertion.hpp"
 #include "Timer.hpp"
-#include "Profiler.hpp"
+#include "Types.hpp"
