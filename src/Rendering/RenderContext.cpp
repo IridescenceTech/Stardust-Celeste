@@ -120,7 +120,7 @@ const std::string frag_source =
     "uniform sampler2D tex;\n" + "in vec2 uv;\n" + "in vec4 color;\n" +
     "void main() {\n" + "    vec4 mc = texture(tex, uv);\n" +
     "    mc *= vec4(1.0f / 255.0f) * color;\n" + "    FragColor = mc;\n" +
-    "    if(FragColor.a == 0.0f)\n" + "        discard;\n" + "}\n";
+    "    if(FragColor.a < 0.1f)\n" + "        discard;\n" + "}\n";
 #endif
 
 auto RenderContext::initialize(const RenderContextSettings app) -> void {
@@ -140,6 +140,13 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
                    "OpenGL Init Failed!");
 
     programID = loadShaders(vert_source, frag_source);
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_CCW);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 #else
 
     // Get static vram buffer starts at offset 0
@@ -166,13 +173,13 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
     sceGuOffset(2048 - (SCR_WIDTH / 2), 2048 - (SCR_HEIGHT / 2));
     sceGuViewport(2048, 2048, SCR_WIDTH, SCR_HEIGHT);
 
-    sceGuDepthRange(50000, 10000);
+    sceGuDepthRange(0, 65535);
 
     sceGuEnable(GU_SCISSOR_TEST);
     sceGuScissor(0, 0, SCR_WIDTH, SCR_HEIGHT);
     sceGuEnable(GU_SCISSOR_TEST);
-    sceGuDepthFunc(GU_GEQUAL);
     sceGuEnable(GU_DEPTH_TEST);
+    sceGuDepthFunc(GU_LEQUAL);
 
     sceGuDisable(GU_TEXTURE_2D);
     sceGuEnable(GU_CLIP_PLANES);
@@ -182,7 +189,9 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
 
     sceGuEnable(GU_BLEND);
     sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-    sceGuAlphaFunc(GU_GREATER, 0.0f, 0xff);
+
+    sceGuEnable(GU_ALPHA_TEST);
+    sceGuAlphaFunc(GU_GREATER, 25, 0xff);
 
     sceGuStencilFunc(GU_ALWAYS, 1, 1); // always set 1 bit in 1 bit mask
     sceGuStencilOp(GU_KEEP, GU_KEEP,
@@ -190,23 +199,7 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
                                 // and replace on pass
 
     sceGuTexFilter(GU_LINEAR, GU_LINEAR);
-
     sceGuShadeModel(GU_SMOOTH);
-
-    sceGuFrontFace(GU_CCW);
-    sceGuEnable(GU_CULL_FACE);
-    sceGuEnable(GU_BLEND);
-    sceGuEnable(GU_TEXTURE_2D);
-
-    sceGuDisable(GU_DEPTH_TEST);
-
-    sceGumMatrixMode(GU_PROJECTION);
-    sceGumLoadIdentity();
-    sceGumOrtho(-1, 1, -1, 1, -1, 1);
-    sceGumMatrixMode(GU_VIEW);
-    sceGumLoadIdentity();
-    sceGumMatrixMode(GU_MODEL);
-    sceGumLoadIdentity();
 
     sceGuFinish();
     sceGuSync(0, 0);
@@ -216,6 +209,15 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
 
     sceCtrlSetSamplingCycle(0);
     sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
+
+    sceGumMatrixMode(GU_PROJECTION);
+    sceGumLoadIdentity();
+    sceGumOrtho(-1, 1, -1, 1, -1, 1);
+    sceGumMatrixMode(GU_VIEW);
+    sceGumLoadIdentity();
+    sceGumMatrixMode(GU_MODEL);
+    sceGumLoadIdentity();
+
 #endif
     c.color = 0xFFFFFFFF;
     is_init = true;

@@ -57,26 +57,25 @@ class Application {
         while (running) {
             frameTime = static_cast<float>(timer.get_delta_time());
 
+            auto rctx = Rendering::RenderContext::get().initialized();
+
+            if (rctx)
+                Rendering::RenderContext::get().clear();
+
             if (!stateStack.empty()) {
                 stateStack.back()->on_update(this, frameTime);
-
-                auto r = Rendering::RenderContext::get().initialized();
-
-                if (r)
-                    Rendering::RenderContext::get().clear();
-
                 stateStack.back()->on_draw(this, frameTime);
-
-                if (r)
-                    Rendering::RenderContext::get().render();
             }
+
+            if (rctx)
+                Rendering::RenderContext::get().render();
         }
     }
 
     static Application *s_Instance;
 
     bool running;
-    bool frameTime;
+    double frameTime;
 
     std::vector<RefPtr<ApplicationState>> stateStack;
 

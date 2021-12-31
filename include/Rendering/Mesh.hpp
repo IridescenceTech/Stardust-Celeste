@@ -64,13 +64,14 @@ class Mesh : public NonCopy {
   public:
     Mesh() = default;
 
-    Mesh(Vertex *vertices, u16 *indices, size_t idx_count) {
-        add_data(vertices, indices, idx_count);
+    Mesh(Vertex *vertices, size_t vcount, u16 *indices, size_t idx_count) {
+        add_data(vertices, vcount, indices, idx_count);
     }
 
     ~Mesh() { delete_data(); }
 
-    auto add_data(Vertex *vertices, u16 *indices, size_t idxc) -> void {
+    auto add_data(Vertex *vertices, size_t vcount, u16 *indices, size_t idxc)
+        -> void {
         vert_data = vertices;
         idx_data = indices;
         idx_count = idxc;
@@ -81,7 +82,7 @@ class Mesh : public NonCopy {
         bind();
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * idxc, vert_data,
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vcount, vert_data,
                      GL_STATIC_DRAW);
 
         const auto stride = sizeof(Vertex);
@@ -107,8 +108,6 @@ class Mesh : public NonCopy {
     }
 
     auto delete_data() -> void {
-        delete vert_data;
-        delete idx_data;
         idx_count = 0;
 
 #if BUILD_PC
