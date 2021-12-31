@@ -1,5 +1,5 @@
 #include <Rendering/Texture.hpp>
-#include <Platform.hpp>
+#include <Platform/Platform.hpp>
 
 #define BUILD_PC (BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX)
 

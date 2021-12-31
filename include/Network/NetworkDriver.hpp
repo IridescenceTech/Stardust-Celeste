@@ -10,7 +10,7 @@
  */
 #pragma once
 #include <Utilities/Singleton.hpp>
-#include <Platform.hpp>
+#include <Platform/Platform.hpp>
 
 namespace Stardust_Celeste::Network {
 

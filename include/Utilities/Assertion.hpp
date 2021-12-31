@@ -9,7 +9,7 @@
  * 
  */
 #pragma once
-#include "../Platform.hpp"
+#include "../Platform/Platform.hpp"
 #include "Logger.hpp"
 
 #if BUILD_PLAT == BUILD_POSIX

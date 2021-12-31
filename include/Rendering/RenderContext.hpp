@@ -19,7 +19,7 @@
 
 #include "RenderTypes.hpp"
 
-#include <Platform.hpp>
+#include <Platform/Platform.hpp>
 namespace Stardust_Celeste::Rendering
 {
 

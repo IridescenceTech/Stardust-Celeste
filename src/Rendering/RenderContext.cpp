@@ -1,5 +1,5 @@
 #include <Rendering/RenderContext.hpp>
-#include <Platform.hpp>
+#include <Platform/Platform.hpp>
 #include <Core/Application.hpp>
 
 #define BUILD_PC (BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX)
