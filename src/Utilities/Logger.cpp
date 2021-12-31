@@ -9,8 +9,8 @@ RefPtr<Logger> Logger::s_Application;
  * @brief Create the static members
  */
 auto Utilities::Logger::init() -> void {
-  s_Core = createRefPtr<Logger>("CORE", "core_log.log");
-  s_Application = createRefPtr<Logger>("APP", "app_log.log");
+    s_Core = create_refptr<Logger>("CORE", "core_log.log");
+    s_Application = create_refptr<Logger>("APP", "app_log.log");
 }
 
 /**
@@ -21,7 +21,7 @@ auto Utilities::Logger::init() -> void {
 Logger::Logger(const char *name, const char *path)
     : m_FileOut(nullptr), m_CutoffLevel(LogLevel::Trace), m_LogName(name) {
 
-  m_FileOut = fopen(path, "w");
+    m_FileOut = fopen(path, "w");
 }
 
 /**
@@ -33,7 +33,7 @@ Logger::~Logger() { fclose(m_FileOut); }
  * @brief Cleans up the static loggers.
  */
 auto Logger::cleanup() -> void {
-  s_Core.reset();
-  s_Application.reset();
+    s_Core.reset();
+    s_Application.reset();
 }
 } // namespace Stardust_Celeste::Utilities

@@ -4,13 +4,13 @@
  * @brief Defines helpful utility types / renames
  * @version 0.1
  * @date 2021-12-11
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 #pragma once
-#include <memory>
 #include <cstdint>
+#include <memory>
 
 /**
  * Unsigned Types
@@ -33,40 +33,39 @@ typedef int64_t s64;
  */
 namespace Stardust_Celeste {
 
-    /**
-     * ScopePtr or Scoped Pointers are pointers which exist during a certain scope of time
-     */
-    template<typename T>
-    using ScopePtr = std::unique_ptr<T>;
+/**
+ * ScopePtr or Scoped Pointers are pointers which exist during a certain scope
+ * of time
+ */
+template <typename T> using ScopePtr = std::unique_ptr<T>;
 
-    /**
-     * RefPtr or Referenced Pointers are pointers which will exist until all references fall out of scope.
-     */
-    template<typename T>
-    using RefPtr = std::shared_ptr<T>;
+/**
+ * RefPtr or Referenced Pointers are pointers which will exist until all
+ * references fall out of scope.
+ */
+template <typename T> using RefPtr = std::shared_ptr<T>;
 
-    template<typename T, typename ... Args>
-    /**
-     * Creates a ScopePtr Object
-     * @tparam T  - Type of the ScopePtr
-     * @tparam Args - The args needed
-     * @param args  - Passes the args for the constructor
-     * @return  - Return new ScopePtr of type T
-     */
-    constexpr ScopePtr<T> createScopePtr(Args&& ... args) {
-        return std::make_unique<T>(std::forward<Args>(args)...);
-    }
-
-
-    template<typename T, typename ... Args>
-    /**
-     * Creates a RefPtr Object
-     * @tparam T - Type of the RefPtr
-     * @tparam Args - The args needed
-     * @param args - Passes the args for the constructor
-     * @return - Return new RefPtr of type T
-     */
-    constexpr RefPtr<T> createRefPtr(Args&& ... args) {
-        return std::make_shared<T>(std::forward<Args>(args)...);
-    }
+template <typename T, typename... Args>
+/**
+ * Creates a ScopePtr Object
+ * @tparam T  - Type of the ScopePtr
+ * @tparam Args - The args needed
+ * @param args  - Passes the args for the constructor
+ * @return  - Return new ScopePtr of type T
+ */
+constexpr ScopePtr<T> create_scopeptr(Args &&...args) {
+    return std::make_unique<T>(std::forward<Args>(args)...);
 }
+
+template <typename T, typename... Args>
+/**
+ * Creates a RefPtr Object
+ * @tparam T - Type of the RefPtr
+ * @tparam Args - The args needed
+ * @param args - Passes the args for the constructor
+ * @return - Return new RefPtr of type T
+ */
+constexpr RefPtr<T> create_refptr(Args &&...args) {
+    return std::make_shared<T>(std::forward<Args>(args)...);
+}
+} // namespace Stardust_Celeste

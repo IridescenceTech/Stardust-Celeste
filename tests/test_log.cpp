@@ -17,7 +17,7 @@ void test_all() {
     Utilities::Logger::cleanup();
 }
 
-int main(int, char**) {
+int main(int, char **) {
     test_all();
 
     return 0;

@@ -19,16 +19,16 @@ void test_all() {
     SC_TEST_ASSERT(true);
     using namespace Stardust_Celeste;
     Utilities::Logger::init();
-    
+
     SC_PROFILE_BEGIN_SESSION("Main", "Test.json");
 
     SC_PROFILE_FUNCTION(function_test, __LINE__, __FILE__)
 
-    SC_PROFILE_END_SESSION();    
+    SC_PROFILE_END_SESSION();
     Utilities::Logger::cleanup();
 }
 
-int main(int, char**) {
+int main(int, char **) {
     test_all();
 
     return 0;

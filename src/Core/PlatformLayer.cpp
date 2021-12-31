@@ -4,25 +4,25 @@
 namespace Stardust_Celeste::Core {
 
 auto PlatformLayer::initialize(const AppConfig app) -> void {
-  // TODO: Add layers as needed
-  if(!app.headless) {
-    Rendering::RenderContext::Get().initialize(app.render_settings);
+    // TODO: Add layers as needed
+    if (!app.headless) {
+        Rendering::RenderContext::get().initialize(app.render_settings);
 
-    #if BUILD_PLAT == BUILD_PSP
-    if(app.networking)
-      Network::NetworkDriver::Get().initGUI();
-    #endif
-  }
+#if BUILD_PLAT == BUILD_PSP
+        if (app.networking)
+            Network::NetworkDriver::get().initGUI();
+#endif
+    }
 
-  auto net = &(Network::NetworkDriver::Get());
-  if(app.networking && !net->isInit()) {
-    net->init();
-  }
+    auto net = &(Network::NetworkDriver::get());
+    if (app.networking && !net->is_init()) {
+        net->init();
+    }
 }
 
 auto PlatformLayer::terminate() -> void {
-  Network::NetworkDriver::Get().cleanup();
-  Rendering::RenderContext::Get().terminate();
+    Network::NetworkDriver::get().cleanup();
+    Rendering::RenderContext::get().terminate();
 }
 
 } // namespace Stardust_Celeste::Core

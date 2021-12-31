@@ -13,7 +13,7 @@ struct MyData {
     char a;
     float f;
 
-    MyData(int _x, int _y, char _a, float _f){
+    MyData(int _x, int _y, char _a, float _f) {
         x = _x;
         y = _y;
         a = _a;
@@ -31,7 +31,7 @@ void test_all() {
     delete ts;
 }
 
-int main(int, char**) {
+int main(int, char **) {
     test_all();
 
     return 0;

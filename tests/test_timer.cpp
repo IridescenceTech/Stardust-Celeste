@@ -13,11 +13,11 @@ void test_all() {
     Utilities::Logger::init();
     Utilities::Timer::init();
 
-    auto appTimer = Utilities::Timer::GetAppTimer();
+    auto appTimer = Utilities::Timer::get_app_timer();
 
     SC_APP_INFO("HELLO FROM APPLICATION!");
 
-    auto dt = appTimer->getDeltaTime();
+    auto dt = appTimer->get_delta_time();
     SC_APP_INFO("TIME TAKEN {}", dt);
     SC_CORE_INFO("HELLO FROM CORE!");
 
@@ -25,7 +25,7 @@ void test_all() {
     Utilities::Logger::cleanup();
 }
 
-int main(int, char**) {
+int main(int, char **) {
     test_all();
 
     return 0;
