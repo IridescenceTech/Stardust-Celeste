@@ -57,8 +57,12 @@
         "streambuf": "cpp",
         "thread": "cpp",
         "cinttypes": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "any": "cpp",
+        "map": "cpp"
     },
     "editor.formatOnSave": true,
-    "cmake.configureOnOpen": false
+    "cmake.configureOnOpen": false,
+    "clang-format.fallbackStyle": "Chromium",
+    "clang-format.language.cpp.style": "{IndentWidth: 4}"
 }

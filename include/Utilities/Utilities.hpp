@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Assertion.hpp"
+#include "Controller.hpp"
 #include "Input.hpp"
 #include "Logger.hpp"
 #include "NonCopy.hpp"

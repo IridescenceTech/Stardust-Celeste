@@ -1,17 +1,24 @@
 #pragma once
-
+#include "Controller.hpp"
 namespace Stardust_Celeste::Utilities::Input {
 
-enum class Action {
-    Forward = 0,
-    Backward = 1,
-    Left = 2,
-    Right = 3,
-    Primary = 4,
-    Alternate = 5,
-};
+/**
+ * @brief Adds a controller to track
+ *
+ * @param controller Controller to track
+ */
+auto add_controller(Controller *controller) -> void;
 
-auto update_input() -> void;
-auto get_action_state(Action) -> bool;
-auto get_cursor_pos(float &x, float &y) -> void;
+/**
+ * @brief Clears all tracked controllers
+ *
+ */
+auto clear_controller() -> void;
+
+/**
+ * @brief Updates all given controllers
+ *
+ */
+auto update() -> void;
+
 } // namespace Stardust_Celeste::Utilities::Input
