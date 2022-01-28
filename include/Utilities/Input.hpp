@@ -1,5 +1,6 @@
 #pragma once
 #include "Controller.hpp"
+#include <string>
 namespace Stardust_Celeste::Utilities::Input {
 
 /**

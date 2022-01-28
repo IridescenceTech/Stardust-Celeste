@@ -1,6 +1,7 @@
 #include <Platform/Platform.hpp>
 #include <Utilities/Input.hpp>
 #include <Utilities/Logger.hpp>
+#include <string>
 #include <vector>
 
 #if PSP
@@ -89,7 +90,7 @@ auto get_axis(std::string device, std::string axis) -> float {
         if (axis == "X") {
             res = (float)currentPadData.Lx / 255.0f;
         } else if (axis == "Y") {
-            res = (float)currentPadData.Ly / 255.0f
+            res = (float)currentPadData.Ly / 255.0f;
         }
 #endif
     }
