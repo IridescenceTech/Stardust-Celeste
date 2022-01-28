@@ -9,6 +9,7 @@
  *
  */
 #pragma once
+#include <any>
 #include <cstdint>
 #include <memory>
 
@@ -68,4 +69,14 @@ template <typename T, typename... Args>
 constexpr RefPtr<T> create_refptr(Args &&...args) {
     return std::make_shared<T>(std::forward<Args>(args)...);
 }
+
+/**
+ * @brief A command (void function) made to be executable
+ *
+ */
+struct Command {
+    void (*func)(std::any);
+    std::any data;
+};
+
 } // namespace Stardust_Celeste

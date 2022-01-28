@@ -207,9 +207,6 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
     sceDisplayWaitVblankStart();
     sceGuDisplay(GU_TRUE);
 
-    sceCtrlSetSamplingCycle(0);
-    sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
-
     sceGumMatrixMode(GU_PROJECTION);
     sceGumLoadIdentity();
     sceGumOrtho(-1, 1, -1, 1, -1, 1);
