@@ -53,11 +53,12 @@ class GameState : public Core::ApplicationState {
                                     {quit, this});
 
         key_controller = new KeyboardController();
-        key_controller->add_command(static_cast<int>(Keys::Escape),
-                                    {quit, this});
+        key_controller->add_command(static_cast<int>(Keys::Q), {quit, this});
 
         add_controller(psp_controller);
         add_controller(key_controller);
+
+        set_differential_mode("Mouse", true);
     }
 
     void on_cleanup() {

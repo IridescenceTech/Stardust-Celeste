@@ -25,7 +25,7 @@ auto PSPController::update() -> void {
     sceCtrlReadBufferPositive(&currentPadData, 1);
 
     for (const auto &[key, value] : command_map)
-        if (!(oldPadData.Buttons & key) && currentPadData.Buttons & key)
+        if (currentPadData.Buttons & key)
             value.func(value.data);
 
 #endif
