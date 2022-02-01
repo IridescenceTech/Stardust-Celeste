@@ -1,4 +1,4 @@
-#include <Utilities/Controllers/KeyboardController.hpp>
+#include <Utilities/Controllers/MouseController.hpp>
 #include <Utilities/Logger.hpp>
 
 #define BUILD_PC (BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX)
@@ -16,7 +16,7 @@ extern GLFWwindow *window;
 
 namespace Stardust_Celeste::Utilities::Input {
 
-auto KeyboardController::update() -> void {
+auto MouseController::update() -> void {
 #if BUILD_PC
     for (const auto &[key, value] : command_map)
         if (glfwGetMouseButton(Rendering::window, key) == GLFW_PRESS)
