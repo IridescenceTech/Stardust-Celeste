@@ -110,6 +110,8 @@ class Mesh : public NonCopy {
     auto delete_data() -> void {
         idx_count = 0;
 
+        vert_data = NULL;
+        idx_data = NULL;
 #if BUILD_PC
         glDeleteVertexArrays(1, &vao);
         glDeleteBuffers(1, &vbo);

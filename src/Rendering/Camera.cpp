@@ -29,7 +29,7 @@ auto Camera::update() -> void {
     matrix = glm::rotate(matrix, rot.y, {0, 1, 0});
     matrix = glm::rotate(matrix, rot.z, {0, 0, 1});
 
-    matrix = glm::translate(matrix, pos);
+    matrix = glm::translate(matrix, -pos);
 
     RenderContext::get().matrix_view(matrix);
 }
