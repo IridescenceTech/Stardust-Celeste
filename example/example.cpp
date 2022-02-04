@@ -49,11 +49,12 @@ class GameState : public Core::ApplicationState {
         Rendering::RenderContext::get().matrix_ortho(-1, 1, -1, 1, -1, 1);
 
         psp_controller = new PSPController();
-        psp_controller->add_command(static_cast<int>(PSPButtons::Start),
+        psp_controller->add_command({ static_cast<int>(PSPButtons::Start), Utilities::KeyFlag::Press },
                                     {quit, this});
 
         key_controller = new KeyboardController();
-        key_controller->add_command(static_cast<int>(Keys::Q), {quit, this});
+        key_controller->add_command({ static_cast<int>(Keys::Q), Utilities::KeyFlag::Press }, 
+                                    {quit, this});
 
         add_controller(psp_controller);
         add_controller(key_controller);

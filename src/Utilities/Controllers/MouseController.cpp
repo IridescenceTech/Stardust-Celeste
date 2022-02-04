@@ -16,12 +16,25 @@ extern GLFWwindow *window;
 
 namespace Stardust_Celeste::Utilities::Input {
 
+    bool keysLast[32];
+    bool keysNow[32];
+
 auto MouseController::update() -> void {
 #if BUILD_PC
-    for (const auto &[key, value] : command_map)
-        if (glfwGetMouseButton(Rendering::window, key) == GLFW_PRESS)
+    for (const auto& [key, value] : command_map) {
+        if (key.flags & KeyFlag::None) return;
+        if (key.key < 0 && key.key >= 1024) return;
+
+        keysLast[key.key] = keysNow[key.key];
+        keysNow[key.key] = glfwGetMouseButton(Rendering::window, key.key);
+
+        if ((key.flags & KeyFlag::Press && !keysLast[key.key] && keysNow[key.key]) ||
+            (key.flags & KeyFlag::Held && keysLast[key.key] && keysNow[key.key]) ||
+            (key.flags & KeyFlag::Release && keysLast[key.key] && !keysNow[key.key]) ||
+            (key.flags & KeyFlag::Untouched && !keysLast[key.key] && !keysNow[key.key]))
             value.func(value.data);
 
+    }
 #endif
 }
 } // namespace Stardust_Celeste::Utilities::Input

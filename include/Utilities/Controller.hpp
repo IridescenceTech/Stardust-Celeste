@@ -1,9 +1,28 @@
 #pragma once
 #include "Types.hpp"
 #include <Platform/Platform.hpp>
-#include <map>
+#include <vector>
 
 namespace Stardust_Celeste::Utilities {
+
+    enum KeyFlag {
+        None        = 0x00,
+        Press       = 0x01,
+        Held        = 0x02,
+        Release     = 0x04,
+        Untouched   = 0x08
+    };
+
+    struct KeyData {
+        int key;
+        int flags;
+    };
+
+    struct KeyCommandPair {
+        KeyData key;
+        Command cmd;
+    };
+
 class Controller {
   public:
     Controller() = default;
@@ -15,16 +34,9 @@ class Controller {
      * @param key "Key" to be bound
      * @param command Command to be executed
      */
-    inline auto add_command(int key, Command command) -> void {
-        command_map.emplace(key, command);
+    inline auto add_command(KeyData key, Command command) -> void {
+        command_map.push_back({ key, command });
     }
-
-    /**
-     * @brief Removes a single command from the controller
-     *
-     * @param key Key to the command to be removed
-     */
-    inline auto remove_command(int key) -> void { command_map.erase(key); }
 
     /**
      * @brief Clears all stored commands
@@ -39,6 +51,6 @@ class Controller {
     virtual void update() = 0;
 
   protected:
-    std::map<int, Command> command_map;
+    std::vector<KeyCommandPair> command_map;
 };
 } // namespace Stardust_Celeste::Utilities
