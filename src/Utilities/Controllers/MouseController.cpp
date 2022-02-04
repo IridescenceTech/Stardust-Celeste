@@ -16,8 +16,8 @@ extern GLFWwindow *window;
 
 namespace Stardust_Celeste::Utilities::Input {
 
-    bool keysLast[32];
-    bool keysNow[32];
+    bool mouseLast[32];
+    bool mouseNow[32];
 
 auto MouseController::update() -> void {
 #if BUILD_PC
@@ -25,13 +25,13 @@ auto MouseController::update() -> void {
         if (key.flags & KeyFlag::None) return;
         if (key.key < 0 && key.key >= 1024) return;
 
-        keysLast[key.key] = keysNow[key.key];
-        keysNow[key.key] = glfwGetMouseButton(Rendering::window, key.key);
+        mouseLast[key.key] = mouseNow[key.key];
+        mouseNow[key.key] = glfwGetMouseButton(Rendering::window, key.key);
 
-        if ((key.flags & KeyFlag::Press && !keysLast[key.key] && keysNow[key.key]) ||
-            (key.flags & KeyFlag::Held && keysLast[key.key] && keysNow[key.key]) ||
-            (key.flags & KeyFlag::Release && keysLast[key.key] && !keysNow[key.key]) ||
-            (key.flags & KeyFlag::Untouched && !keysLast[key.key] && !keysNow[key.key]))
+        if ((key.flags & KeyFlag::Press && !mouseLast[key.key] && mouseNow[key.key]) ||
+            (key.flags & KeyFlag::Held && mouseLast[key.key] && mouseNow[key.key]) ||
+            (key.flags & KeyFlag::Release && mouseLast[key.key] && !mouseNow[key.key]) ||
+            (key.flags & KeyFlag::Untouched && !mouseLast[key.key] && !mouseNow[key.key]))
             value.func(value.data);
 
     }
