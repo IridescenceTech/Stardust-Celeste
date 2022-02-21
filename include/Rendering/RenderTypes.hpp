@@ -1,5 +1,7 @@
 #pragma once
 #include <Utilities/Types.hpp>
+#include <array>
+#include <glm.hpp>
 
 namespace Stardust_Celeste::Rendering {
 union Color {
@@ -12,6 +14,11 @@ union Color {
 
     RGBA rgba;
     u32 color;
+};
+
+struct Rectangle {
+    glm::vec2 position;
+    glm::vec2 extent;
 };
 
 struct Texture {
@@ -30,6 +37,28 @@ struct Texture {
 
     // Internal properties
     u32 ramSpace, colorMode, swizzle;
+
+    
+    /**
+     * @brief Returns texture coordinates for a tile-based spritesheet given a size and index
+     * @param dimensions - The dimensions of the spritesheet
+     * @param idx - The index to search for. Derived from x + y * width
+     * @return Returns the 4 indices in counter-clockwise winding
+     */
+    inline static std::array<float, 8> get_tile_uvs(glm::vec2 dimensions, int idx) {
+        int row = idx / (int)dimensions.x;
+        int column = idx % (int)dimensions.y;
+
+        float sizeX = 1.f / ((float)dimensions.x);
+        float sizeY = 1.f / ((float)dimensions.y);
+        float y = (float)row * sizeY;
+        float x = (float)column * sizeX;
+        float h = y + sizeY;
+        float w = x + sizeX;
+
+        return {x, h, w, h, w, y, x, y};
+    }
+
 };
 
 } // namespace Stardust_Celeste::Rendering
