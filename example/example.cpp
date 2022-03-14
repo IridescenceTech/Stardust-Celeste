@@ -1,3 +1,4 @@
+#include <Graphics/2D/Sprite.hpp>
 #include <Stardust-Celeste.hpp>
 #include <Utilities/Controllers/KeyboardController.hpp>
 #include <Utilities/Controllers/PSPController.hpp>
@@ -9,10 +10,7 @@ class GameState : public Core::ApplicationState {
 
   public:
     void on_update(Core::Application *app, double dt) { update(); }
-    void on_draw(Core::Application *app, double dt) {
-        Rendering::TextureManager::get().bind_texture(texture);
-        mesh->draw();
-    }
+    void on_draw(Core::Application *app, double dt) { sprite->draw(); }
 
     static void quit(std::any data) {
         auto gs = std::any_cast<GameState *>(data);
@@ -22,39 +20,24 @@ class GameState : public Core::ApplicationState {
     }
 
     void on_start() {
-        auto vertex_array = new Rendering::Vertex[4];
-        vertex_array[0] = Rendering::Vertex{0.f, 0.f, {0xff, 0x00, 0x00, 0xff},
-                                            0.f, 0.f, 0.f};
-        vertex_array[1] = Rendering::Vertex{1.f, 0.f, {0x00, 0xff, 0x00, 0xff},
-                                            1.f, 0.f, 0.f};
-        vertex_array[2] = Rendering::Vertex{1.f, 1.f, {0x00, 0x00, 0xff, 0xff},
-                                            1.f, 1.f, 0.f};
-        vertex_array[3] = Rendering::Vertex{0.f, 1.f, {0xff, 0xff, 0xff, 0xff},
-                                            0.f, 1.f, 0.f};
-
-        auto idx_array = new u16[6];
-        idx_array[0] = 0;
-        idx_array[1] = 1;
-        idx_array[2] = 2;
-        idx_array[3] = 2;
-        idx_array[4] = 3;
-        idx_array[5] = 0;
-
-        mesh = create_scopeptr<Rendering::Mesh>(vertex_array, 4, idx_array, 6);
-
         texture = Rendering::TextureManager::get().load_texture(
             "container.jpg", SC_TEX_FILTER_NEAREST, SC_TEX_FILTER_NEAREST,
             true);
 
+        sprite = create_scopeptr<Graphics::G2D::Sprite>(
+            texture, Rendering::Rectangle{{0, 0}, {1, 1}});
+
         Rendering::RenderContext::get().matrix_ortho(-1, 1, -1, 1, -1, 1);
 
         psp_controller = new PSPController();
-        psp_controller->add_command({ static_cast<int>(PSPButtons::Start), Utilities::KeyFlag::Press },
-                                    {quit, this});
+        psp_controller->add_command(
+            {static_cast<int>(PSPButtons::Start), Utilities::KeyFlag::Press},
+            {quit, this});
 
         key_controller = new KeyboardController();
-        key_controller->add_command({ static_cast<int>(Keys::Q), Utilities::KeyFlag::Press }, 
-                                    {quit, this});
+        key_controller->add_command(
+            {static_cast<int>(Keys::Q), Utilities::KeyFlag::Press},
+            {quit, this});
 
         add_controller(psp_controller);
         add_controller(key_controller);
@@ -73,7 +56,7 @@ class GameState : public Core::ApplicationState {
   private:
     int texture = 0;
     const int secret_value = 12;
-    ScopePtr<Rendering::Mesh> mesh;
+    ScopePtr<Graphics::G2D::Sprite> sprite;
     Utilities::Controller *psp_controller;
     Utilities::Controller *key_controller;
 };
