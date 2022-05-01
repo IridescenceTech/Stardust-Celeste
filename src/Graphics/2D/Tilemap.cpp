@@ -34,7 +34,8 @@ auto Tilemap::update(double dt) -> void {
 
 auto Tilemap::draw() -> void {
     Rendering::TextureManager::get().bind_texture(texture);
-    mesh->draw();
+    if (mesh != nullptr)
+        mesh->draw();
 }
 
 auto Tilemap::generate_map() -> void {
@@ -52,10 +53,16 @@ auto Tilemap::generate_map() -> void {
         auto w = t.bounds.extent.x;
         auto h = t.bounds.extent.y;
 
-        vert_data.push_back(Rendering::Vertex{0, 0, t.color, x, y, 0});
-        vert_data.push_back(Rendering::Vertex{1, 0, t.color, x + w, y, 0});
-        vert_data.push_back(Rendering::Vertex{1, 1, t.color, x + w, y + h, 0});
-        vert_data.push_back(Rendering::Vertex{0, 1, t.color, x, y + h, 0});
+        auto uvs = Rendering::Texture::get_tile_uvs(atlasDimensions, t.index);
+
+        vert_data.push_back(
+            Rendering::Vertex{uvs[0], uvs[1], t.color, x, y, 0});
+        vert_data.push_back(
+            Rendering::Vertex{uvs[2], uvs[3], t.color, x + w, y, 0});
+        vert_data.push_back(
+            Rendering::Vertex{uvs[4], uvs[5], t.color, x + w, y + h, 0});
+        vert_data.push_back(
+            Rendering::Vertex{uvs[6], uvs[7], t.color, x, y + h, 0});
 
         idx_data.insert(idx_data.end(),
                         {(u16)(idxc + 0), (u16)(idxc + 1), (u16)(idxc + 2),

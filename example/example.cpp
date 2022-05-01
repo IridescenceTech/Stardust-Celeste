@@ -1,4 +1,4 @@
-#include <Graphics/2D/Sprite.hpp>
+#include <Graphics/2D/Tilemap.hpp>
 #include <Stardust-Celeste.hpp>
 #include <Utilities/Controllers/KeyboardController.hpp>
 #include <Utilities/Controllers/PSPController.hpp>
@@ -10,7 +10,7 @@ class GameState : public Core::ApplicationState {
 
   public:
     void on_update(Core::Application *app, double dt) { update(); }
-    void on_draw(Core::Application *app, double dt) { sprite->draw(); }
+    void on_draw(Core::Application *app, double dt) { tilemap->draw(); }
 
     static void quit(std::any data) {
         auto gs = std::any_cast<GameState *>(data);
@@ -24,8 +24,15 @@ class GameState : public Core::ApplicationState {
             "container.jpg", SC_TEX_FILTER_NEAREST, SC_TEX_FILTER_NEAREST,
             true);
 
-        sprite = create_scopeptr<Graphics::G2D::Sprite>(
-            texture, Rendering::Rectangle{{0, 0}, {1, 1}});
+        tilemap =
+            create_scopeptr<Graphics::G2D::Tilemap>(texture, glm::vec2(4, 4));
+
+        tilemap->add_tile(Graphics::G2D::Tile{
+            {glm::vec2(0, 0), glm::vec2(0.5, 0.5)}, {255, 255, 255, 255}, 7});
+        tilemap->add_tile(Graphics::G2D::Tile{
+            {glm::vec2(0.5, 0), glm::vec2(0.5, 0.5)}, {255, 255, 255, 255}, 3});
+        tilemap->add_tile(Graphics::G2D::Tile{
+            {glm::vec2(0, 0.5), glm::vec2(0.5, 0.5)}, {255, 255, 255, 255}, 1});
 
         Rendering::RenderContext::get().matrix_ortho(-1, 1, -1, 1, -1, 1);
 
@@ -56,7 +63,7 @@ class GameState : public Core::ApplicationState {
   private:
     int texture = 0;
     const int secret_value = 12;
-    ScopePtr<Graphics::G2D::Sprite> sprite;
+    ScopePtr<Graphics::G2D::Tilemap> tilemap;
     Utilities::Controller *psp_controller;
     Utilities::Controller *key_controller;
 };
