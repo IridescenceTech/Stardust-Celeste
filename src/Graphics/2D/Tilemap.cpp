@@ -14,19 +14,13 @@ Tilemap::~Tilemap() {
     tileMap.clear();
 }
 
-auto Tilemap::add_tile(Tile tile) -> void {
-    tileMap.push_back(tile);
-    generate_map();
-}
+auto Tilemap::add_tile(Tile tile) -> void { tileMap.push_back(tile); }
+
 auto Tilemap::add_tiles(std::vector<Tile> tiles) -> void {
     tileMap.insert(tileMap.end(), tiles.begin(), tiles.end());
-    generate_map();
 }
 
-auto Tilemap::clear_tiles() -> void {
-    tileMap.clear();
-    generate_map();
-}
+auto Tilemap::clear_tiles() -> void { tileMap.clear(); }
 
 auto Tilemap::update(double dt) -> void {
     // Base class: Do nothing

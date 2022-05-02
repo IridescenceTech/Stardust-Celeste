@@ -1,4 +1,4 @@
-#include <Graphics/2D/Tilemap.hpp>
+#include <Graphics/2D/FontRenderer.hpp>
 #include <Stardust-Celeste.hpp>
 #include <Utilities/Controllers/KeyboardController.hpp>
 #include <Utilities/Controllers/PSPController.hpp>
@@ -10,7 +10,7 @@ class GameState : public Core::ApplicationState {
 
   public:
     void on_update(Core::Application *app, double dt) { update(); }
-    void on_draw(Core::Application *app, double dt) { tilemap->draw(); }
+    void on_draw(Core::Application *app, double dt) { fontrenderer->draw(); }
 
     static void quit(std::any data) {
         auto gs = std::any_cast<GameState *>(data);
@@ -21,20 +21,15 @@ class GameState : public Core::ApplicationState {
 
     void on_start() {
         texture = Rendering::TextureManager::get().load_texture(
-            "container.jpg", SC_TEX_FILTER_NEAREST, SC_TEX_FILTER_NEAREST,
-            true);
+            "default.png", SC_TEX_FILTER_NEAREST, SC_TEX_FILTER_NEAREST, true);
 
-        tilemap =
-            create_scopeptr<Graphics::G2D::Tilemap>(texture, glm::vec2(4, 4));
+        fontrenderer = create_scopeptr<Graphics::G2D::FontRenderer>(
+            texture, glm::vec2(16, 16));
 
-        tilemap->add_tile(Graphics::G2D::Tile{
-            {glm::vec2(0, 0), glm::vec2(0.5, 0.5)}, {255, 255, 255, 255}, 7});
-        tilemap->add_tile(Graphics::G2D::Tile{
-            {glm::vec2(0.5, 0), glm::vec2(0.5, 0.5)}, {255, 255, 255, 255}, 3});
-        tilemap->add_tile(Graphics::G2D::Tile{
-            {glm::vec2(0, 0.5), glm::vec2(0.5, 0.5)}, {255, 255, 255, 255}, 1});
+        fontrenderer->add_text("HELLO!", {0, 0});
 
-        Rendering::RenderContext::get().matrix_ortho(-1, 1, -1, 1, -1, 1);
+        Rendering::RenderContext::get().set_color({0, 0, 0, 255});
+        Rendering::RenderContext::get().matrix_ortho(0, 480, 0, 272, -30, 30);
 
         psp_controller = new PSPController();
         psp_controller->add_command(
@@ -63,7 +58,7 @@ class GameState : public Core::ApplicationState {
   private:
     int texture = 0;
     const int secret_value = 12;
-    ScopePtr<Graphics::G2D::Tilemap> tilemap;
+    ScopePtr<Graphics::G2D::FontRenderer> fontrenderer;
     Utilities::Controller *psp_controller;
     Utilities::Controller *key_controller;
 };
@@ -82,6 +77,8 @@ class GameApplication : public Core::Application {
 Core::Application *CreateNewSCApp() {
     Core::AppConfig config;
     config.headless = false;
+    config.render_settings.width = 960;
+    config.render_settings.height = 544;
 
     Core::PlatformLayer::get().initialize(config);
 

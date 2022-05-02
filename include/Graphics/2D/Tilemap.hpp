@@ -17,6 +17,7 @@ class Tilemap {
     ~Tilemap();
 
     auto add_tile(Tile tile) -> void;
+    auto generate_map() -> void;
     auto add_tiles(std::vector<Tile> tiles) -> void;
     auto clear_tiles() -> void;
 
@@ -24,11 +25,7 @@ class Tilemap {
     auto draw() -> void;
 
   protected:
-    auto generate_map() -> void;
-
-  private:
     u32 texture;
-
     std::vector<Tile> tileMap;
     ScopePtr<Rendering::Mesh> mesh;
     std::vector<Rendering::Vertex> vert_data;
