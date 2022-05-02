@@ -73,6 +73,7 @@ jobs:
       
       - name: Build
         run: |
+          git config --global --add safe.directory /__w/Stardust-Celeste/Stardust-Celeste
           git submodule update --init --recursive --remote
           mkdir -p build
           cd build
