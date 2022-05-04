@@ -6,6 +6,15 @@ namespace Stardust_Celeste::Graphics::G2D {
 Sprite::Sprite(u32 tex, Rendering::Rectangle bnd) {
     texture = tex;
     bounds = bnd;
+    selection = Rendering::Rectangle{{0, 0}, {1, 1}};
+
+    update_mesh();
+}
+
+Sprite::Sprite(u32 tex, Rendering::Rectangle bnd, Rendering::Rectangle sel) {
+    texture = tex;
+    bounds = bnd;
+    selection = sel;
 
     update_mesh();
 }
@@ -45,20 +54,21 @@ auto Sprite::update_mesh() -> void {
 
     Rendering::Color white = {0xff, 0xff, 0xff, 0xff};
 
-    verts[0] = Rendering::Vertex{
-        0.f, 0.f, white, bounds.position.x, bounds.position.y, 0.f};
+    verts[0] =
+        Rendering::Vertex{selection.position.x, selection.position.y, white,
+                          bounds.position.x,    bounds.position.y,    0.f};
     verts[1] = Rendering::Vertex{
-        1.f, 0.f, white, bounds.position.x + bounds.extent.x, bounds.position.y,
-        0.f};
-    verts[2] = Rendering::Vertex{1.f,
-                                 1.f,
+        selection.position.x + selection.extent.x, selection.position.y, white,
+        bounds.position.x + bounds.extent.x,       bounds.position.y,    0.f};
+    verts[2] = Rendering::Vertex{selection.position.x + selection.extent.x,
+                                 selection.position.y + selection.extent.y,
                                  white,
                                  bounds.position.x + bounds.extent.x,
                                  bounds.position.y + bounds.extent.y,
                                  0.f};
     verts[3] = Rendering::Vertex{
-        0.f, 1.f, white, bounds.position.x, bounds.position.y + bounds.extent.y,
-        0.f};
+        selection.position.x, selection.position.y + selection.extent.y, white,
+        bounds.position.x,    bounds.position.y + bounds.extent.y,       0.f};
 
     if (idxs == nullptr) {
         idxs = new u16[6];

@@ -7,6 +7,8 @@ namespace Stardust_Celeste::Graphics::G2D {
 class Sprite {
   public:
     Sprite(u32 texture, Rendering::Rectangle bounds);
+    Sprite(u32 texture, Rendering::Rectangle bounds,
+           Rendering::Rectangle selection);
     ~Sprite();
 
     auto update(double dt) -> void;
@@ -20,6 +22,7 @@ class Sprite {
     auto update_mesh() -> void;
 
   private:
+    Rendering::Rectangle selection;
     Rendering::Rectangle bounds;
     u32 texture;
     ScopePtr<Rendering::Mesh> mesh;
