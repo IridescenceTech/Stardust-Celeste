@@ -64,13 +64,15 @@ class RenderContext : public Singleton {
 
     auto matrix_view(glm::mat4 mat) -> void;
 
+    auto set_mode_2D() -> void;
+    auto set_mode_3D() -> void;
+
   private:
     bool is_init = false;
     Color c;
 
-#if BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX
-    glm::mat4 _gfx_proj, _gfx_view, _gfx_model;
+    glm::mat4 *_gfx_proj;
+    glm::mat4 _gfx_persp, _gfx_ortho, _gfx_view, _gfx_model;
     std::vector<glm::mat4> _matrixStack;
-#endif
 };
 } // namespace Stardust_Celeste::Rendering

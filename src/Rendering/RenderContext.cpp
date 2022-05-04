@@ -218,6 +218,7 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
 #endif
     c.color = 0xFFFFFFFF;
     is_init = true;
+    _gfx_proj = &_gfx_ortho;
 }
 
 auto RenderContext::terminate() -> void {
@@ -321,14 +322,15 @@ auto RenderContext::matrix_scale(glm::vec3 v) -> void {
 
 auto RenderContext::matrix_perspective(float fovy, float aspect, float zn,
                                        float zf) -> void {
+    _gfx_persp = glm::perspective(fovy, aspect, zn, zf);
 #if BUILD_PC
-    _gfx_proj = glm::perspective(fovy, aspect, zn, zf);
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
 #else
     sceGumMatrixMode(GU_PROJECTION);
-    sceGumLoadIdentity();
-    sceGumPerspective(fovy, aspect, zn, zf);
+    ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(*_gfx_proj));
+    sceGumLoadMatrix(&m1);
+
     sceGumMatrixMode(GU_VIEW);
     sceGumLoadIdentity();
     sceGumMatrixMode(GU_MODEL);
@@ -338,14 +340,15 @@ auto RenderContext::matrix_perspective(float fovy, float aspect, float zn,
 
 auto RenderContext::matrix_ortho(float l, float r, float b, float t, float zn,
                                  float zf) -> void {
+    _gfx_ortho = glm::ortho(l, r, b, t, zn, zf);
 #if BUILD_PC
-    _gfx_proj = glm::ortho(l, r, b, t, zn, zf);
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
 #else
     sceGumMatrixMode(GU_PROJECTION);
-    sceGumLoadIdentity();
-    sceGumOrtho(l, r, b, t, zn, zf);
+    ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(*_gfx_proj));
+    sceGumLoadMatrix(&m1);
+
     sceGumMatrixMode(GU_VIEW);
     sceGumLoadIdentity();
     sceGumMatrixMode(GU_MODEL);
@@ -356,7 +359,7 @@ auto RenderContext::matrix_ortho(float l, float r, float b, float t, float zn,
 auto RenderContext::set_matrices() -> void {
 #if BUILD_PC
     glUniformMatrix4fv(glGetUniformLocation(programID, "proj"), 1, GL_FALSE,
-                       glm::value_ptr(_gfx_proj));
+                       glm::value_ptr(*_gfx_proj));
     glUniformMatrix4fv(glGetUniformLocation(programID, "view"), 1, GL_FALSE,
                        glm::value_ptr(_gfx_view));
 
@@ -378,6 +381,37 @@ auto RenderContext::matrix_view(glm::mat4 mat) -> void {
     sceGumMatrixMode(GU_VIEW);
     ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(mat));
     sceGumLoadMatrix(&m1);
+#endif
+}
+
+auto RenderContext::set_mode_2D() -> void {
+    _gfx_proj = &_gfx_ortho;
+#if BUILD_PC
+    _gfx_view = glm::mat4(1.0f);
+    _gfx_model = glm::mat4(1.0f);
+#else
+    sceGumMatrixMode(GU_PROJECTION);
+    ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(*_gfx_proj));
+    sceGumLoadMatrix(&m1);
+    sceGumMatrixMode(GU_VIEW);
+    sceGumLoadIdentity();
+    sceGumMatrixMode(GU_MODEL);
+    sceGumLoadIdentity();
+#endif
+}
+auto RenderContext::set_mode_3D() -> void {
+    _gfx_proj = &_gfx_persp;
+#if BUILD_PC
+    _gfx_view = glm::mat4(1.0f);
+    _gfx_model = glm::mat4(1.0f);
+#else
+    sceGumMatrixMode(GU_PROJECTION);
+    ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(*_gfx_proj));
+    sceGumLoadMatrix(&m1);
+    sceGumMatrixMode(GU_VIEW);
+    sceGumLoadIdentity();
+    sceGumMatrixMode(GU_MODEL);
+    sceGumLoadIdentity();
 #endif
 }
 
