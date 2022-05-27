@@ -8,6 +8,9 @@ Sprite::Sprite(u32 tex, Rendering::Rectangle bnd) {
     bounds = bnd;
     selection = Rendering::Rectangle{{0, 0}, {1, 1}};
 
+    verts = nullptr;
+    idxs = nullptr;
+
     update_mesh();
 }
 
@@ -15,6 +18,9 @@ Sprite::Sprite(u32 tex, Rendering::Rectangle bnd, Rendering::Rectangle sel) {
     texture = tex;
     bounds = bnd;
     selection = sel;
+
+    verts = nullptr;
+    idxs = nullptr;
 
     update_mesh();
 }

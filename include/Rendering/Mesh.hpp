@@ -98,7 +98,7 @@ class Mesh : public NonCopy {
 
         glGenBuffers(1, &ebo);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * idxc, idx_data,
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * idx_count, idx_data,
                      GL_STATIC_DRAW);
 
         glBindVertexArray(0);
