@@ -31,6 +31,7 @@ auto Camera::update() -> void {
 
     matrix = glm::translate(matrix, -pos);
 
+    RenderContext::get().matrix_perspective(fov, aspect, zNear, zFar);
     RenderContext::get().matrix_view(matrix);
 }
 } // namespace Stardust_Celeste::Rendering
