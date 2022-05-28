@@ -27,8 +27,8 @@ Sprite::Sprite(u32 tex, Rendering::Rectangle bnd, Rendering::Rectangle sel) {
 }
 
 Sprite::~Sprite() {
-    delete verts;
-    delete idxs;
+    delete[] verts;
+    delete[] idxs;
 }
 
 auto Sprite::update(double dt) -> void {

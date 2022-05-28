@@ -187,4 +187,8 @@ auto TextureManager::delete_texture(u32 id) -> void {
     }
 }
 
+TextureManager::~TextureManager() {
+    for (auto &[key, val] : fullMap)
+        delete_texture(key);
+}
 } // namespace Stardust_Celeste::Rendering

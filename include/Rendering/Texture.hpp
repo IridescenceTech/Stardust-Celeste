@@ -31,6 +31,7 @@ namespace Stardust_Celeste::Rendering {
 class TextureManager : public Singleton {
   public:
     TextureManager() = default;
+    ~TextureManager();
 
     auto load_texture(std::string filename, u32 magFilter, u32 minFilter,
                       bool repeat, bool flip = false) -> u32;

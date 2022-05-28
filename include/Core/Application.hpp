@@ -25,7 +25,7 @@ class Application {
         s_Instance = this;
     }
 
-    ~Application() = default;
+    virtual ~Application() = default;
 
     static Application &get() { return *s_Instance; }
 
