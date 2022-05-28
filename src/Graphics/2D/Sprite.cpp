@@ -11,6 +11,7 @@ Sprite::Sprite(u32 tex, Rendering::Rectangle bnd) {
     verts = nullptr;
     idxs = nullptr;
 
+    layer = 0;
     update_mesh();
 }
 
@@ -54,27 +55,38 @@ auto Sprite::set_rect(Rendering::Rectangle bnd) -> void {
     update_mesh();
 }
 
+auto Sprite::set_layer(s16 layer) -> void {
+    this->layer = layer;
+    update_mesh();
+}
+
 auto Sprite::update_mesh() -> void {
     if (verts == nullptr)
         verts = new Rendering::Vertex[4];
 
     Rendering::Color white = {0xff, 0xff, 0xff, 0xff};
 
-    verts[0] =
-        Rendering::Vertex{selection.position.x, selection.position.y, white,
-                          bounds.position.x,    bounds.position.y,    0.f};
-    verts[1] = Rendering::Vertex{
-        selection.position.x + selection.extent.x, selection.position.y, white,
-        bounds.position.x + bounds.extent.x,       bounds.position.y,    0.f};
+    verts[0] = Rendering::Vertex{
+        selection.position.x, selection.position.y, white,
+        bounds.position.x,    bounds.position.y,    (float)layer};
+    verts[1] = Rendering::Vertex{selection.position.x + selection.extent.x,
+                                 selection.position.y,
+                                 white,
+                                 bounds.position.x + bounds.extent.x,
+                                 bounds.position.y,
+                                 (float)layer};
     verts[2] = Rendering::Vertex{selection.position.x + selection.extent.x,
                                  selection.position.y + selection.extent.y,
                                  white,
                                  bounds.position.x + bounds.extent.x,
                                  bounds.position.y + bounds.extent.y,
-                                 0.f};
-    verts[3] = Rendering::Vertex{
-        selection.position.x, selection.position.y + selection.extent.y, white,
-        bounds.position.x,    bounds.position.y + bounds.extent.y,       0.f};
+                                 (float)layer};
+    verts[3] = Rendering::Vertex{selection.position.x,
+                                 selection.position.y + selection.extent.y,
+                                 white,
+                                 bounds.position.x,
+                                 bounds.position.y + bounds.extent.y,
+                                 (float)layer};
 
     if (idxs == nullptr) {
         idxs = new u16[6];

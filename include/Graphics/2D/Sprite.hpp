@@ -17,6 +17,7 @@ class Sprite {
     auto set_position(glm::vec2 position) -> void;
     auto set_size(glm::vec2 position) -> void;
     auto set_rect(Rendering::Rectangle bounds) -> void;
+    auto set_layer(s16 layer) -> void;
 
   protected:
     auto update_mesh() -> void;
@@ -25,6 +26,7 @@ class Sprite {
     Rendering::Rectangle selection;
     Rendering::Rectangle bounds;
     u32 texture;
+    s16 layer;
     ScopePtr<Rendering::Mesh> mesh;
     Rendering::Vertex *verts;
     u16 *idxs;
