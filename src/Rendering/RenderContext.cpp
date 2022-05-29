@@ -299,9 +299,9 @@ auto RenderContext::matrix_translate(glm::vec3 v) -> void {
 
 auto RenderContext::matrix_rotate(glm::vec3 v) -> void {
 #if BUILD_PC
-    _gfx_model = glm::rotate(_gfx_model, v.x, {1, 0, 0});
-    _gfx_model = glm::rotate(_gfx_model, v.y, {0, 1, 0});
-    _gfx_model = glm::rotate(_gfx_model, v.z, {0, 0, 1});
+    _gfx_model = glm::rotate(_gfx_model, v.x / 180.0f * 3.14159f, {1, 0, 0});
+    _gfx_model = glm::rotate(_gfx_model, v.y / 180.0f * 3.14159f, {0, 1, 0});
+    _gfx_model = glm::rotate(_gfx_model, v.z / 180.0f * 3.14159f, {0, 0, 1});
 #else
     sceGumMatrixMode(GU_MODEL);
     sceGumRotateX(v.x / 180.0f * 3.14159f);
