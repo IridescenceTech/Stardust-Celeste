@@ -28,6 +28,7 @@
 #include <ext/stb_image.hpp>
 #include <glm.hpp>
 #include <string>
+#include <vector>
 
 #if BUILD_PLAT == BUILD_PSP
 inline auto swizzle_fast(u8 *out, const u8 *in, unsigned int width,
@@ -188,7 +189,12 @@ auto TextureManager::delete_texture(u32 id) -> void {
 }
 
 TextureManager::~TextureManager() {
-    for (auto &[key, val] : fullMap)
-        delete_texture(key);
+    std::vector<u32> ids;
+    for (auto& [key, val] : fullMap)
+        ids.push_back(key);
+
+    for (auto id : ids)
+        delete_texture(id);
 }
+
 } // namespace Stardust_Celeste::Rendering
