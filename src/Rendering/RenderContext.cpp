@@ -182,7 +182,7 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
     sceGuDepthFunc(GU_LEQUAL);
 
     sceGuDisable(GU_TEXTURE_2D);
-    sceGuEnable(GU_CLIP_PLANES);
+    sceGuDisable(GU_CLIP_PLANES);
 
     sceGuEnable(GU_CULL_FACE);
     sceGuFrontFace(GU_CCW);
