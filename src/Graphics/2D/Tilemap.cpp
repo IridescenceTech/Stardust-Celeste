@@ -41,7 +41,7 @@ auto Tilemap::generate_map() -> void {
 
     auto idxc = 0;
 
-    for (auto t : tileMap) {
+    for (auto& t : tileMap) {
         auto x = t.bounds.position.x;
         auto y = t.bounds.position.y;
         auto w = t.bounds.extent.x;

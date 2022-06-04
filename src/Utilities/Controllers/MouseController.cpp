@@ -23,16 +23,17 @@ auto MouseController::update() -> void {
 #if BUILD_PC
     for (const auto& [key, value] : command_map) {
         if (key.flags & KeyFlag::None) return;
-        if (key.key < 0 && key.key >= 1024) return;
+        if (key.key >= 0 && key.key < 32) {
 
-        mouseLast[key.key] = mouseNow[key.key];
-        mouseNow[key.key] = glfwGetMouseButton(Rendering::window, key.key);
+            mouseLast[key.key] = mouseNow[key.key];
+            mouseNow[key.key] = glfwGetMouseButton(Rendering::window, key.key);
 
-        if ((key.flags & KeyFlag::Press && !mouseLast[key.key] && mouseNow[key.key]) ||
-            (key.flags & KeyFlag::Held && mouseLast[key.key] && mouseNow[key.key]) ||
-            (key.flags & KeyFlag::Release && mouseLast[key.key] && !mouseNow[key.key]) ||
-            (key.flags & KeyFlag::Untouched && !mouseLast[key.key] && !mouseNow[key.key]))
-            value.func(value.data);
+            if ((key.flags & KeyFlag::Press && !mouseLast[key.key] && mouseNow[key.key]) ||
+                (key.flags & KeyFlag::Held && mouseLast[key.key] && mouseNow[key.key]) ||
+                (key.flags & KeyFlag::Release && mouseLast[key.key] && !mouseNow[key.key]) ||
+                (key.flags & KeyFlag::Untouched && !mouseLast[key.key] && !mouseNow[key.key]))
+                value.func(value.data);
+        }
 
     }
 #endif

@@ -30,7 +30,7 @@ struct RenderContextSettings {
 
 class RenderContext : public Singleton {
   public:
-    RenderContext() = default;
+      RenderContext() : _gfx_model(1), _gfx_ortho(1), _gfx_persp(1), _gfx_proj(&_gfx_ortho), _gfx_view(1), c{ 0xFF, 0xFF, 0xFF, 0xFF } {};
 
     auto initialize(const RenderContextSettings app) -> void;
     auto terminate() -> void;

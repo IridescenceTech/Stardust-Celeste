@@ -62,7 +62,7 @@ struct PACKED Vertex {
  */
 class Mesh : public NonCopy {
   public:
-    Mesh() = default;
+    Mesh() : ebo(0), vao(0), vbo(0) {};
 
     Mesh(Vertex *vertices, size_t vcount, u16 *indices, size_t idx_count) {
         add_data(vertices, vcount, indices, idx_count);

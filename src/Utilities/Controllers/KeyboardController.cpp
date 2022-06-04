@@ -24,16 +24,17 @@ auto KeyboardController::update() -> void {
         Command value = pair.cmd;
 
         if (key.flags & KeyFlag::None) return;
-        if (key.key < 0 && key.key >= 1024) return;
+        if (key.key >= 0 && key.key < 1024) {
 
-        keysLast[key.key] = keysNow[key.key];
-        keysNow[key.key] = glfwGetKey(Rendering::window, key.key);
+            keysLast[key.key] = keysNow[key.key];
+            keysNow[key.key] = glfwGetKey(Rendering::window, key.key);
 
-        if((key.flags & KeyFlag::Press      && !keysLast[key.key]   &&  keysNow[key.key]) ||
-           (key.flags & KeyFlag::Held       && keysLast[key.key]    &&  keysNow[key.key]) ||
-           (key.flags & KeyFlag::Release    && keysLast[key.key]    && !keysNow[key.key]) ||
-           (key.flags & KeyFlag::Untouched  && !keysLast[key.key]   && !keysNow[key.key]))
-            value.func(value.data);
+            if ((key.flags & KeyFlag::Press && !keysLast[key.key] && keysNow[key.key]) ||
+                (key.flags & KeyFlag::Held && keysLast[key.key] && keysNow[key.key]) ||
+                (key.flags & KeyFlag::Release && keysLast[key.key] && !keysNow[key.key]) ||
+                (key.flags & KeyFlag::Untouched && !keysLast[key.key] && !keysNow[key.key]))
+                value.func(value.data);
+        }
     }
 
 #endif
