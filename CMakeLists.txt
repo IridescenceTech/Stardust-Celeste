@@ -23,7 +23,10 @@ else()
     target_link_libraries(Stardust-Celeste PUBLIC glfw)
 endif()
 
+if(!MSVC)
 target_compile_options(Stardust-Celeste PUBLIC -fno-rtti)
+endif()
+
 target_include_directories(Stardust-Celeste PUBLIC include/ ./ ext/glm/glm/)
 
 add_library(SC-Entry STATIC src/Core/Entry.cpp)
