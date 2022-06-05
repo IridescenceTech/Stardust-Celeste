@@ -61,8 +61,18 @@ struct PACKED Vertex {
  * @brief Mesh takes ownership of vertices and indices
  */
 class Mesh : public NonCopy {
+private:
+
+#if BUILD_PC
+    GLuint vbo, vao, ebo;
+#endif
+
   public:
-    Mesh() : ebo(0), vao(0), vbo(0) {};
+    Mesh()
+#if BUILD_PC
+        : ebo(0), vao(0), vbo(0)
+#endif
+    {};
 
     Mesh(Vertex *vertices, size_t vcount, u16 *indices, size_t idx_count) {
         add_data(vertices, vcount, indices, idx_count);
@@ -148,10 +158,6 @@ class Mesh : public NonCopy {
     size_t idx_count = 0;
     Vertex *vert_data = nullptr;
     u16 *idx_data = nullptr;
-
-#if BUILD_PC
-    GLuint vbo, vao, ebo;
-#endif
 };
 
 } // namespace Stardust_Celeste::Rendering

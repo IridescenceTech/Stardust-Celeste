@@ -29,6 +29,15 @@ struct RenderContextSettings {
 };
 
 class RenderContext : public Singleton {
+
+private:
+    bool is_init = false;
+    Color c;
+
+    glm::mat4* _gfx_proj;
+    glm::mat4 _gfx_persp, _gfx_ortho, _gfx_view, _gfx_model;
+    std::vector<glm::mat4> _matrixStack;
+
   public:
       RenderContext() : _gfx_model(1), _gfx_ortho(1), _gfx_persp(1), _gfx_proj(&_gfx_ortho), _gfx_view(1), c{ 0xFF, 0xFF, 0xFF, 0xFF } {};
 
@@ -66,13 +75,5 @@ class RenderContext : public Singleton {
 
     auto set_mode_2D() -> void;
     auto set_mode_3D() -> void;
-
-  private:
-    bool is_init = false;
-    Color c;
-
-    glm::mat4 *_gfx_proj;
-    glm::mat4 _gfx_persp, _gfx_ortho, _gfx_view, _gfx_model;
-    std::vector<glm::mat4> _matrixStack;
 };
 } // namespace Stardust_Celeste::Rendering
