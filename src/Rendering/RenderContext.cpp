@@ -120,6 +120,8 @@ const std::string frag_source =
     "uniform sampler2D tex;\n" + "in vec2 uv;\n" + "in vec4 color;\n" +
     "void main() {\n" + "    vec4 mc = texture(tex, uv);\n" +
     "    mc *= vec4(1.0f / 255.0f) * color;\n" + "    FragColor = mc;\n" +
+    "    FragColor.rgb = pow(mc.rgb, vec3(1.0 / 2.2));\n" +
+    "    FragColor.rgb = ((FragColor.rgb - 0.5f) * 1.5f) + 0.22f;\n" +
     "    if(FragColor.a < 0.1f)\n" + "        discard;\n" + "}\n";
 #endif
 
