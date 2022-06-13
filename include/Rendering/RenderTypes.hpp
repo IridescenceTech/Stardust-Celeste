@@ -2,6 +2,7 @@
 #include <Utilities/Types.hpp>
 #include <array>
 #include <glm.hpp>
+#include <string>
 
 namespace Stardust_Celeste::Rendering {
 union Color {
@@ -38,14 +39,15 @@ struct Texture {
     // Internal properties
     u32 ramSpace, colorMode, swizzle;
 
-    
     /**
-     * @brief Returns texture coordinates for a tile-based spritesheet given a size and index
+     * @brief Returns texture coordinates for a tile-based spritesheet given a
+     * size and index
      * @param dimensions - The dimensions of the spritesheet
      * @param idx - The index to search for. Derived from x + y * width
      * @return Returns the 4 indices in counter-clockwise winding
      */
-    inline static std::array<float, 8> get_tile_uvs(glm::vec2 dimensions, int idx) {
+    inline static std::array<float, 8> get_tile_uvs(glm::vec2 dimensions,
+                                                    int idx) {
         int row = idx / (int)dimensions.x;
         int column = idx % (int)dimensions.y;
 
@@ -59,6 +61,7 @@ struct Texture {
         return {x, h, w, h, w, y, x, y};
     }
 
+    std::string name;
 };
 
 } // namespace Stardust_Celeste::Rendering

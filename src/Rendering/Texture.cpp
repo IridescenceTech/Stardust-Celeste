@@ -73,6 +73,16 @@ auto pow2(u32 value) -> u32 {
     return poweroftwo;
 }
 
+auto TextureManager::get_texture(std::string name) -> u32 {
+
+    for (auto &[key, val] : fullMap) {
+        if (val->name == name)
+            return key;
+    }
+
+    return -1;
+}
+
 auto TextureManager::load_texture(std::string filename, u32 magFilter,
                                   u32 minFilter, bool repeat, bool flip)
     -> u32 {
@@ -101,6 +111,8 @@ auto TextureManager::load_texture(std::string filename, u32 magFilter,
     tex->repeating = repeat;
     tex->magFilter = magFilter;
     tex->minFilter = minFilter;
+
+    tex->name = filename;
 
 #if BUILD_PC
     glGenTextures(1, &tex->id);
@@ -190,7 +202,7 @@ auto TextureManager::delete_texture(u32 id) -> void {
 
 TextureManager::~TextureManager() {
     std::vector<u32> ids;
-    for (auto& [key, val] : fullMap)
+    for (auto &[key, val] : fullMap)
         ids.push_back(key);
 
     for (auto id : ids)

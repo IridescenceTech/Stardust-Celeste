@@ -35,6 +35,9 @@ class TextureManager : public Singleton {
 
     auto load_texture(std::string filename, u32 magFilter, u32 minFilter,
                       bool repeat, bool flip = false) -> u32;
+
+    auto get_texture(std::string name) -> u32;
+
     auto bind_texture(u32 id) -> void;
     auto delete_texture(u32 id) -> void;
 
