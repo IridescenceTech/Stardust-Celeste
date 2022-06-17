@@ -46,6 +46,8 @@ class TextureManager : public Singleton {
         return txm;
     }
 
+    inline auto get_texture(unsigned int i) -> Texture * { return fullMap[i]; }
+
   private:
     std::map<unsigned int, Texture *> fullMap;
     u32 texCount = 0;

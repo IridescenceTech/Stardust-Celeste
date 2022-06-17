@@ -17,6 +17,8 @@ class FontRenderer : private Tilemap {
     auto update(double dt) -> void;
     auto draw() -> void;
 
+    float *size_map;
+
   private:
     auto rebuild() -> void;
     std::map<std::string, glm::vec2> stringMap;
