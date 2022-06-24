@@ -417,4 +417,38 @@ auto RenderContext::set_mode_3D() -> void {
 #endif
 }
 
+Rendering::Mesh mesh;
+Rendering::Vertex vertices[4];
+u16 indices[6];
+auto RenderContext::draw_rect(glm::vec2 position, glm::vec2 size,
+                              Rendering::Color color, float layer) -> void {
+
+#if BUILD_PC
+    glDisable(GL_TEXTURE_2D);
+#else
+    sceGuDisable(GU_TEXTURE_2D);
+#endif
+
+    vertices[0] = {-1, -1, color, position.x, position.y, layer};
+    vertices[1] = {-1, -1, color, position.x + size.x, position.y, layer};
+    vertices[2] = {-1,   -1, color, position.x + size.x, position.y + size.y,
+                   layer};
+    vertices[3] = {-1, -1, color, position.x, position.y + size.y, layer};
+
+    indices[0] = 0;
+    indices[1] = 1;
+    indices[2] = 2;
+    indices[3] = 2;
+    indices[4] = 3;
+    indices[5] = 0;
+    mesh.add_data(vertices, 4, indices, 6);
+    mesh.draw();
+
+#if BUILD_PC
+    glEnable(GL_TEXTURE_2D);
+#else
+    sceGuEnable(GU_TEXTURE_2D);
+#endif
+}
+
 } // namespace Stardust_Celeste::Rendering
