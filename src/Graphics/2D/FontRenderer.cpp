@@ -7,6 +7,7 @@ namespace Stardust_Celeste::Graphics::G2D {
 FontRenderer::FontRenderer(u32 texture, glm::vec2 atlasSize)
     : Tilemap(texture, atlasSize) {
     size_map = (float *)malloc(atlasSize.x * atlasSize.y * sizeof(float));
+    scale_factor = 1.0f;
 
     for (int i = 0; i < atlasSize.x * atlasSize.y; i++)
         size_map[i] = 8;
@@ -43,8 +44,9 @@ FontRenderer::FontRenderer(u32 texture, glm::vec2 atlasSize)
 
 FontRenderer::~FontRenderer() {}
 
-auto FontRenderer::add_text(std::string text, glm::vec2 position) -> void {
-    stringMap.emplace(text, position);
+auto FontRenderer::add_text(std::string text, glm::vec2 position,
+                            Rendering::Color color) -> void {
+    stringMap.emplace(text, ColorPos{position, color});
     rebuild();
 }
 
@@ -61,7 +63,7 @@ auto FontRenderer::rebuild() -> void {
     clear_tiles();
 
     for (auto const &[key, val] : stringMap) {
-        auto pos = val;
+        auto pos = val.pos;
         for (int i = 0; i < key.length(); i++) {
             auto c = key[i];
 
@@ -71,10 +73,10 @@ auto FontRenderer::rebuild() -> void {
                 c = 128;
             }
 
-            add_tile({{pos, glm::vec2(8, 8)},
-                      {255, 255, 255, 255},
+            add_tile({{pos, glm::vec2(8 * scale_factor, 8 * scale_factor)},
+                      val.color,
                       static_cast<u16>(c)});
-            pos.x += size_map[c];
+            pos.x += size_map[c] * scale_factor;
         }
     }
 
