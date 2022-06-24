@@ -46,7 +46,7 @@ FontRenderer::~FontRenderer() {}
 
 auto FontRenderer::add_text(std::string text, glm::vec2 position,
                             Rendering::Color color) -> void {
-    stringMap.insert(text, ColorPos{position, color});
+    stringMap.insert(std::make_pair(text, ColorPos{position, color}));
     rebuild();
 }
 
