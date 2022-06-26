@@ -49,13 +49,11 @@ FontRenderer::~FontRenderer() { free(size_map); }
 auto FontRenderer::add_text(std::string text, glm::vec2 position,
                             Rendering::Color color, float layer) -> void {
     stringVector.push_back({text, position, color, layer});
-    rebuild();
 }
 
 auto FontRenderer::clear() -> void {
     stringVector.clear();
     stringVector.shrink_to_fit();
-    rebuild();
 }
 
 auto FontRenderer::update(double dt) -> void { Tilemap::update(dt); }
