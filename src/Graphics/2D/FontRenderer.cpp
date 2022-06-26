@@ -46,12 +46,12 @@ FontRenderer::~FontRenderer() {}
 
 auto FontRenderer::add_text(std::string text, glm::vec2 position,
                             Rendering::Color color) -> void {
-    stringMap.insert(std::make_pair(text, ColorPos{position, color}));
+    stringVector.push_back(std::make_pair(text, ColorPos{position, color}));
     rebuild();
 }
 
 auto FontRenderer::clear() -> void {
-    stringMap.clear();
+    stringVector.clear();
     rebuild();
 }
 
@@ -62,7 +62,7 @@ auto FontRenderer::rebuild() -> void {
 
     clear_tiles();
 
-    for (auto const &[key, val] : stringMap) {
+    for (auto const &[key, val] : stringVector) {
         auto pos = val.pos;
         for (int i = 0; i < key.length(); i++) {
             auto c = key[i];
