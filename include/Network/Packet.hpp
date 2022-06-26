@@ -22,7 +22,7 @@ namespace Stardust_Celeste::Network {
     Based off of
    https://github.com/cuberite/cuberite/blob/master/src/ByteBuffer.h
  */
-class ByteBuffer : public NonCopy {
+class ByteBuffer {
   public:
     ByteBuffer(size_t a_BufferSize);
     ~ByteBuffer();
