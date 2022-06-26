@@ -3,15 +3,19 @@
 #include <Rendering/Mesh.hpp>
 #include <Utilities/Types.hpp>
 
-namespace Stardust_Celeste::Graphics::G2D {
+namespace Stardust_Celeste::Graphics::G2D
+{
 
-struct Tile {
+  struct Tile
+  {
     Rendering::Rectangle bounds;
     Rendering::Color color;
     u16 index;
-};
+    float layer;
+  };
 
-class Tilemap {
+  class Tilemap
+  {
   public:
     Tilemap(u32 texture, glm::vec2 atlasSize);
     ~Tilemap();
@@ -31,6 +35,6 @@ class Tilemap {
     std::vector<Rendering::Vertex> vert_data;
     std::vector<u16> idx_data;
     glm::vec2 atlasDimensions;
-};
+  };
 
 } // namespace Stardust_Celeste::Graphics::G2D
