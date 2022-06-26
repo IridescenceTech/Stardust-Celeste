@@ -170,7 +170,6 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
                               // GU_PSM_8888);
     offset += 4 * BUF_WIDTH * SCR_HEIGHT; // PSM 8888 is 4 bytes
     _zbp = (void *)(offset); // getStaticVramBuffer(BUF_WIDTH, SCR_HEIGHT,
-                             // GU_PSM_4444);
 
     sceGuInit();
 
@@ -183,25 +182,23 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
     sceGuOffset(2048 - (SCR_WIDTH / 2), 2048 - (SCR_HEIGHT / 2));
     sceGuViewport(2048, 2048, SCR_WIDTH, SCR_HEIGHT);
 
-    sceGuDepthRange(0, 65535);
+    sceGuDepthRange(10000, 50000);
 
     sceGuEnable(GU_SCISSOR_TEST);
     sceGuScissor(0, 0, SCR_WIDTH, SCR_HEIGHT);
     sceGuEnable(GU_SCISSOR_TEST);
+    sceGuDepthFunc(GU_LESS);
     sceGuEnable(GU_DEPTH_TEST);
-    sceGuDepthFunc(GU_LEQUAL);
 
     sceGuDisable(GU_TEXTURE_2D);
-    sceGuDisable(GU_CLIP_PLANES);
+    sceGuEnable(GU_CLIP_PLANES);
 
     sceGuEnable(GU_CULL_FACE);
     sceGuFrontFace(GU_CCW);
 
     sceGuEnable(GU_BLEND);
     sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-
-    sceGuEnable(GU_ALPHA_TEST);
-    sceGuAlphaFunc(GU_GREATER, 25, 0xff);
+    sceGuAlphaFunc(GU_GREATER, 0.0f, 0xff);
 
     sceGuStencilFunc(GU_ALWAYS, 1, 1); // always set 1 bit in 1 bit mask
     sceGuStencilOp(GU_KEEP, GU_KEEP,
@@ -210,9 +207,11 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
 
     sceGuTexFilter(GU_LINEAR, GU_LINEAR);
     sceGuShadeModel(GU_SMOOTH);
-
     sceGuFinish();
     sceGuSync(0, 0);
+
+    sceCtrlSetSamplingCycle(0);
+    sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
 
     sceDisplayWaitVblankStart();
     sceGuDisplay(GU_TRUE);
