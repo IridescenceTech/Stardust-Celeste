@@ -2,6 +2,7 @@
 #include "Tilemap.hpp"
 #include <Rendering/Mesh.hpp>
 #include <Utilities/Types.hpp>
+#include <vector>
 #include <map>
 
 namespace Stardust_Celeste::Graphics::G2D {
@@ -28,7 +29,8 @@ class FontRenderer : private Tilemap {
 
   private:
     auto rebuild() -> void;
-    std::map<std::string, ColorPos> stringMap;
+
+    std::vector<std::pair<std::string, ColorPos>>stringVector;
 };
 
 } // namespace Stardust_Celeste::Graphics::G2D
