@@ -85,4 +85,15 @@ auto FontRenderer::rebuild() -> void {
     generate_map();
 }
 
+auto FontRenderer::calculate_size(std::string text) -> float {
+    float x = 0;
+
+    for (int i = 0; i < text.length(); i++) {
+        auto c = text[i];
+        x += size_map[c] * scale_factor;
+    }
+
+    return x;
+}
+
 } // namespace Stardust_Celeste::Graphics::G2D

@@ -31,6 +31,8 @@ class FontRenderer : private Tilemap {
 
     auto rebuild() -> void;
 
+    auto calculate_size(std::string text) -> float;
+
   private:
     std::vector<TextData> stringVector;
 };
