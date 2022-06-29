@@ -37,6 +37,29 @@ jobs:
             LICENSE
             README.md
 
+  Mac:
+    runs-on: macOS-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: |
+          git submodule update --init --recursive --remote
+          mkdir -p build
+          cd build
+          cmake -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release ..
+          make
+          make test
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Stardust-Celeste-Mac
+          path: |
+            build/libStardust-Celeste.a
+            build/libSC-Entry.a
+            LICENSE
+            README.md
+
   Windows:
     runs-on: windows-latest
 

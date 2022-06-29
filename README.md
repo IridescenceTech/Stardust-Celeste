@@ -20,7 +20,7 @@ Current Modules Until Intial V0.6 Release:
 
 - [x] Graphics Base
 - [x] Input / Game Utils
-- [ ] Graphics 2D
+- [x] Graphics 2D
 - [ ] Graphics 3D
 - [ ] Audio Core
 - [ ] Mathematics Library
