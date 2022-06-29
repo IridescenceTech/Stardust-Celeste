@@ -140,9 +140,30 @@ private:
 #else
         sceGuShadeModel(GU_SMOOTH);
         sceGumDrawArray(GU_TRIANGLES,
-                        GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
-                            GU_VERTEX_32BITF | GU_TRANSFORM_3D,
-                        idx_count, idx_data, vert_data);
+            GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
+            GU_VERTEX_32BITF | GU_TRANSFORM_3D,
+            idx_count, idx_data, vert_data);
+#endif
+    }
+
+    auto draw_wireframe() -> void {
+        bind();
+
+        Rendering::RenderContext::get().set_matrices();
+
+#if BUILD_PC
+        // TODO: Bind Program
+        glLineWidth(2.0f);
+        glDisable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDrawElements(GL_LINES, idx_count, GL_UNSIGNED_SHORT, nullptr);
+        glEnable(GL_TEXTURE_2D);
+#else
+        sceGuShadeModel(GU_SMOOTH);
+        sceGumDrawArray(GL_LINE_STRIP,
+            GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
+            GU_VERTEX_32BITF | GU_TRANSFORM_3D,
+            idx_count, idx_data, vert_data);
 #endif
     }
 
