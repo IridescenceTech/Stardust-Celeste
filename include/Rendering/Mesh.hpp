@@ -159,10 +159,13 @@ class Mesh : public NonCopy {
         glEnable(GL_TEXTURE_2D);
 #else
         sceGuShadeModel(GU_SMOOTH);
-        sceGumDrawArray(GU_LINE_STRIP,
+        sceGuDisable(GU_TEXTURE_2D);
+        sceGumDrawArray(GU_LINES,
                         GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
                             GU_VERTEX_32BITF | GU_TRANSFORM_3D,
                         idx_count, idx_data, vert_data);
+
+        sceGuEnable(GU_TEXTURE_2D);
 #endif
     }
 
