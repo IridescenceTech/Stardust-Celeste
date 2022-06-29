@@ -61,8 +61,7 @@ struct PACKED Vertex {
  * @brief Mesh takes ownership of vertices and indices
  */
 class Mesh : public NonCopy {
-private:
-
+  private:
 #if BUILD_PC
     GLuint vbo, vao, ebo;
 #endif
@@ -72,7 +71,7 @@ private:
 #if BUILD_PC
         : ebo(0), vao(0), vbo(0)
 #endif
-    {};
+                              {};
 
     Mesh(Vertex *vertices, size_t vcount, u16 *indices, size_t idx_count) {
         add_data(vertices, vcount, indices, idx_count);
@@ -140,9 +139,9 @@ private:
 #else
         sceGuShadeModel(GU_SMOOTH);
         sceGumDrawArray(GU_TRIANGLES,
-            GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
-            GU_VERTEX_32BITF | GU_TRANSFORM_3D,
-            idx_count, idx_data, vert_data);
+                        GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
+                            GU_VERTEX_32BITF | GU_TRANSFORM_3D,
+                        idx_count, idx_data, vert_data);
 #endif
     }
 
@@ -160,10 +159,10 @@ private:
         glEnable(GL_TEXTURE_2D);
 #else
         sceGuShadeModel(GU_SMOOTH);
-        sceGumDrawArray(GL_LINE_STRIP,
-            GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
-            GU_VERTEX_32BITF | GU_TRANSFORM_3D,
-            idx_count, idx_data, vert_data);
+        sceGumDrawArray(GU_LINE_STRIP,
+                        GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
+                            GU_VERTEX_32BITF | GU_TRANSFORM_3D,
+                        idx_count, idx_data, vert_data);
 #endif
     }
 
