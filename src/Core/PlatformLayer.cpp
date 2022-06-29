@@ -25,9 +25,12 @@ auto PlatformLayer::initialize(const AppConfig app) -> void {
     }
 
     auto net = &(Network::NetworkDriver::get());
+#if BUILD_PLAT != BUILD_PSP
+
     if (app.networking && !net->is_init()) {
         net->init();
     }
+#endif
 }
 
 auto PlatformLayer::terminate() -> void {

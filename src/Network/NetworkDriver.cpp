@@ -35,8 +35,8 @@ auto NetworkDriver::init() -> bool {
     }
 #elif BUILD_PLAT == BUILD_PSP
     SC_CORE_INFO("Attempting Network Init");
-    sceUtilityLoadNetModule(PSP_NET_MODULE_COMMON);
     sceUtilityLoadNetModule(PSP_NET_MODULE_INET);
+    sceUtilityLoadNetModule(PSP_NET_MODULE_COMMON);
     sceUtilityLoadNetModule(PSP_NET_MODULE_PARSEURI);
     sceUtilityLoadNetModule(PSP_NET_MODULE_PARSEHTTP);
     sceUtilityLoadNetModule(PSP_NET_MODULE_HTTP);

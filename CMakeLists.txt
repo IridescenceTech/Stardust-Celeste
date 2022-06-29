@@ -6,12 +6,11 @@ set(CMAKE_CXX_STANDARD 17)
 file(GLOB_RECURSE SRC_FILES src/*.cpp)
 file(GLOB_RECURSE INC_FILES include/*.hpp)
 
-
 if(PSP)
     list(REMOVE_ITEM SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/glad.cpp")
     add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES})
     target_link_libraries(Stardust-Celeste PUBLIC pspgum pspgu pspge psputility pspdisplay pspctrl pspnet pspnet_apctl psppower)
-else() 
+else()
     set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build GLFW without examples")
     set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build GLFW without tests")
     set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build GLFW without docs")
@@ -24,7 +23,7 @@ else()
 endif()
 
 if(!MSVC)
-target_compile_options(Stardust-Celeste PUBLIC -fno-rtti)
+    target_compile_options(Stardust-Celeste PUBLIC -fno-rtti)
 endif()
 
 target_include_directories(Stardust-Celeste PUBLIC include/ ./ ext/glm/glm/)
