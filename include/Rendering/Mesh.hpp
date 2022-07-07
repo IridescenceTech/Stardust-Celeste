@@ -136,7 +136,7 @@ class Mesh : public NonCopy {
 #if BUILD_PC
         // TODO: Bind Program
         glDrawElements(GL_TRIANGLES, idx_count, GL_UNSIGNED_SHORT, nullptr);
-#else
+#elif BUILD_PLAT == BUILD_PSP
         sceGuShadeModel(GU_SMOOTH);
         sceGumDrawArray(GU_TRIANGLES,
                         GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
@@ -157,7 +157,7 @@ class Mesh : public NonCopy {
         glBindTexture(GL_TEXTURE_2D, 0);
         glDrawElements(GL_LINES, idx_count, GL_UNSIGNED_SHORT, nullptr);
         glEnable(GL_TEXTURE_2D);
-#else
+#elif BUILD_PLAT == BUILD_PSP
         sceGuShadeModel(GU_SMOOTH);
         sceGuDisable(GU_TEXTURE_2D);
         sceGumDrawArray(GU_LINES,

@@ -24,23 +24,22 @@
 #define BUILD_3DS 7
 #define BUILD_SWITCH 8
 
-#if BUILD_PLAT == BUILD_VITA
-#error PLATFORM NOT SUPPORTED
-#elif BUILD_PLAT == BUILD_PS2
-#error PLATFORM NOT SUPPORTED
+#if BUILD_PLAT == BUILD_PS2
+#error PLATFORM NOT SUPPORTED YET
 #elif BUILD_PLAT == BUILD_PS3
-#error PLATFORM NOT SUPPORTED
+#error PLATFORM NOT SUPPORTED YET
 #elif BUILD_PLAT == BUILD_GAMECUBE
-#error PLATFORM NOT SUPPORTED
+#error PLATFORM NOT SUPPORTED YET
 #elif BUILD_PLAT == BUILD_3DS
-#error PLATFORM NOT SUPPORTED
+#error PLATFORM NOT SUPPORTED YET
 #elif BUILD_PLAT == BUILD_SWITCH
-#error PLATFORM NOT SUPPORTED
+#error PLATFORM NOT SUPPORTED YET
 #endif
 
-#if BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX
+#if BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX ||                \
+    BUILD_PLAT == BUILD_VITA
 #include <thread>
-#elif BUILD_PSP
+#elif BUILD_PLAT == BUILD_PSP
 #include <pspkernel.h>
 #endif
 
@@ -65,15 +64,18 @@ constexpr auto BUILD_PLATFORM = Stardust_Celeste::PlatformType::Windows;
 constexpr auto BUILD_PLATFORM = Stardust_Celeste::PlatformType::Posix;
 #elif BUILD_PLAT == BUILD_PSP
 constexpr auto BUILD_PLATFORM = Stardust_Celeste::PlatformType::Psp;
+#elif BUILD_PLAT == BUILD_VITA
+constexpr auto BUILD_PLATFORM = Stardust_Celeste::PlatformType::Psvita;
 #else
 #error Invalid Platform!
 #endif
 
 inline auto delay(u32 millis) -> void {
 
-#if BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX
+#if BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX ||                \
+    BUILD_PLAT == BUILD_VITA
     std::this_thread::sleep_for(std::chrono::milliseconds(millis));
-#else
+#elif BUILD_PLAT == BUILD_PSP
     sceKernelDelayThread(millis * 1000);
 #endif
 }

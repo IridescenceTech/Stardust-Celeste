@@ -33,9 +33,10 @@
 
 build
 build-psp
-build-linux
+build-vita
 build-example
 build-example-psp
+build-example-vita
 psp_output
 ppsspp_headless
 ppsspp_headless.*

@@ -111,3 +111,33 @@ jobs:
             build/libSC-Entry.a
             LICENSE
             README.md
+  
+  Vita:
+    runs-on: ubuntu-latest
+    container: jkap/psvitadev
+
+    steps:
+      - name: Install dependencies
+        run: |
+          apk add bash cmake git gmp mpc1 mpfr4 make glew sdl2 binutils libc6-compat
+      
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Build
+        run: |
+          git config --global --add safe.directory /__w/Stardust-Celeste/Stardust-Celeste
+          git submodule update --init --recursive --remote
+          mkdir -p build
+          cd build
+          cmake -DVITA=1 -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release ..
+          make
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Stardust-Celeste-Vita
+          path: |
+            build/libStardust-Celeste.a
+            build/libSC-Entry.a
+            LICENSE
+            README.md

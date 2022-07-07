@@ -27,7 +27,8 @@ inline auto SC_DEBUG_BREAK() -> void {
         "break \n"
         "jr    $31\n"
         "nop\n");
-
+#elif BUILD_PLAT == BUILD_VITA
+    // Well - figure this out some time
 #else
 #warning No Debug Break!
 #endif

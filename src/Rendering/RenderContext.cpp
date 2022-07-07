@@ -157,7 +157,7 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-#else
+#elif BUILD_PLAT == BUILD_PSP
 
     // Get static vram buffer starts at offset 0
     // Offset 0 += memSize each time for result
@@ -234,7 +234,7 @@ auto RenderContext::terminate() -> void {
 #if BUILD_PC
     glfwDestroyWindow(window);
     glfwTerminate();
-#else
+#elif BUILD_PLAT == BUILD_PSP
     sceGuTerm();
 #endif
 }
@@ -244,7 +244,7 @@ auto RenderContext::clear() -> void {
     auto color = to_vec4(c);
     glClearColor(color.r, color.g, color.b, color.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-#else
+#elif BUILD_PLAT == BUILD_PSP
     sceGuStart(GU_DIRECT, list); // We can only clear 1x per frame (why would
                                  // you want to clear more than once?)
     sceGuClearColor(c.color);
@@ -261,7 +261,7 @@ auto RenderContext::render() -> void {
         Core::Application::get().exit();
 
     glfwSwapBuffers(window);
-#else
+#elif BUILD_PLAT == BUILD_PSP
     sceGuFinish();
     sceGuSync(0, 0);
     sceDisplayWaitVblankStart();
@@ -273,7 +273,7 @@ auto RenderContext::matrix_push() -> void {
 #if BUILD_PC
     _matrixStack.push_back(_gfx_model);
     _gfx_model = glm::mat4(1.0f);
-#else
+#elif BUILD_PLAT == BUILD_PSP
     sceGumPushMatrix();
 #endif
 }
@@ -282,7 +282,7 @@ auto RenderContext::matrix_pop() -> void {
 #if BUILD_PC
     _gfx_model = _matrixStack[_matrixStack.size() - 1];
     _matrixStack.pop_back();
-#else
+#elif BUILD_PLAT == BUILD_PSP
     sceGumPopMatrix();
 #endif
 }
@@ -290,7 +290,7 @@ auto RenderContext::matrix_pop() -> void {
 auto RenderContext::matrix_clear() -> void {
 #if BUILD_PC
     _gfx_model = glm::mat4(1.0f);
-#else
+#elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_MODEL);
     sceGumLoadIdentity();
 #endif
@@ -299,7 +299,7 @@ auto RenderContext::matrix_clear() -> void {
 auto RenderContext::matrix_translate(glm::vec3 v) -> void {
 #if BUILD_PC
     _gfx_model = glm::translate(_gfx_model, v);
-#else
+#elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_MODEL);
     ScePspFVector3 vv = {v.x, v.y, v.z};
     sceGumTranslate(&vv);
@@ -311,7 +311,7 @@ auto RenderContext::matrix_rotate(glm::vec3 v) -> void {
     _gfx_model = glm::rotate(_gfx_model, v.x / 180.0f * 3.14159f, {1, 0, 0});
     _gfx_model = glm::rotate(_gfx_model, v.y / 180.0f * 3.14159f, {0, 1, 0});
     _gfx_model = glm::rotate(_gfx_model, v.z / 180.0f * 3.14159f, {0, 0, 1});
-#else
+#elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_MODEL);
     sceGumRotateX(v.x / 180.0f * 3.14159f);
     sceGumRotateY(v.y / 180.0f * 3.14159f);
@@ -322,7 +322,7 @@ auto RenderContext::matrix_rotate(glm::vec3 v) -> void {
 auto RenderContext::matrix_scale(glm::vec3 v) -> void {
 #if BUILD_PC
     _gfx_model = glm::scale(_gfx_model, v);
-#else
+#elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_MODEL);
     ScePspFVector3 vv = {v.x, v.y, v.z};
     sceGumScale(&vv);
@@ -335,7 +335,7 @@ auto RenderContext::matrix_perspective(float fovy, float aspect, float zn,
 #if BUILD_PC
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
-#else
+#elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_PROJECTION);
     ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(*_gfx_proj));
     sceGumLoadMatrix(&m1);
@@ -353,7 +353,7 @@ auto RenderContext::matrix_ortho(float l, float r, float b, float t, float zn,
 #if BUILD_PC
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
-#else
+#elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_PROJECTION);
     ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(*_gfx_proj));
     sceGumLoadMatrix(&m1);
@@ -398,7 +398,7 @@ auto RenderContext::set_mode_2D() -> void {
 #if BUILD_PC
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
-#else
+#elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_PROJECTION);
     ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(*_gfx_proj));
     sceGumLoadMatrix(&m1);
@@ -413,7 +413,7 @@ auto RenderContext::set_mode_3D() -> void {
 #if BUILD_PC
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
-#else
+#elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_PROJECTION);
     ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(*_gfx_proj));
     sceGumLoadMatrix(&m1);
@@ -433,7 +433,7 @@ auto RenderContext::draw_rect(glm::vec2 position, glm::vec2 size,
 #if BUILD_PC
     glDisable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
-#else
+#elif BUILD_PLAT == BUILD_PSP
     sceGuDisable(GU_TEXTURE_2D);
 #endif
 
@@ -461,7 +461,7 @@ auto RenderContext::draw_rect(glm::vec2 position, glm::vec2 size,
 
 #if BUILD_PC
     glEnable(GL_TEXTURE_2D);
-#else
+#elif BUILD_PLAT == BUILD_PSP
     sceGuEnable(GU_TEXTURE_2D);
 #endif
 }
