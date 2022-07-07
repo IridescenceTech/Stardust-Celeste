@@ -132,6 +132,8 @@ jobs:
     
       - name: Build
         run: |
+          export VITASDK=/usr/local/vitasdk
+          export PATH=$VITASDK/bin:$PATH
           git submodule update --init --recursive --remote
           mkdir -p build
           cd build
