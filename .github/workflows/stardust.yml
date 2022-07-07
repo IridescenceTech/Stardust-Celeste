@@ -117,10 +117,6 @@ jobs:
     container: jkap/psvitadev
 
     steps:
-      - name: Install dependencies
-        run: |
-          apk add bash cmake git gmp mpc1 mpfr4 make glew sdl2 binutils libc6-compat
-      
       - name: Checkout
         uses: actions/checkout@v2
       
