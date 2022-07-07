@@ -115,18 +115,15 @@ jobs:
   Vita:
     runs-on: ubuntu-latest
     container: jkap/psvitadev
-
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      
       - name: Build
         run: |
-          git config --global --add safe.directory /__w/Stardust-Celeste/Stardust-Celeste
-          git submodule update --init --recursive --remote
+          git clone https://github.com/Iridescence-Technologies/Stardust-Celeste.git --recursive
+          cd Stardust-Celeste
           mkdir -p build
           cd build
-          cmake -DVITA=1 -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release ..
+          cmake -DVITA=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$VITASDK/share/vita.toolchain.cmake ..
           make
       - name: Publish artifacts
         uses: actions/upload-artifact@v2
