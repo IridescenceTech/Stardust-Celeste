@@ -114,13 +114,25 @@ jobs:
   
   Vita:
     runs-on: ubuntu-latest
-    container: jkap/psvitadev
     
     steps:
+      - name: Install dependencies
+        run: |
+          export VITASDK=/usr/local/vitasdk
+          export PATH=$VITASDK/bin:$PATH
+          git clone https://github.com/vitasdk/vdpm
+          cd vdpm
+          ./bootstrap-vitasdk.sh
+          ./install-all.sh
+          cd ..
+
+    
+      - name: Checkout
+        uses: actions/checkout@v2
+    
       - name: Build
         run: |
-          git clone https://github.com/Iridescence-Technologies/Stardust-Celeste.git --recursive
-          cd Stardust-Celeste
+          git submodule update --init --recursive --remote
           mkdir -p build
           cd build
           cmake -DVITA=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$VITASDK/share/vita.toolchain.cmake ..
