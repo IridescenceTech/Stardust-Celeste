@@ -1,5 +1,6 @@
 #include <Graphics/2D/FontRenderer.hpp>
 #include <Rendering/Texture.hpp>
+#include <cstdlib>
 #include <ext/stb_image.hpp>
 
 namespace Stardust_Celeste::Graphics::G2D {
