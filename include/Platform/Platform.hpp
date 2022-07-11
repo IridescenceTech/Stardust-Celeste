@@ -36,11 +36,12 @@
 #error PLATFORM NOT SUPPORTED YET
 #endif
 
-#if BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX ||                \
-    BUILD_PLAT == BUILD_VITA
+#if BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX
 #include <thread>
 #elif BUILD_PLAT == BUILD_PSP
 #include <pspkernel.h>
+#elif BUILD_PLAT == BUILD_VITA
+#include <vitasdk.h>
 #endif
 
 #include <Utilities/Types.hpp>
@@ -72,10 +73,9 @@ constexpr auto BUILD_PLATFORM = Stardust_Celeste::PlatformType::Psvita;
 
 inline auto delay(u32 millis) -> void {
 
-#if BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX ||                \
-    BUILD_PLAT == BUILD_VITA
+#if BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX
     std::this_thread::sleep_for(std::chrono::milliseconds(millis));
-#elif BUILD_PLAT == BUILD_PSP
+#elif BUILD_PLAT == BUILD_PSP || BUILD_PLAT == BUILD_VITA
     sceKernelDelayThread(millis * 1000);
 #endif
 }
