@@ -17,11 +17,6 @@ auto PlatformLayer::initialize(const AppConfig app) -> void {
 
     if (!app.headless) {
         Rendering::RenderContext::get().initialize(app.render_settings);
-
-#if BUILD_PLAT == BUILD_PSP
-        if (app.networking)
-            Network::NetworkDriver::get().initGUI();
-#endif
     }
 
     auto net = &(Network::NetworkDriver::get());
