@@ -175,7 +175,6 @@ auto TextureManager::bind_texture(u32 id) -> void {
         sceGuTexMode(tex->colorMode, 0, 0, tex->swizzle);
         sceGuTexFunc(GU_TFX_MODULATE, GU_TCC_RGBA);
         sceGuTexFilter(tex->minFilter, tex->magFilter);
-        sceGuTexOffset(0.0f, 0.0f);
 
         auto repeat = tex->repeating ? GU_REPEAT : GU_CLAMP;
         sceGuTexWrap(repeat, repeat);
