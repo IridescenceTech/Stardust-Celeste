@@ -39,6 +39,7 @@ namespace Stardust_Celeste::Rendering {
 #if BUILD_PC
 GLFWwindow *window;
 GLuint programID;
+GLuint ubo;
 #elif BUILD_PLAT == BUILD_PSP
 char list[0x100000] __attribute__((aligned(64)));
 void *_fbp0;
@@ -110,8 +111,8 @@ auto loadShaders(std::string vs, std::string fs) -> GLuint {
 const std::string vert_source =
     std::string("#version 400\n") + "layout (location = 0) in vec3 aPos;\n" +
     "layout (location = 2) in vec2 aTex;\n" +
-    "layout (location = 1) in vec4 aCol;\n" + "uniform mat4 proj;\n" +
-    "uniform mat4 view;\n" + "uniform mat4 model;\n" + "out vec2 uv;\n" +
+    "layout (location = 1) in vec4 aCol;\n" + "layout (std140) uniform Matrices { uniform mat4 proj;\n" +
+    "uniform mat4 view;\n" + "uniform mat4 model;};\n" + "out vec2 uv;\n" +
     "out vec4 color;\n" + "void main() {\n" +
     "    gl_Position = proj * view * model * vec4(aPos, 1.0);\n" +
     "    uv = aTex;\n" + "    color = aCol;\n" + "}\n";
@@ -145,6 +146,8 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
 
     window = glfwCreateWindow(app.width, app.height, app.title, NULL, NULL);
     glfwMakeContextCurrent(window);
+    glfwSwapInterval(0);
+
 
     SC_CORE_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
                    "OpenGL Init Failed!");
@@ -157,6 +160,15 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    unsigned int ubi = glGetUniformBlockIndex(programID, "Matrices");
+    glUniformBlockBinding(programID, ubi, 0);
+    glGenBuffers(1, &ubo);
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+    glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo, 0, 3 * sizeof(glm::mat4));
+
 #elif BUILD_PLAT == BUILD_PSP
 
     // Get static vram buffer starts at offset 0
@@ -367,10 +379,6 @@ auto RenderContext::matrix_ortho(float l, float r, float b, float t, float zn,
 
 auto RenderContext::set_matrices() -> void {
 #if BUILD_PC
-    glUniformMatrix4fv(glGetUniformLocation(programID, "proj"), 1, GL_FALSE,
-                       glm::value_ptr(*_gfx_proj));
-    glUniformMatrix4fv(glGetUniformLocation(programID, "view"), 1, GL_FALSE,
-                       glm::value_ptr(_gfx_view));
 
     glm::mat4 newModel = glm::mat4(1.0f);
     for (int i = 0; i < _matrixStack.size(); i++) {
@@ -378,14 +386,21 @@ auto RenderContext::set_matrices() -> void {
     }
     newModel *= _gfx_model;
 
-    glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE,
-                       glm::value_ptr(newModel));
+
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4), glm::value_ptr(newModel));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 #endif
 }
 
 auto RenderContext::matrix_view(glm::mat4 mat) -> void {
 #if BUILD_PC
     _gfx_view = mat;
+
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(_gfx_view));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
 #elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_VIEW);
     ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(mat));
@@ -396,7 +411,16 @@ auto RenderContext::matrix_view(glm::mat4 mat) -> void {
 auto RenderContext::set_mode_2D() -> void {
     _gfx_proj = &_gfx_ortho;
 #if BUILD_PC
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(*_gfx_proj));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
     _gfx_view = glm::mat4(1.0f);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(_gfx_view));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
     _gfx_model = glm::mat4(1.0f);
 #elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_PROJECTION);
@@ -411,7 +435,18 @@ auto RenderContext::set_mode_2D() -> void {
 auto RenderContext::set_mode_3D() -> void {
     _gfx_proj = &_gfx_persp;
 #if BUILD_PC
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(*_gfx_proj));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
     _gfx_view = glm::mat4(1.0f);
+
+
+    glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(_gfx_view));
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+
     _gfx_model = glm::mat4(1.0f);
 #elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_PROJECTION);
