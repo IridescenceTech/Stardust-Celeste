@@ -135,7 +135,7 @@ class Mesh : public NonCopy {
 
         Rendering::RenderContext::get().set_matrices();
 
-#if BUILD_PC || BUILD_PLAT == BUILD_VITA
+#if BUILD_PC
         // TODO: Bind Program
         glDrawElements(GL_TRIANGLES, idx_count, GL_UNSIGNED_SHORT, nullptr);
 #elif BUILD_PLAT == BUILD_PSP
@@ -150,17 +150,16 @@ class Mesh : public NonCopy {
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
         const auto stride = sizeof(Vertex);
-        glTexCoordPointer(2, GL_FLOAT, stride, vert_data);
+        glTexCoordPointer(2, GL_FLOAT, stride,
+                          reinterpret_cast<unsigned char *>(vert_data));
         glColorPointer(4, GL_UNSIGNED_BYTE, stride,
-                       ((unsigned char *)vert_data) + sizeof(float * 2));
+                       reinterpret_cast<unsigned char *>(vert_data) +
+                           (sizeof(float) * 2));
         glVertexPointer(3, GL_FLOAT, stride,
-                        ((unsigned char *)vert_data) + sizeof(float * 3));
+                        reinterpret_cast<unsigned char *>(vert_data) +
+                            (sizeof(float) * 3));
 
         glDrawElements(GL_TRIANGLES, idx_count, GL_UNSIGNED_SHORT, idx_data);
-
-        glDisableClientState(GL_VERTEX_ARRAY);
-        glDisableClientState(GL_COLOR_ARRAY);
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #endif
     }
 

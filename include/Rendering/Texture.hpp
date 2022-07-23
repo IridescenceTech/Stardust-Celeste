@@ -24,6 +24,11 @@
 
 #define SC_TEX_FILTER_NEAREST GU_NEAREST
 #define SC_TEX_FILTER_LINEAR GU_LINEAR
+#elif BUILD_PLAT == BUILD_VITA
+#include <vitaGL.h>
+
+#define SC_TEX_FILTER_NEAREST GL_NEAREST
+#define SC_TEX_FILTER_LINEAR GL_LINEAR
 #endif
 
 namespace Stardust_Celeste::Rendering {

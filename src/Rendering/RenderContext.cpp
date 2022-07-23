@@ -271,21 +271,32 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
     sceGumLoadIdentity();
 #elif BUILD_PLAT == BUILD_VITA
     vglInit(0x800000);
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    vglWaitVblankStart(GL_TRUE);
+
+    /*
+        programID = loadShaders(vert_source, frag_source);
+
+        glBindAttribLocation(programID, 0, "position");
+        glBindAttribLocation(programID, 1, "texcoord0");
+        glBindAttribLocation(programID, 2, "color");
+    */
+
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0, 960, 544, 0, -1, 1);
+    glOrtho(-1, 1, -1, 1, -1, 1);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    programID = loadShaders(vert_source, frag_source);
-
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+
     glEnable(GL_CULL_FACE);
     glCullFace(GL_CCW);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glUseProgram(programID);
 #endif
     c.color = 0xFFFFFFFF;
     is_init = true;
@@ -445,7 +456,7 @@ auto RenderContext::set_matrices() -> void {
                     glm::value_ptr(newModel));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 #elif BUILD_PLAT == BUILD_VITA
-
+/*
     glUniformMatrix4fv(glGetUniformLocation(programID, "proj"), 1, GL_FALSE,
                        glm::value_ptr(*_gfx_proj));
     glUniformMatrix4fv(glGetUniformLocation(programID, "view"), 1, GL_FALSE,
@@ -458,7 +469,7 @@ auto RenderContext::set_matrices() -> void {
     newModel *= _gfx_model;
 
     glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE,
-                       glm::value_ptr(newModel));
+                       glm::value_ptr(newModel));*/
 #endif
 }
 

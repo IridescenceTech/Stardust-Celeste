@@ -30,6 +30,10 @@
 #include <string>
 #include <vector>
 
+#if BUILD_PLAT == BUILD_VITA
+#include <vitaGL.h>
+#endif
+
 #if BUILD_PLAT == BUILD_PSP
 inline auto swizzle_fast(u8 *out, const u8 *in, unsigned int width,
                          unsigned int height) -> void {
@@ -114,10 +118,10 @@ auto TextureManager::load_texture(std::string filename, u32 magFilter,
 
     tex->name = filename;
 
-#if BUILD_PC
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     glGenTextures(1, &tex->id);
     glBindTexture(GL_TEXTURE_2D, tex->id);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, width, height, 0, GL_RGBA,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
                  GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(data);
@@ -165,7 +169,7 @@ auto TextureManager::load_texture(std::string filename, u32 magFilter,
 
 auto TextureManager::bind_texture(u32 id) -> void {
     if (fullMap.find(id) != fullMap.end()) {
-#if BUILD_PC
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, fullMap[id]->id);
 #elif BUILD_PLAT == BUILD_PSP
@@ -187,7 +191,7 @@ auto TextureManager::bind_texture(u32 id) -> void {
 auto TextureManager::delete_texture(u32 id) -> void {
     if (fullMap.find(id) != fullMap.end()) {
 
-#if BUILD_PC
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
         glDeleteTextures(1, &fullMap[id]->id);
 #endif
 

@@ -1,4 +1,4 @@
-#include <Graphics/2D/FontRenderer.hpp>
+#include <Graphics/2D/Sprite.hpp>
 #include <Stardust-Celeste.hpp>
 #include <Utilities/Controllers/VitaController.hpp>
 #include <Utilities/Input.hpp>
@@ -15,7 +15,10 @@ class GameState : public Core::ApplicationState {
         appref = app;
         Utilities::Input::update();
     }
-    void on_draw(Core::Application *app, double dt) {}
+    void on_draw(Core::Application *app, double dt) {
+        if (sprite.get() != nullptr)
+            sprite->draw();
+    }
 
     static void quit(std::any a) {
         SC_APP_INFO("Pressed Cross!");
@@ -34,6 +37,17 @@ class GameState : public Core::ApplicationState {
             {GameState::quit, this});
 
         Utilities::Input::add_controller(vitaCTRL);
+
+        Rendering::RenderContext::get().matrix_ortho(-1, 1, -1, 1, -1, 1);
+        Rendering::RenderContext::get().set_mode_2D();
+
+        tex_id = Rendering::TextureManager::get().load_texture(
+            "./container.jpg", SC_TEX_FILTER_NEAREST, SC_TEX_FILTER_NEAREST,
+            true);
+
+        auto tex = Rendering::TextureManager::get().get_texture(tex_id);
+        sprite = create_scopeptr<Graphics::G2D::Sprite>(
+            tex_id, Rendering::Rectangle{{-1, -1}, {2, 2}});
     }
 
     void on_cleanup() {}
@@ -43,6 +57,8 @@ class GameState : public Core::ApplicationState {
     const int secret_value = 12;
     VitaController *vitaCTRL;
     Core::Application *appref;
+    ScopePtr<Graphics::G2D::Sprite> sprite;
+    u32 tex_id;
 };
 
 class GameApplication : public Core::Application {
