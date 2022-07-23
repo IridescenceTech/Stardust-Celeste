@@ -25,8 +25,8 @@ elseif(VITA)
     set(CMAKE_OBJDUMP arm-vita-eabi-objdump)
     set(CMAKE_RANLIB arm-vita-eabi-ranlib)
 
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3 -Wl,-q")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3 -Wl,-q")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DVITA -g3 -Wl,-q")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVITA -g3 -Wl,-q")
 
     add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES})
 

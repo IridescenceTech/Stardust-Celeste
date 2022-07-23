@@ -7,6 +7,9 @@
 #if PSP
 #include <pspctrl.h>
 #endif
+#if VITA
+#include <vitasdk.h>
+#endif
 
 #define BUILD_PC (BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX)
 
@@ -35,7 +38,7 @@ auto clear_controller() -> void {
     controller_map.clear();
 }
 
-#if PSP
+#if PSP || VITA
 extern SceCtrlData currentPadData;
 #endif
 
@@ -67,6 +70,8 @@ auto get_axis(std::string device, std::string axis) -> float {
         devIDX = 0;
     else if (device == "PSP")
         devIDX = 1;
+    else if (device == "Vita")
+        devIDX = 2;
 
     if (devIDX == -1)
         return res;
@@ -93,6 +98,18 @@ auto get_axis(std::string device, std::string axis) -> float {
             res = (float)currentPadData.Ly / 255.0f;
         }
 #endif
+    } else if (devIDX == 2) {
+#if VITA
+        if (axis == "LX") {
+            res = (float)currentPadData.lx / 255.0f;
+        } else if (axis == "LY") {
+            res = (float)currentPadData.ly / 255.0f;
+        } else if (axis == "RX") {
+            res = (float)currentPadData.rx / 255.0f;
+        } else if (axis == "RY") {
+            res = (float)currentPadData.ry / 255.0f;
+        }
+#endif
     }
 
     if (diff_mode[devIDX]) {
@@ -116,6 +133,8 @@ auto set_differential_mode(std::string device, bool diff) -> void {
         diff_mode[0] = diff;
     } else if (device == "PSP") {
         diff_mode[1] = diff;
+    } else if (device == "Vita") {
+        diff_mode[2] = diff;
     }
 }
 
