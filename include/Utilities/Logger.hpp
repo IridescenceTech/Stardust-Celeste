@@ -10,6 +10,7 @@
  */
 
 #pragma once
+#include "../Platform/Platform.hpp"
 #include "../fmt/core.h"
 #include "Singleton.hpp"
 #include "ThreadSafe.hpp"
@@ -78,7 +79,9 @@ class Logger final : public Singleton {
             auto formatMsg = fmt::format(formatStr + msg + "\n",
                                          std::forward<Args>(args)...);
 
+#if BUILD_PLAT != BUILD_VITA
             fmt::print(formatMsg);
+#endif
             fmt::print(m_FileOut, formatMsg);
         }
     }

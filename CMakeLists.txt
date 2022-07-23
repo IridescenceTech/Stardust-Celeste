@@ -25,6 +25,9 @@ elseif(VITA)
     set(CMAKE_OBJDUMP arm-vita-eabi-objdump)
     set(CMAKE_RANLIB arm-vita-eabi-ranlib)
 
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3 -Wl,-q")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3 -Wl,-q")
+
     add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES})
 
 else()
@@ -53,7 +56,7 @@ if(WIN32)
 elseif(PSP)
     add_compile_definitions(BUILD_PLAT=2)
 elseif(DEFINED VITA)
-    add_definitions(-DBUILD_PLAT=3)
+    add_compile_definitions(BUILD_PLAT=3)
 else()
     add_compile_definitions(BUILD_PLAT=1)
 endif()

@@ -12,7 +12,7 @@ class GameState : public Core::ApplicationState {
     void on_update(Core::Application *app, double dt) {}
     void on_draw(Core::Application *app, double dt) {}
 
-    void on_start() { SC_APP_INFO("HELLO WORLD!"); }
+    void on_start() { SC_APP_INFO("Hello World!"); }
 
     void on_cleanup() {}
 
@@ -32,9 +32,7 @@ class GameApplication : public Core::Application {
 
 Core::Application *CreateNewSCApp() {
     Core::AppConfig config;
-    config.headless = false;
-    config.render_settings.width = 960;
-    config.render_settings.height = 544;
+    config.headless = true;
 
     Core::PlatformLayer::get().initialize(config);
 

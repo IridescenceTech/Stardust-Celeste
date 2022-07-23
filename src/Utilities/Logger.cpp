@@ -9,8 +9,13 @@ RefPtr<Logger> Logger::s_Application;
  * @brief Create the static members
  */
 auto Utilities::Logger::init() -> void {
+#if BUILD_PLAT != BUILD_VITA
     s_Core = create_refptr<Logger>("CORE", "core_log.log");
     s_Application = create_refptr<Logger>("APP", "app_log.log");
+#else
+    s_Core = create_refptr<Logger>("CORE", "ux0:/data/SDC/core_log.log");
+    s_Application = create_refptr<Logger>("APP", "ux0:/data/SDC/app_log.log");
+#endif
 }
 
 /**
