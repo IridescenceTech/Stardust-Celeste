@@ -58,7 +58,7 @@ class GameApplication : public Core::Application {
 
 Core::Application *CreateNewSCApp() {
     Core::AppConfig config;
-    config.headless = true;
+    config.headless = false;
 
     Core::PlatformLayer::get().initialize(config);
 

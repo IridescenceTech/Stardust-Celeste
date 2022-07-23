@@ -45,6 +45,9 @@ char list[0x100000] __attribute__((aligned(64)));
 void *_fbp0;
 void *_fbp1;
 void *_zbp;
+#elif BUILD_PLAT == BUILD_VITA
+#include <vitaGL.h>
+GLuint programID;
 #endif
 
 auto to_vec4(Color &c) -> glm::vec4 {
@@ -54,7 +57,7 @@ auto to_vec4(Color &c) -> glm::vec4 {
             static_cast<float>(c.rgba.a) / 255.0f};
 }
 
-#if BUILD_PC
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
 auto compileShader(const char *source, GLenum shaderType) -> GLuint {
     auto shader = glCreateShader(shaderType);
 
@@ -107,11 +110,14 @@ auto loadShaders(std::string vs, std::string fs) -> GLuint {
 
     return programID;
 }
+#endif
 
+#if BUILD_PC
 const std::string vert_source =
     std::string("#version 400\n") + "layout (location = 0) in vec3 aPos;\n" +
     "layout (location = 2) in vec2 aTex;\n" +
-    "layout (location = 1) in vec4 aCol;\n" + "layout (std140) uniform Matrices { uniform mat4 proj;\n" +
+    "layout (location = 1) in vec4 aCol;\n" +
+    "layout (std140) uniform Matrices { uniform mat4 proj;\n" +
     "uniform mat4 view;\n" + "uniform mat4 model;};\n" + "out vec2 uv;\n" +
     "out vec4 color;\n" + "void main() {\n" +
     "    gl_Position = proj * view * model * vec4(aPos, 1.0);\n" +
@@ -132,6 +138,34 @@ const std::string frag_source2 =
     "    FragColor.rgb = pow(mc.rgb, vec3(1.0 / 2.2));\n" +
     "    FragColor.rgb = ((FragColor.rgb - 0.5f) * 1.5f) + 0.22f;\n" +
     "    if(FragColor.a < 0.1f)\n" + "        discard;\n" + "}\n";
+#elif BUILD_VITA
+
+const std::string vert_source =
+    R"(
+void main(float3 position, float2 texcoord0, float4 color,
+    float2 out vTexcoord : TEXCOORD0, float4 out vPosition : POSITION, float4 out vColor : COLOR, 
+    uniform float4x4 proj, uniform float4x4 view, uniform float4x4 model){
+        vPosition = mul(mul(mul(float4(position, 1.f), model), view), proj);
+        vTexcoord = texcoord0;
+        vColor = color;
+    }
+)";
+
+const std::string frag_source =
+    R"(
+float4 main(float2 vTexcoord : TEXCOORD0, float4 vColor : COLOR0, uniform sampler2D tex) {
+
+    float4 texColor = tex2D(tex, vTexcoord);
+    texColor *= float4(1.0f / 256.0f) * vColor;
+    texColor = clamp(texColor, 0.0f, 1.0f);
+
+    if(texColor.a < 0.1f)
+        discard;
+
+    return texColor;
+}
+)";
+
 #endif
 
 auto RenderContext::initialize(const RenderContextSettings app) -> void {
@@ -147,7 +181,6 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
     window = glfwCreateWindow(app.width, app.height, app.title, NULL, NULL);
     glfwMakeContextCurrent(window);
     glfwSwapInterval(0);
-
 
     SC_CORE_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
                    "OpenGL Init Failed!");
@@ -165,7 +198,8 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
     glUniformBlockBinding(programID, ubi, 0);
     glGenBuffers(1, &ubo);
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-    glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+    glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4), NULL,
+                 GL_STATIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     glBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo, 0, 3 * sizeof(glm::mat4));
 
@@ -235,7 +269,23 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
     sceGumLoadIdentity();
     sceGumMatrixMode(GU_MODEL);
     sceGumLoadIdentity();
+#elif BUILD_PLAT == BUILD_VITA
+    vglInit(0x800000);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, 960, 544, 0, -1, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
+    programID = loadShaders(vert_source, frag_source);
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_CCW);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 #endif
     c.color = 0xFFFFFFFF;
     is_init = true;
@@ -248,11 +298,13 @@ auto RenderContext::terminate() -> void {
     glfwTerminate();
 #elif BUILD_PLAT == BUILD_PSP
     sceGuTerm();
+#elif BUILD_PLAT == BUILD_VITA
+    vglEnd();
 #endif
 }
 
 auto RenderContext::clear() -> void {
-#if BUILD_PC
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     auto color = to_vec4(c);
     glClearColor(color.r, color.g, color.b, color.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -278,11 +330,13 @@ auto RenderContext::render() -> void {
     sceGuSync(0, 0);
     sceDisplayWaitVblankStart();
     sceGuSwapBuffers();
+#elif BUILD_PLAT == BUILD_VITA
+    vglSwapBuffers(GL_FALSE);
 #endif
 }
 
 auto RenderContext::matrix_push() -> void {
-#if BUILD_PC
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     _matrixStack.push_back(_gfx_model);
     _gfx_model = glm::mat4(1.0f);
 #elif BUILD_PLAT == BUILD_PSP
@@ -291,7 +345,7 @@ auto RenderContext::matrix_push() -> void {
 }
 
 auto RenderContext::matrix_pop() -> void {
-#if BUILD_PC
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     _gfx_model = _matrixStack[_matrixStack.size() - 1];
     _matrixStack.pop_back();
 #elif BUILD_PLAT == BUILD_PSP
@@ -300,7 +354,7 @@ auto RenderContext::matrix_pop() -> void {
 }
 
 auto RenderContext::matrix_clear() -> void {
-#if BUILD_PC
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     _gfx_model = glm::mat4(1.0f);
 #elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_MODEL);
@@ -309,7 +363,7 @@ auto RenderContext::matrix_clear() -> void {
 }
 
 auto RenderContext::matrix_translate(glm::vec3 v) -> void {
-#if BUILD_PC
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     _gfx_model = glm::translate(_gfx_model, v);
 #elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_MODEL);
@@ -319,7 +373,7 @@ auto RenderContext::matrix_translate(glm::vec3 v) -> void {
 }
 
 auto RenderContext::matrix_rotate(glm::vec3 v) -> void {
-#if BUILD_PC
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     _gfx_model = glm::rotate(_gfx_model, v.x / 180.0f * 3.14159f, {1, 0, 0});
     _gfx_model = glm::rotate(_gfx_model, v.y / 180.0f * 3.14159f, {0, 1, 0});
     _gfx_model = glm::rotate(_gfx_model, v.z / 180.0f * 3.14159f, {0, 0, 1});
@@ -332,7 +386,7 @@ auto RenderContext::matrix_rotate(glm::vec3 v) -> void {
 }
 
 auto RenderContext::matrix_scale(glm::vec3 v) -> void {
-#if BUILD_PC
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     _gfx_model = glm::scale(_gfx_model, v);
 #elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_MODEL);
@@ -344,7 +398,7 @@ auto RenderContext::matrix_scale(glm::vec3 v) -> void {
 auto RenderContext::matrix_perspective(float fovy, float aspect, float zn,
                                        float zf) -> void {
     _gfx_persp = glm::perspective(fovy, aspect, zn, zf);
-#if BUILD_PC
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
 #elif BUILD_PLAT == BUILD_PSP
@@ -362,7 +416,7 @@ auto RenderContext::matrix_perspective(float fovy, float aspect, float zn,
 auto RenderContext::matrix_ortho(float l, float r, float b, float t, float zn,
                                  float zf) -> void {
     _gfx_ortho = glm::ortho(l, r, b, t, zn, zf);
-#if BUILD_PC
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
 #elif BUILD_PLAT == BUILD_PSP
@@ -386,10 +440,25 @@ auto RenderContext::set_matrices() -> void {
     }
     newModel *= _gfx_model;
 
-
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4), glm::value_ptr(newModel));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4),
+                    glm::value_ptr(newModel));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
+#elif BUILD_PLAT == BUILD_VITA
+
+    glUniformMatrix4fv(glGetUniformLocation(programID, "proj"), 1, GL_FALSE,
+                       glm::value_ptr(*_gfx_proj));
+    glUniformMatrix4fv(glGetUniformLocation(programID, "view"), 1, GL_FALSE,
+                       glm::value_ptr(_gfx_view));
+
+    glm::mat4 newModel = glm::mat4(1.0f);
+    for (int i = 0; i < _matrixStack.size(); i++) {
+        newModel *= _matrixStack[i];
+    }
+    newModel *= _gfx_model;
+
+    glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE,
+                       glm::value_ptr(newModel));
 #endif
 }
 
@@ -398,13 +467,16 @@ auto RenderContext::matrix_view(glm::mat4 mat) -> void {
     _gfx_view = mat;
 
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(_gfx_view));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4),
+                    glm::value_ptr(_gfx_view));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 #elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_VIEW);
     ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(mat));
     sceGumLoadMatrix(&m1);
+#elif BUILD_VITA
+    _gfx_view = mat;
 #endif
 }
 
@@ -412,13 +484,15 @@ auto RenderContext::set_mode_2D() -> void {
     _gfx_proj = &_gfx_ortho;
 #if BUILD_PC
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(*_gfx_proj));
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4),
+                    glm::value_ptr(*_gfx_proj));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     _gfx_view = glm::mat4(1.0f);
 
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(_gfx_view));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4),
+                    glm::value_ptr(_gfx_view));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     _gfx_model = glm::mat4(1.0f);
@@ -430,22 +504,25 @@ auto RenderContext::set_mode_2D() -> void {
     sceGumLoadIdentity();
     sceGumMatrixMode(GU_MODEL);
     sceGumLoadIdentity();
+#elif BUILD_PLAT == BUILD_VITA
+    _gfx_view = glm::mat4(1.0f);
+    _gfx_model = glm::mat4(1.0f);
 #endif
 }
 auto RenderContext::set_mode_3D() -> void {
     _gfx_proj = &_gfx_persp;
 #if BUILD_PC
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(*_gfx_proj));
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4),
+                    glm::value_ptr(*_gfx_proj));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     _gfx_view = glm::mat4(1.0f);
 
-
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(_gfx_view));
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4),
+                    glm::value_ptr(_gfx_view));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
 
     _gfx_model = glm::mat4(1.0f);
 #elif BUILD_PLAT == BUILD_PSP
@@ -456,6 +533,9 @@ auto RenderContext::set_mode_3D() -> void {
     sceGumLoadIdentity();
     sceGumMatrixMode(GU_MODEL);
     sceGumLoadIdentity();
+#elif BUILD_PLAT == BUILD_VITA
+    _gfx_view = glm::mat4(1.0f);
+    _gfx_model = glm::mat4(1.0f);
 #endif
 }
 
@@ -465,7 +545,7 @@ u16 indices[6];
 auto RenderContext::draw_rect(glm::vec2 position, glm::vec2 size,
                               Rendering::Color color, float layer) -> void {
 
-#if BUILD_PC
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     glDisable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, 0);
 #elif BUILD_PLAT == BUILD_PSP
@@ -494,7 +574,7 @@ auto RenderContext::draw_rect(glm::vec2 position, glm::vec2 size,
     matrix_clear();
     mesh.draw();
 
-#if BUILD_PC
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     glEnable(GL_TEXTURE_2D);
 #elif BUILD_PLAT == BUILD_PSP
     sceGuEnable(GU_TEXTURE_2D);

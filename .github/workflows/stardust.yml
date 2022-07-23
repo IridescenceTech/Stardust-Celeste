@@ -125,6 +125,10 @@ jobs:
           ./bootstrap-vitasdk.sh
           ./install-all.sh
           cd ..
+          git clone https://github.com/Rinnegatamante/vitaGL.git
+          cd vitaGL
+          make install
+          cd ..
 
     
       - name: Checkout

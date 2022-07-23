@@ -58,7 +58,7 @@ if(VITA)
     set(VITA_TITLEID "SDC000001")
     set(VITA_VERSION "01.00")
 
-    target_link_libraries(Example SceCtrl_stub SceProcessmgr_stub)
+    target_link_libraries(Example SceCtrl_stub vitaGL vitashark mathneon SceShaccCg_stub SceShaccCgExt SceAppMgr_stub SceGxm_stub SceCommonDialog_stub SceProcessmgr_stub SceDisplay_stub SceKernelDmacMgr_stub taihen_stub)
 
     vita_create_self(${PROJECT_NAME}.self ${PROJECT_NAME})
 

@@ -40,6 +40,8 @@
 #include <psptypes.h>
 #include <psputils.h>
 #include <stdarg.h>
+#elif BUILD_PLAT == BUILD_VITA
+#include <vitaGL.h>
 #endif
 
 #include <Rendering/RenderContext.hpp>
@@ -133,7 +135,7 @@ class Mesh : public NonCopy {
 
         Rendering::RenderContext::get().set_matrices();
 
-#if BUILD_PC
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
         // TODO: Bind Program
         glDrawElements(GL_TRIANGLES, idx_count, GL_UNSIGNED_SHORT, nullptr);
 #elif BUILD_PLAT == BUILD_PSP
@@ -142,6 +144,23 @@ class Mesh : public NonCopy {
                         GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
                             GU_VERTEX_32BITF | GU_TRANSFORM_3D,
                         idx_count, idx_data, vert_data);
+#elif BUILD_PLAT == BUILD_VITA
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+        const auto stride = sizeof(Vertex);
+        glTexCoordPointer(2, GL_FLOAT, stride, vert_data);
+        glColorPointer(4, GL_UNSIGNED_BYTE, stride,
+                       ((unsigned char *)vert_data) + sizeof(float * 2));
+        glVertexPointer(3, GL_FLOAT, stride,
+                        ((unsigned char *)vert_data) + sizeof(float * 3));
+
+        glDrawElements(GL_TRIANGLES, idx_count, GL_UNSIGNED_SHORT, idx_data);
+
+        glDisableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #endif
     }
 
