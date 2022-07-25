@@ -456,11 +456,6 @@ auto RenderContext::set_matrices() -> void {
                     glm::value_ptr(newModel));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 #elif BUILD_PLAT == BUILD_VITA
-/*
-    glUniformMatrix4fv(glGetUniformLocation(programID, "proj"), 1, GL_FALSE,
-                       glm::value_ptr(*_gfx_proj));
-    glUniformMatrix4fv(glGetUniformLocation(programID, "view"), 1, GL_FALSE,
-                       glm::value_ptr(_gfx_view));
 
     glm::mat4 newModel = glm::mat4(1.0f);
     for (int i = 0; i < _matrixStack.size(); i++) {
@@ -468,8 +463,13 @@ auto RenderContext::set_matrices() -> void {
     }
     newModel *= _gfx_model;
 
-    glUniformMatrix4fv(glGetUniformLocation(programID, "model"), 1, GL_FALSE,
-                       glm::value_ptr(newModel));*/
+    glm::mat4 mv = _gfx_view * newModel;
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf(glm::value_ptr(*_gfx_proj));
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixf(glm::value_ptr(mv));
 #endif
 }
 
