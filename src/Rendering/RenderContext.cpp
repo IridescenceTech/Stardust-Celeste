@@ -463,9 +463,6 @@ auto RenderContext::set_matrices() -> void {
     }
     newModel *= _gfx_model;
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixf(glm::value_ptr(*_gfx_proj));
-
     glMatrixMode(GL_MODELVIEW);
 
     glm::mat4 mv = _gfx_view * newModel;
@@ -518,6 +515,11 @@ auto RenderContext::set_mode_2D() -> void {
 #elif BUILD_PLAT == BUILD_VITA
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf(glm::value_ptr(*_gfx_proj));
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixf(glm::value_ptr(_gfx_view));
 #endif
 }
 auto RenderContext::set_mode_3D() -> void {
@@ -547,6 +549,11 @@ auto RenderContext::set_mode_3D() -> void {
 #elif BUILD_PLAT == BUILD_VITA
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf(glm::value_ptr(*_gfx_proj));
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixf(glm::value_ptr(_gfx_view));
 #endif
 }
 
