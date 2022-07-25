@@ -78,6 +78,11 @@ int main(int, char **) {
     SC_PROFILE_END_SESSION();
 
 #elif BUILD_PLAT == BUILD_VITA
+    scePowerSetArmClockFrequency(444);
+    scePowerSetBusClockFrequency(222);
+    scePowerSetGpuClockFrequency(222);
+    scePowerSetGpuXbarClockFrequency(166);
+
     sceIoMkdir("ux0:/data/SDC", 0777);
     SC_PROFILE_BEGIN_SESSION("Init", "ux0:/data/SDC/SC-Init.json");
     SC_PROFILE_FUNCTION(init_sc, __LINE__, __FILE__);

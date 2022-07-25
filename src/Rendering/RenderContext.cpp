@@ -463,12 +463,12 @@ auto RenderContext::set_matrices() -> void {
     }
     newModel *= _gfx_model;
 
-    glm::mat4 mv = _gfx_view * newModel;
-
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixf(glm::value_ptr(*_gfx_proj));
 
     glMatrixMode(GL_MODELVIEW);
+
+    glm::mat4 mv = _gfx_view * newModel;
     glLoadMatrixf(glm::value_ptr(mv));
 #endif
 }
