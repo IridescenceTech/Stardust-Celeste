@@ -23,6 +23,7 @@ class Sprite {
     auto set_selection(Rendering::Rectangle bounds) -> void;
     auto set_layer(s16 layer) -> void;
     auto set_color(Rendering::Color color) -> void;
+    u32 texture;
 
   protected:
     auto update_mesh() -> void;
@@ -31,7 +32,6 @@ class Sprite {
     Rendering::Rectangle selection;
     Rendering::Rectangle bounds;
     Rendering::Color color;
-    u32 texture;
     s16 layer;
     ScopePtr<Rendering::Mesh> mesh;
     Rendering::Vertex *verts;

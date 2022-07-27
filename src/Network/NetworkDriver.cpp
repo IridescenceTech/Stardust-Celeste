@@ -95,6 +95,15 @@ auto NetworkDriver::init() -> bool {
     }
 
     return 1;
+#elif BUILD_PLAT == BUILD_VITA
+    sceSysmoduleLoadModule(SCE_SYSMODULE_NET);
+    SceNetInitParam netInitParam;
+    int size = 4 * 1024 * 1024;
+    netInitParam.memory = malloc(size);
+    netInitParam.size = size;
+    netInitParam.flags = 0;
+    sceNetInit(&netInitParam);
+    sceNetCtlInit();
 #endif
     return true;
 }
@@ -205,6 +214,10 @@ auto NetworkDriver::cleanup() -> void {
     sceUtilityUnloadNetModule(PSP_NET_MODULE_INET);
 
     SC_CORE_INFO("Cleaning up Networking Driver");
+#elif BUILD_PLAT == BUILD_VITA
+    sceNetCtlTerm();
+    sceNetTerm();
+    sceSysmoduleUnloadModule(SCE_SYSMODULE_NET);
 #endif
 }
 } // namespace Stardust_Celeste::Network
