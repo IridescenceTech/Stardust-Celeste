@@ -83,7 +83,6 @@ class Logger final : public Singleton {
             fmt::print(formatMsg);
 #endif
             fmt::print(m_FileOut, formatMsg);
-            fflush(m_FileOut);
         }
     }
 
