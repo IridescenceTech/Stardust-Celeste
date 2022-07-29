@@ -172,16 +172,16 @@ class Mesh : public NonCopy {
         if (vert_data == NULL || idx_data == NULL)
             return;
 
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_COLOR_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
         const auto stride = sizeof(Vertex);
-        glTexCoordPointer(2, GL_FLOAT, stride, nullptr);
-        glColorPointer(4, GL_UNSIGNED_BYTE, stride,
-                       reinterpret_cast<void *>(sizeof(float) * 2));
-        glVertexPointer(3, GL_FLOAT, stride,
-                        reinterpret_cast<void *>(sizeof(float) * 3));
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride,
+                              reinterpret_cast<void *>(sizeof(float) * 3));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, stride,
+                              reinterpret_cast<void *>(sizeof(float) * 2));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
 
         glDrawElements(GL_TRIANGLES, idx_count, GL_UNSIGNED_SHORT, nullptr);
 

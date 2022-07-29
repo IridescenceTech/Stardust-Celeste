@@ -78,6 +78,8 @@ int main(int, char **) {
     SC_PROFILE_END_SESSION();
 
 #elif BUILD_PLAT == BUILD_VITA
+    sceSysmoduleLoadModule(SCE_SYSMODULE_RAZOR_CAPTURE);
+
     scePowerSetArmClockFrequency(444);
     scePowerSetBusClockFrequency(222);
     scePowerSetGpuClockFrequency(222);

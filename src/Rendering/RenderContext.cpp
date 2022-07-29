@@ -48,6 +48,7 @@ void *_zbp;
 #elif BUILD_PLAT == BUILD_VITA
 #include <vitaGL.h>
 GLuint programID;
+GLuint projLoc, viewLoc, modLoc;
 #endif
 
 auto to_vec4(Color &c) -> glm::vec4 {
@@ -80,6 +81,12 @@ auto linkShaders(GLuint vshader, GLuint fshader) -> GLuint {
     auto prog = glCreateProgram();
     glAttachShader(prog, vshader);
     glAttachShader(prog, fshader);
+
+#if BUILD_PLAT == BUILD_VITA
+    glBindAttribLocation(prog, 0, "position");
+    glBindAttribLocation(prog, 1, "color");
+    glBindAttribLocation(prog, 2, "uv");
+#endif
 
     glLinkProgram(prog);
 
@@ -142,11 +149,11 @@ const std::string frag_source2 =
 
 const std::string vert_source =
     R"(
-void main(float3 position, float2 texcoord0, float4 color,
+void main(float3 position, float4 color, float2 uv,
     float2 out vTexcoord : TEXCOORD0, float4 out vPosition : POSITION, float4 out vColor : COLOR, 
     uniform float4x4 proj, uniform float4x4 view, uniform float4x4 model){
         vPosition = mul(mul(mul(float4(position, 1.f), model), view), proj);
-        vTexcoord = texcoord0;
+        vTexcoord = uv;
         vColor = color;
     }
 )";
@@ -156,7 +163,7 @@ const std::string frag_source =
 float4 main(float2 vTexcoord : TEXCOORD0, float4 vColor : COLOR0, uniform sampler2D tex) {
 
     float4 texColor = tex2D(tex, vTexcoord);
-    texColor *= float4(1.0f / 256.0f) * vColor;
+    texColor *= vColor;
     texColor = clamp(texColor, 0.0f, 1.0f);
 
     if(texColor.a < 0.1f)
@@ -244,7 +251,7 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
 
     sceGuEnable(GU_BLEND);
     sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-    sceGuAlphaFunc(GU_GREATER, 0.0f, 0xff);
+    sceGuAlphaFunc(GU_GREATER, 0x20, 0xff);
 
     sceGuStencilFunc(GU_ALWAYS, 1, 1); // always set 1 bit in 1 bit mask
     sceGuStencilOp(GU_KEEP, GU_KEEP,
@@ -273,19 +280,11 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
     vglInit(0x800000);
     vglWaitVblankStart(GL_TRUE);
 
-    /*
-        programID = loadShaders(vert_source, frag_source);
+    programID = loadShaders(vert_source, frag_source);
 
-        glBindAttribLocation(programID, 0, "position");
-        glBindAttribLocation(programID, 1, "texcoord0");
-        glBindAttribLocation(programID, 2, "color");
-    */
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(-1, 1, -1, 1, -1, 1);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    projLoc = glGetUniformLocation(programID, "proj");
+    viewLoc = glGetUniformLocation(programID, "view");
+    modLoc = glGetUniformLocation(programID, "model");
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -339,7 +338,7 @@ auto RenderContext::render() -> void {
 #elif BUILD_PLAT == BUILD_PSP
     sceGuFinish();
     sceGuSync(0, 0);
-    sceDisplayWaitVblankStart();
+    // sceDisplayWaitVblankStart();
     sceGuSwapBuffers();
 #elif BUILD_PLAT == BUILD_VITA
     vglSwapBuffers(GL_FALSE);
@@ -463,10 +462,10 @@ auto RenderContext::set_matrices() -> void {
     }
     newModel *= _gfx_model;
 
-    glMatrixMode(GL_MODELVIEW);
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(*_gfx_proj));
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(_gfx_view));
+    glUniformMatrix4fv(modLoc, 1, GL_FALSE, glm::value_ptr(newModel));
 
-    glm::mat4 mv = _gfx_view * newModel;
-    glLoadMatrixf(glm::value_ptr(mv));
 #endif
 }
 
@@ -515,11 +514,6 @@ auto RenderContext::set_mode_2D() -> void {
 #elif BUILD_PLAT == BUILD_VITA
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixf(glm::value_ptr(*_gfx_proj));
-    glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixf(glm::value_ptr(_gfx_view));
 #endif
 }
 auto RenderContext::set_mode_3D() -> void {
@@ -549,11 +543,6 @@ auto RenderContext::set_mode_3D() -> void {
 #elif BUILD_PLAT == BUILD_VITA
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixf(glm::value_ptr(*_gfx_proj));
-    glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixf(glm::value_ptr(_gfx_view));
 #endif
 }
 
