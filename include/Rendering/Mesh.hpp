@@ -64,13 +64,13 @@ struct PACKED Vertex {
  */
 class Mesh : public NonCopy {
   private:
-#if BUILD_PC
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     GLuint vbo, vao, ebo;
 #endif
 
   public:
     Mesh()
-#if BUILD_PC
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
         : ebo(0), vao(0), vbo(0)
 #endif
                               {};
@@ -115,19 +115,43 @@ class Mesh : public NonCopy {
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+#elif BUILD_PLAT == BUILD_VITA
+        if (idxc <= 0 || vcount <= 0)
+            return;
+
+        glGenBuffers(1, &vbo);
+
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vcount, vert_data,
+                     GL_STATIC_DRAW);
+
+        glGenBuffers(1, &ebo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * idx_count, idx_data,
+                     GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 #endif
     }
 
     auto delete_data() -> void {
-        idx_count = 0;
-
         vert_data = NULL;
         idx_data = NULL;
+
 #if BUILD_PC
         glDeleteVertexArrays(1, &vao);
         glDeleteBuffers(1, &vbo);
         glDeleteBuffers(1, &ebo);
+#elif BUILD_PLAT == BUILD_VITA
+        if (idx_count <= 0)
+            return;
+
+        glDeleteBuffers(1, &vbo);
+        glDeleteBuffers(1, &ebo);
 #endif
+
+        idx_count = 0;
     }
 
     auto draw() -> void {
@@ -145,21 +169,24 @@ class Mesh : public NonCopy {
                             GU_VERTEX_32BITF | GU_TRANSFORM_3D,
                         idx_count, idx_data, vert_data);
 #elif BUILD_PLAT == BUILD_VITA
+        if (vert_data == NULL || idx_data == NULL)
+            return;
+
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
         const auto stride = sizeof(Vertex);
-        glTexCoordPointer(2, GL_FLOAT, stride,
-                          reinterpret_cast<unsigned char *>(vert_data));
+        glTexCoordPointer(2, GL_FLOAT, stride, nullptr);
         glColorPointer(4, GL_UNSIGNED_BYTE, stride,
-                       reinterpret_cast<unsigned char *>(vert_data) +
-                           (sizeof(float) * 2));
+                       reinterpret_cast<void *>(sizeof(float) * 2));
         glVertexPointer(3, GL_FLOAT, stride,
-                        reinterpret_cast<unsigned char *>(vert_data) +
-                            (sizeof(float) * 3));
+                        reinterpret_cast<void *>(sizeof(float) * 3));
 
-        glDrawElements(GL_TRIANGLES, idx_count, GL_UNSIGNED_SHORT, idx_data);
+        glDrawElements(GL_TRIANGLES, idx_count, GL_UNSIGNED_SHORT, nullptr);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 #endif
     }
 
@@ -168,7 +195,7 @@ class Mesh : public NonCopy {
 
         Rendering::RenderContext::get().set_matrices();
 
-#if BUILD_PC
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
         // TODO: Bind Program
         glLineWidth(2.0f);
         glDisable(GL_TEXTURE_2D);
@@ -190,6 +217,9 @@ class Mesh : public NonCopy {
     auto bind() -> void {
 #if BUILD_PC
         glBindVertexArray(vao);
+#elif BUILD_PLAT == BUILD_VITA
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 #endif
     }
 
