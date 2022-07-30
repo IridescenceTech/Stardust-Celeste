@@ -195,12 +195,18 @@ class Mesh : public NonCopy {
 
         Rendering::RenderContext::get().set_matrices();
 
-#if BUILD_PC || BUILD_PLAT == BUILD_VITA
+#if BUILD_PC
         // TODO: Bind Program
         glLineWidth(2.0f);
         glDisable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, 0);
-        glDrawElements(GL_LINES, idx_count, GL_UNSIGNED_SHORT, nullptr);
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+        glDrawElements(GL_TRIANGLES, idx_count, GL_UNSIGNED_SHORT, nullptr);
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
         glEnable(GL_TEXTURE_2D);
 #elif BUILD_PLAT == BUILD_PSP
         sceGuShadeModel(GU_SMOOTH);
@@ -211,6 +217,33 @@ class Mesh : public NonCopy {
                         idx_count, idx_data, vert_data);
 
         sceGuEnable(GU_TEXTURE_2D);
+#elif BUILD_PLAT == BUILD_VITA
+        glLineWidth(2.0f);
+        glDisable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        if (vert_data == NULL || idx_data == NULL)
+            return;
+
+        const auto stride = sizeof(Vertex);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride,
+                              reinterpret_cast<void *>(sizeof(float) * 3));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, stride,
+                              reinterpret_cast<void *>(sizeof(float) * 2));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+        glDrawElements(GL_TRIANGLES, idx_count, GL_UNSIGNED_SHORT, nullptr);
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glEnable(GL_TEXTURE_2D);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 #endif
     }
 
