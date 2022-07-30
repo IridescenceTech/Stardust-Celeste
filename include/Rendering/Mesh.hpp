@@ -235,11 +235,9 @@ class Mesh : public NonCopy {
                               reinterpret_cast<void *>(sizeof(float) * 2));
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-        glDrawElements(GL_TRIANGLES, idx_count, GL_UNSIGNED_SHORT, nullptr);
+        glDrawElements(GL_LINES, idx_count, GL_UNSIGNED_SHORT, nullptr);
 
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glEnable(GL_TEXTURE_2D);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
