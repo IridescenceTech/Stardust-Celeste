@@ -77,8 +77,5 @@ class RenderContext : public Singleton {
 
     auto set_mode_2D() -> void;
     auto set_mode_3D() -> void;
-
-    auto draw_rect(glm::vec2 position, glm::vec2 size, Rendering::Color color,
-                   float layer) -> void;
 };
 } // namespace Stardust_Celeste::Rendering
