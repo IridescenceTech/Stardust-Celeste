@@ -196,7 +196,8 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-    glCullFace(GL_CCW);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -290,7 +291,8 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
     glDepthFunc(GL_LEQUAL);
 
     glEnable(GL_CULL_FACE);
-    glCullFace(GL_CCW);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
