@@ -14,7 +14,7 @@ struct TextData {
     float layer;
 };
 
-class FontRenderer : private Tilemap {
+class FontRenderer : public Tilemap {
   public:
     FontRenderer(u32 texture, glm::vec2 atlasSize);
     ~FontRenderer();

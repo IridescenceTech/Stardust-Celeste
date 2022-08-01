@@ -28,8 +28,8 @@ namespace Stardust_Celeste::Graphics::G2D
     auto update(double dt) -> void;
     auto draw() -> void;
 
-  protected:
     u32 texture;
+  protected:
     std::vector<Tile> tileMap;
     ScopePtr<Rendering::Mesh> mesh;
     std::vector<Rendering::Vertex> vert_data;
