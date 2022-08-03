@@ -89,8 +89,9 @@ auto ShaderManager::load_shader(std::string vs, std::string fs) -> int {
     glBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo, 0, 3 * sizeof(glm::mat4));
 
     auto shader = Shader{res, ubi, ubo};
-#endif
+#else
     auto shader = Shader{res};
+#endif
     fullMap.emplace(shadCount, shader);
     return shadCount++;
 }
