@@ -47,7 +47,6 @@ void *_zbp;
 #elif BUILD_PLAT == BUILD_VITA
 #include <vitaGL.h>
 GLuint programID;
-GLuint projLoc, viewLoc, modLoc;
 #endif
 
 auto to_vec4(Color &c) -> glm::vec4 {
@@ -211,13 +210,6 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
 
     programID = ShaderManager::get().load_shader(vert_source, frag_source);
     ShaderManager::get().bind_shader(programID);
-
-    projLoc = glGetUniformLocation(
-        ShaderManager::get().get_current_shader().programID, "proj");
-    viewLoc = glGetUniformLocation(
-        ShaderManager::get().get_current_shader().programID, "view");
-    modLoc = glGetUniformLocation(
-        ShaderManager::get().get_current_shader().programID, "model");
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
@@ -397,9 +389,12 @@ auto RenderContext::set_matrices() -> void {
     }
     newModel *= _gfx_model;
 
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(*_gfx_proj));
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(_gfx_view));
-    glUniformMatrix4fv(modLoc, 1, GL_FALSE, glm::value_ptr(newModel));
+    glUniformMatrix4fv(ShaderManager::get().get_current_shader().projLoc, 1,
+                       GL_FALSE, glm::value_ptr(*_gfx_proj));
+    glUniformMatrix4fv(ShaderManager::get().get_current_shader().viewLoc, 1,
+                       GL_FALSE, glm::value_ptr(_gfx_view));
+    glUniformMatrix4fv(ShaderManager::get().get_current_shader().modLoc, 1,
+                       GL_FALSE, glm::value_ptr(newModel));
 
 #endif
 }

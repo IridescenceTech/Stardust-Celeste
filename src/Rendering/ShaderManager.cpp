@@ -79,7 +79,7 @@ auto ShaderManager::load_shader(std::string vs, std::string fs) -> int {
 
 #if BUILD_PLAT != BUILD_VITA
     GLuint ubo;
-    unsigned int ubi = glGetUniformBlockIndex(programID, "Matrices");
+    GLuint ubi = glGetUniformBlockIndex(programID, "Matrices");
     glUniformBlockBinding(programID, ubi, 0);
     glGenBuffers(1, &ubo);
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
@@ -88,9 +88,14 @@ auto ShaderManager::load_shader(std::string vs, std::string fs) -> int {
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     glBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo, 0, 3 * sizeof(glm::mat4));
 
-    auto shader = Shader{res, ubi, ubo};
+    auto shader = Shader{res, ubi, ubo, 0, 0, 0};
 #else
-    auto shader = Shader{res};
+
+    u32 projLoc = glGetUniformLocation(res, "proj");
+    u32 viewLoc = glGetUniformLocation(res, "view");
+    u32 modLoc = glGetUniformLocation(res, "model");
+
+    auto shader = Shader{res, 0, 0, projLoc, viewLoc, modLoc};
 #endif
     fullMap.emplace(shadCount, shader);
     return shadCount++;
