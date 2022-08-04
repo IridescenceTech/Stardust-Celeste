@@ -55,6 +55,8 @@ int main(int, char **) {
 
 #if PSP
     SetupCallbacks();
+    //Access full texture range
+    sceGeEdramSetSize(0x400000);
 #endif
 
 #if BUILD_PLAT != BUILD_VITA

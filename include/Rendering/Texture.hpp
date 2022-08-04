@@ -39,7 +39,7 @@ class TextureManager : public Singleton {
     ~TextureManager();
 
     auto load_texture(std::string filename, u32 magFilter, u32 minFilter,
-                      bool repeat, bool flip = false) -> u32;
+                      bool repeat, bool flip = false, bool vram = false) -> u32;
 
     auto get_texture(std::string name) -> u32;
 
