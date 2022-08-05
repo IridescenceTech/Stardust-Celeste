@@ -80,9 +80,14 @@ class Logger final : public Singleton {
                                          std::forward<Args>(args)...);
 
 #if BUILD_PLAT != BUILD_VITA
-            fmt::print(formatMsg);
+            if (std_output)
+                fmt::print(formatMsg);
 #endif
+
             fmt::print(m_FileOut, formatMsg);
+
+            if (flush_output)
+                fflush(m_FileOut);
         }
     }
 
@@ -121,6 +126,9 @@ class Logger final : public Singleton {
     inline auto error(const std::string &msg, Args &...args) -> void {
         log(msg, LogLevel::Error, std::forward<Args>(args)...);
     }
+
+    bool std_output;
+    bool flush_output;
 
   private:
     mutable LogLevel m_CutoffLevel;
