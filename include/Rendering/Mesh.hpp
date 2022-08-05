@@ -190,7 +190,7 @@ class Mesh : public NonCopy {
 #endif
     }
 
-    auto draw_wireframe() -> void {
+    auto draw_lines() -> void {
         bind();
 
         Rendering::RenderContext::get().set_matrices();
@@ -201,17 +201,14 @@ class Mesh : public NonCopy {
         glDisable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, 0);
 
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-        glDrawElements(GL_TRIANGLES, idx_count, GL_UNSIGNED_SHORT, nullptr);
-
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glDrawElements(GL_LINE_STRIP, idx_count, GL_UNSIGNED_SHORT, nullptr);
 
         glEnable(GL_TEXTURE_2D);
 #elif BUILD_PLAT == BUILD_PSP
         sceGuShadeModel(GU_SMOOTH);
         sceGuDisable(GU_TEXTURE_2D);
-        sceGumDrawArray(GU_LINES,
+
+        sceGumDrawArray(GU_LINE_STRIP,
                         GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
                             GU_VERTEX_32BITF | GU_TRANSFORM_3D,
                         idx_count, idx_data, vert_data);
@@ -220,7 +217,6 @@ class Mesh : public NonCopy {
 #elif BUILD_PLAT == BUILD_VITA
         glLineWidth(2.0f);
         glDisable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, 0);
 
         if (vert_data == NULL || idx_data == NULL)
             return;
@@ -236,12 +232,11 @@ class Mesh : public NonCopy {
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
 
-        glDrawElements(GL_LINES, idx_count, GL_UNSIGNED_SHORT, nullptr);
-
-        glEnable(GL_TEXTURE_2D);
+        glDrawElements(GL_LINE_STRIP, idx_count, GL_UNSIGNED_SHORT, nullptr);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glEnable(GL_TEXTURE_2D);
 #endif
     }
 
