@@ -26,6 +26,7 @@ auto Utilities::Logger::init() -> void {
 Logger::Logger(const char *name, const char *path)
     : m_FileOut(nullptr), m_CutoffLevel(LogLevel::Trace), m_LogName(name) {
     std_output = true;
+    include_timestamp = false;
     flush_output = false;
     m_FileOut = fopen(path, "w");
 }

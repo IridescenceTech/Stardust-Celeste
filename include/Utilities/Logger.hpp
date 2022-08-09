@@ -15,6 +15,10 @@
 #include "Singleton.hpp"
 #include "ThreadSafe.hpp"
 #include "Types.hpp"
+#include <ctime>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
 
 namespace Stardust_Celeste::Utilities {
 
@@ -74,7 +78,15 @@ class Logger final : public Singleton {
         std::lock_guard guard(writeLock);
 
         if (lvl >= m_CutoffLevel) {
-            auto formatStr = ("[" + std::string(m_LogName) + "]") + "[" +
+
+            auto t = std::time(nullptr);
+            auto tm = *std::localtime(&t);
+            std::ostringstream oss;
+            oss << std::put_time(&tm, "%d-%m-%Y %H:%M:%S");
+            auto str = oss.str();
+
+            auto formatStr = (include_timestamp ? str : "") +
+                             ("[" + std::string(m_LogName) + "]") + "[" +
                              logLevelToString(lvl) + "]: ";
             auto formatMsg = fmt::format(formatStr + msg + "\n",
                                          std::forward<Args>(args)...);
@@ -129,6 +141,7 @@ class Logger final : public Singleton {
 
     bool std_output;
     bool flush_output;
+    bool include_timestamp;
 
   private:
     mutable LogLevel m_CutoffLevel;
