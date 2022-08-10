@@ -11,14 +11,18 @@ enum class MouseButtons {
     M6 = 5,
     M7 = 6,
     M8 = 7,
-    Last = 8,
+    LastGLFW = 8,
+    MWheelDown,
+    MWheelUp
 };
 
 class MouseController final : public Controller {
   public:
-    MouseController() = default;
+    MouseController();
     ~MouseController() = default;
 
     auto update() -> void;
+  private:
+    auto setup_scroll() -> void;
 };
 } // namespace Stardust_Celeste::Utilities::Input
