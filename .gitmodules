@@ -4,3 +4,6 @@
 [submodule "ext/glm"]
 	path = ext/glm
 	url = https://github.com/g-truc/glm.git
+[submodule "ext/openal"]
+	path = ext/openal
+	url = https://github.com/kcat/openal-soft.git
