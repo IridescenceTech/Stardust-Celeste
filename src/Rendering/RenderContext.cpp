@@ -82,6 +82,11 @@ const std::string frag_source2 =
     "    FragColor.rgb = pow(mc.rgb, vec3(1.0 / 2.2));\n" +
     "    FragColor.rgb = ((FragColor.rgb - 0.5f) * 1.5f) + 0.22f;\n" +
     "    if(FragColor.a < 0.1f)\n" + "        discard;\n" + "}\n";
+
+void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
+    glViewport(0, 0, width, height);
+}
+
 #elif BUILD_VITA
 
 const std::string vert_source =
@@ -116,7 +121,7 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
 #if BUILD_PC
     SC_CORE_ASSERT(glfwInit(), "GLFW Init Failed!");
 
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -124,6 +129,7 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
 
     window = glfwCreateWindow(app.width, app.height, app.title, NULL, NULL);
     glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSwapInterval(0);
 
     SC_CORE_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
