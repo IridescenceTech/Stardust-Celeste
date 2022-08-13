@@ -35,11 +35,13 @@ else()
     set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build GLFW without tests")
     set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build GLFW without docs")
     add_subdirectory(ext/glfw)
+    add_subdirectory(ext/openal)
 
     add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES})
 
     target_include_directories(Stardust-Celeste PUBLIC ext/glfw/include/)
-    target_link_libraries(Stardust-Celeste PUBLIC glfw)
+    target_include_directories(Stardust-Celeste PUBLIC ext/openal/include/)
+    target_link_libraries(Stardust-Celeste PUBLIC glfw OpenAL)
 endif()
 
 if(!MSVC)
