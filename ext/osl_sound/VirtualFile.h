@@ -230,7 +230,7 @@ extern void *oslReadEntireFileToMemory(VIRTUAL_FILE *f, int *size);
 
 
 /*
-	Source par défaut: mémoire
+	Source par dï¿½faut: mï¿½moire
 */
 extern int vfsMemOpen(void *param1, int param2, int type, int mode, VIRTUAL_FILE* f);
 extern int vfsMemClose(VIRTUAL_FILE *f);
@@ -256,17 +256,6 @@ extern VIRTUAL_FILE_SOURCE vfsMemory;
 /** Initializes the file system. You do not need to call it by yourself as it's done automatically by OSLib. */
 int oslInitVfsFile();
 
-/**
-	Sets the default virtual file source (VF_FILE by default). Used if you use VF_AUTO, that is any oslLoad[...]File routine.
-
-	OSLib will search in the current file list to find wether the file exists and is of a different type (e.g. VF_MEMORY). If the file is not found, it will treat it with the default type.
-
-	\param source
-		Can be VF_FILE, VF_MEMORY or any virtual file device registered by you.
-*/
-extern inline void oslSetDefaultVirtualFileSource(int source)		{
-	osl_defaultVirtualFileSource = source;
-}
 
 /** Read and write from memory. Automatically registered when initializing OSLib. */
 extern int VF_MEMORY;
@@ -283,26 +272,6 @@ extern int VF_FILE;
 	There are two virtual file sources available by default: memory and file.
 	@{
 */
-
-
-/** Gets the name of the temporary file. See #oslSetTempFileData for a code sample. */
-extern inline char *oslGetTempFileName()		{
-	return (char*)osl_tempFileName;
-}
-
-/** Sets the data associated to a temporary file.
-
-\code
-//Binary data representing a JPG file
-const int test_data[] = {...};
-//The file is 1280 bytes (it's the length of the test_data array)
-const int test_data_size = 1280;
-//Set data for the temporary file
-oslSetTempFileData(test_data, test_data_size, &VF_MEMORY);
-//Load a JPG file using the temporary file (oslGetTempFileName to get its name)
-image = oslLoadImageFileJPG(oslGetTempFileName(), OSL_IN_RAM | OSL_SWIZZLED, OSL_PF_5650);
-\endcode */
-extern void oslSetTempFileData(void *data, int size, int *type);
 
 /** Adds a list of virtual files. You will then be able to open these files as if they were real.
 	\param vfl

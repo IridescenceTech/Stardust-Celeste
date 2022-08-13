@@ -4,6 +4,8 @@
 #ifndef AUDIO_H
 #define AUDIO_H
 
+#include "VirtualFile.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -16,14 +18,14 @@ extern "C" {
 */
 
 /*
-	Ressources allouées à un son:
+	Ressources allouï¿½es ï¿½ un son:
 	Commun
 	s (OSL_SOUND)
 	
 	Fichier WAV
 		Commun
 			s->dataplus (WAV_SRC)
-		Streamé
+		Streamï¿½
 			s->dataplus (WAV_SRC)
 				fp (FILE)
 		Normal
@@ -32,7 +34,7 @@ extern "C" {
 	Fichier ADPCM
 		Commun
 			s->dataplus (OSL_ADGlobals)
-		Streamé
+		Streamï¿½
 			s->data (FILE)
 		Normal
 			s->data (malloc: s->size)
@@ -285,7 +287,7 @@ enum {OSL_FMT_MASK=0xff};
 enum {OSL_FMT_MONO=0, OSL_FMT_STEREO=0x200, OSL_FMT_STREAM=0x400};
 enum {OSL_FMT_44K=0, OSL_FMT_22K=1, OSL_FMT_11K=2};
 
-/** Formats de fichier à initialiser pour #oslInitAudioME. */
+/** Formats de fichier ï¿½ initialiser pour #oslInitAudioME. */
 enum oslInitAudioME_formats		{
 	OSL_FMT_AT3 = 1,				//!< Atrac3 and Atrac3+
 	OSL_FMT_MP3 = 2,				//!< Mpeg Audio-Layer 3
