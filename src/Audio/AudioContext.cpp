@@ -23,6 +23,7 @@ namespace Stardust_Celeste::Audio
 
     auto AudioContext::initialize() -> void
     {
+#ifndef PSP
         device = alcOpenDevice(NULL);
         if (!device)
             throw std::runtime_error("Could not find an audio device!");
@@ -32,13 +33,16 @@ namespace Stardust_Celeste::Audio
             throw std::runtime_error("Could not make an audio context!");
 
         SC_CORE_INFO("OpenAL Initialized!");
+#endif
     }
     auto AudioContext::terminate() -> void
     {
+#ifndef PSP
         device = alcGetContextsDevice(context);
         alcMakeContextCurrent(NULL);
         alcDestroyContext(context);
         alcCloseDevice(device);
+#endif
     }
     auto AudioContext::update() -> void
     {
