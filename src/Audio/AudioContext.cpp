@@ -33,6 +33,15 @@ namespace Stardust_Celeste::Audio
             throw std::runtime_error("Could not make an audio context!");
 
         SC_CORE_INFO("OpenAL Initialized!");
+
+        ALfloat listenerOri[] = { 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f };
+
+        alListener3f(AL_POSITION, 0, 0, 1.0f);
+        // check for errors
+        alListener3f(AL_VELOCITY, 0, 0, 0);
+        // check for errors
+        alListenerfv(AL_ORIENTATION, listenerOri);
+        // check for errors
 #endif
     }
     auto AudioContext::terminate() -> void
