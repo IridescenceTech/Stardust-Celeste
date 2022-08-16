@@ -7,3 +7,6 @@
 [submodule "ext/openal"]
 	path = ext/openal
 	url = https://github.com/kcat/openal-soft.git
+[submodule "ext/yaml"]
+	path = ext/yaml
+	url = https://github.com/jbeder/yaml-cpp/

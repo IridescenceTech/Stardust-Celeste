@@ -52,6 +52,8 @@ endif()
 
 target_include_directories(Stardust-Celeste PUBLIC include/ ./ ext/glm/glm/)
 
+add_subdirectory(ext/yaml)
+
 add_library(SC-Entry STATIC src/Core/Entry.cpp)
 target_include_directories(SC-Entry PUBLIC include/ ext/glm/glm/)
 
