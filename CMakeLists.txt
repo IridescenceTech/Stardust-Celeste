@@ -53,6 +53,7 @@ endif()
 target_include_directories(Stardust-Celeste PUBLIC include/ ./ ext/glm/glm/)
 
 add_subdirectory(ext/yaml)
+set_property(TARGET yaml-cpp PROPERTY POSITION_INDEPENDENT_CODE OFF)
 
 add_library(SC-Entry STATIC src/Core/Entry.cpp)
 target_include_directories(SC-Entry PUBLIC include/ ext/glm/glm/)
