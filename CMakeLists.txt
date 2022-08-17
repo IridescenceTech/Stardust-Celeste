@@ -29,8 +29,9 @@ elseif(VITA)
 
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DVITA -g3 -Wl,-q")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DVITA -g3 -Wl,-q")
+    file(GLOB_RECURSE YAML_FILES ext/yaml/src/*.cpp)
 
-    add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES})
+    add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES} ${YAML_FILES})
 
 else()
     set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build GLFW without examples")
@@ -52,8 +53,10 @@ endif()
 
 target_include_directories(Stardust-Celeste PUBLIC include/ ./ ext/glm/glm/)
 
-add_subdirectory(ext/yaml)
-set_property(TARGET yaml-cpp PROPERTY POSITION_INDEPENDENT_CODE OFF)
+if(NOT VITA)
+    add_subdirectory(ext/yaml)
+    set_property(TARGET yaml-cpp PROPERTY POSITION_INDEPENDENT_CODE OFF)
+endif()
 
 add_library(SC-Entry STATIC src/Core/Entry.cpp)
 target_include_directories(SC-Entry PUBLIC include/ ext/glm/glm/)
