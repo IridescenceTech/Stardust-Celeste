@@ -278,63 +278,35 @@ auto RenderContext::render() -> void {
 }
 
 auto RenderContext::matrix_push() -> void {
-#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     _matrixStack.push_back(_gfx_model);
     _gfx_model = glm::mat4(1.0f);
-#elif BUILD_PLAT == BUILD_PSP
-    sceGumPushMatrix();
-#endif
 }
 
 auto RenderContext::matrix_pop() -> void {
-#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     _gfx_model = _matrixStack[_matrixStack.size() - 1];
     _matrixStack.pop_back();
-#elif BUILD_PLAT == BUILD_PSP
-    sceGumPopMatrix();
-#endif
 }
 
 auto RenderContext::matrix_clear() -> void {
-#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     _gfx_model = glm::mat4(1.0f);
-#elif BUILD_PLAT == BUILD_PSP
+#if BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_MODEL);
     sceGumLoadIdentity();
 #endif
 }
 
 auto RenderContext::matrix_translate(glm::vec3 v) -> void {
-#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     _gfx_model = glm::translate(_gfx_model, v);
-#elif BUILD_PLAT == BUILD_PSP
-    sceGumMatrixMode(GU_MODEL);
-    ScePspFVector3 vv = {v.x, v.y, v.z};
-    sceGumTranslate(&vv);
-#endif
 }
 
 auto RenderContext::matrix_rotate(glm::vec3 v) -> void {
-#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     _gfx_model = glm::rotate(_gfx_model, v.x / 180.0f * 3.14159f, {1, 0, 0});
     _gfx_model = glm::rotate(_gfx_model, v.y / 180.0f * 3.14159f, {0, 1, 0});
     _gfx_model = glm::rotate(_gfx_model, v.z / 180.0f * 3.14159f, {0, 0, 1});
-#elif BUILD_PLAT == BUILD_PSP
-    sceGumMatrixMode(GU_MODEL);
-    sceGumRotateX(v.x / 180.0f * 3.14159f);
-    sceGumRotateY(v.y / 180.0f * 3.14159f);
-    sceGumRotateZ(v.z / 180.0f * 3.14159f);
-#endif
 }
 
 auto RenderContext::matrix_scale(glm::vec3 v) -> void {
-#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     _gfx_model = glm::scale(_gfx_model, v);
-#elif BUILD_PLAT == BUILD_PSP
-    sceGumMatrixMode(GU_MODEL);
-    ScePspFVector3 vv = {v.x, v.y, v.z};
-    sceGumScale(&vv);
-#endif
 }
 
 auto RenderContext::matrix_perspective(float fovy, float aspect, float zn,
@@ -402,6 +374,17 @@ auto RenderContext::set_matrices() -> void {
     glUniformMatrix4fv(ShaderManager::get().get_current_shader().modLoc, 1,
                        GL_FALSE, glm::value_ptr(newModel));
 
+#elif BUILD_PLAT == BUILD_PSP
+
+    glm::mat4 newModel = glm::mat4(1.0f);
+    for (int i = 0; i < _matrixStack.size(); i++) {
+        newModel *= _matrixStack[i];
+    }
+    newModel *= _gfx_model;
+
+    sceGumMatrixMode(GU_MODEL);
+    ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(newModel));
+    sceGumLoadMatrix(&m1);
 #endif
 }
 
