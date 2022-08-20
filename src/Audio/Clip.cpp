@@ -4,11 +4,40 @@
 #include <Utilities/Logger.hpp>
 #include <stdexcept>
 
+#if BUILD_PLAT == BUILD_VITA
+#include <vorbis/codec.h>
+#include <vorbis/vorbisfile.h>
+OggVorbis_File vf;
+vorbis_info *vi;
+int current_section = 0;
+
+#endif
+
 namespace Stardust_Celeste::Audio {
 
 #ifndef PSP
 auto Clip::streamData(ALuint buffer) -> bool {
+
 #define BUFFER_SIZE 4096 * 32
+#if BUILD_PLAT == BUILD_VITA
+    char pcm[BUFFER_SIZE];
+
+    int size = 0;
+    int result = 0;
+    while (size < BUFFER_SIZE) {
+        result = ov_read(&vf, pcm + size, BUFFER_SIZE - size, 0, 2, 1,
+                         &current_section);
+        if (result > 0)
+            size += result;
+        else
+            break;
+    }
+
+    if (size == 0)
+        return false;
+
+    alBufferData(buffer, format, pcm, size, vi->rate);
+#else
     ALshort pcm[BUFFER_SIZE];
     int size = 0;
     int result = 0;
@@ -27,8 +56,9 @@ auto Clip::streamData(ALuint buffer) -> bool {
 
     alBufferData(buffer, format, pcm, size * sizeof(ALshort), info.sample_rate);
     totalSamplesLeft -= size;
-#undef BUFFER_SIZE
+#endif
 
+#undef BUFFER_SIZE
     return true;
 }
 #endif
@@ -65,6 +95,32 @@ Clip::Clip(std::string path, bool s) {
         drwav_uninit(&wav);
         alSourcei(source, AL_BUFFER, buffers[0]);
     } else {
+#if BUILD_PLAT == BUILD_VITA
+        alGenBuffers(2, buffers);
+        FILE *fp = fopen(path.c_str(), "rb");
+
+        if (fp == NULL) {
+            SC_CORE_INFO("FAILED TO LOAD OGG FILE");
+        }
+        if (ov_open_callbacks(fp, &vf, NULL, 0, OV_CALLBACKS_DEFAULT) < 0) {
+            exit(1);
+        }
+
+        vi = ov_info(&vf, -1);
+
+        if (vi->channels == 2)
+            format = AL_FORMAT_STEREO16;
+        else
+            format = AL_FORMAT_MONO16;
+
+        streamData(buffers[0]);
+        streamData(buffers[1]);
+
+        alSourceQueueBuffers(source, 2, buffers);
+        alSourcePlay(source);
+
+        totalSamplesLeft = 1;
+#else
         alGenBuffers(2, buffers);
         bufferSize = 4096 * 8;
         shouldLoop = false;
@@ -91,6 +147,7 @@ Clip::Clip(std::string path, bool s) {
 
         totalSamplesLeft =
             stb_vorbis_stream_length_in_samples(stream) * info.channels;
+#endif
     }
 #else
     auto fmt = s ? OSL_FMT_STREAM : OSL_FMT_NONE;
@@ -176,12 +233,14 @@ auto Clip::update() -> void {
         if (!streamData(buffer)) {
             bool shouldExit = true;
 
+#if BUILD_PLAT != BUILD_VITA
             if (shouldLoop) {
                 stb_vorbis_seek_start(stream);
                 totalSamplesLeft =
                     stb_vorbis_stream_length_in_samples(stream) * info.channels;
                 shouldExit = !streamData(buffer);
             }
+#endif
 
             if (shouldExit)
                 return;
