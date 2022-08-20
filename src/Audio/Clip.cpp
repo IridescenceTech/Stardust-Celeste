@@ -1,32 +1,36 @@
 #include <Audio/Clip.hpp>
 #define DR_WAV_IMPLEMENTATION
 #include <Audio/dr_wav.h>
+#include <Utilities/Logger.hpp>
 #include <stdexcept>
 
 namespace Stardust_Celeste::Audio {
 
-
 #ifndef PSP
-    auto Clip::streamData(ALuint buffer) -> bool {
-        #define BUFFER_SIZE 4096*32
-        ALshort pcm[BUFFER_SIZE];
-        int  size = 0;
-        int  result = 0;
+auto Clip::streamData(ALuint buffer) -> bool {
+#define BUFFER_SIZE 4096 * 32
+    ALshort pcm[BUFFER_SIZE];
+    int size = 0;
+    int result = 0;
 
-        while (size < BUFFER_SIZE) {
-            result = stb_vorbis_get_samples_short_interleaved(stream, info.channels, pcm + size, BUFFER_SIZE - size);
-            if (result > 0) size += result * info.channels;
-            else break;
-        }
+    while (size < BUFFER_SIZE) {
+        result = stb_vorbis_get_samples_short_interleaved(
+            stream, info.channels, pcm + size, BUFFER_SIZE - size);
+        if (result > 0)
+            size += result * info.channels;
+        else
+            break;
+    }
 
-        if (size == 0) return false;
+    if (size == 0)
+        return false;
 
-        alBufferData(buffer, format, pcm, size * sizeof(ALshort), info.sample_rate);
-        totalSamplesLeft -= size;
+    alBufferData(buffer, format, pcm, size * sizeof(ALshort), info.sample_rate);
+    totalSamplesLeft -= size;
 #undef BUFFER_SIZE
 
-        return true;
-    }
+    return true;
+}
 #endif
 
 Clip::Clip(std::string path, bool s) {
@@ -50,17 +54,17 @@ Clip::Clip(std::string path, bool s) {
 
         size_t size =
             (size_t)wav.totalPCMFrameCount * wav.channels * sizeof(int16_t);
-        int16_t* pSampleData = (int16_t*)malloc(size);
+        int16_t *pSampleData = (int16_t *)malloc(size);
         drwav_read_pcm_frames_s16(&wav, wav.totalPCMFrameCount, pSampleData);
 
-        // At this point pSampleData contains every decoded sample as signed 32-bit
-        // PCM.
-        alBufferData(buffers[0], AL_FORMAT_MONO16, pSampleData, size, wav.sampleRate);
+        // At this point pSampleData contains every decoded sample as signed
+        // 32-bit PCM.
+        alBufferData(buffers[0], AL_FORMAT_MONO16, pSampleData, size,
+                     wav.sampleRate);
 
         drwav_uninit(&wav);
         alSourcei(source, AL_BUFFER, buffers[0]);
-    }
-    else {
+    } else {
         alGenBuffers(2, buffers);
         bufferSize = 4096 * 8;
         shouldLoop = false;
@@ -68,7 +72,9 @@ Clip::Clip(std::string path, bool s) {
         stream = stb_vorbis_open_filename(path.c_str(), NULL, NULL);
 
         if (!stream) {
-            throw std::runtime_error("Could not load streaming sound file: " + path);
+            SC_CORE_INFO("FAILED TO LOAD OGG FILE");
+            throw std::runtime_error("Could not load streaming sound file: " +
+                                     path);
         }
 
         info = stb_vorbis_get_info(stream);
@@ -77,18 +83,14 @@ Clip::Clip(std::string path, bool s) {
         else
             format = AL_FORMAT_MONO16;
 
-        if (!streamData(buffers[0])) {
-            throw std::runtime_error("Could not load streaming sound file: " + path);
-        }
-        
-        if (!streamData(buffers[1])) {
-            throw std::runtime_error("Could not load streaming sound file: " + path);
-        }
+        streamData(buffers[0]);
+        streamData(buffers[1]);
 
         alSourceQueueBuffers(source, 2, buffers);
         alSourcePlay(source);
 
-        totalSamplesLeft = stb_vorbis_stream_length_in_samples(stream) * info.channels;
+        totalSamplesLeft =
+            stb_vorbis_stream_length_in_samples(stream) * info.channels;
     }
 #else
     sound = oslLoadSoundFile(path.c_str(), OSL_FMT_NONE);
@@ -100,8 +102,7 @@ Clip::~Clip() {
     if (isStreaming) {
         stb_vorbis_close(stream);
         alDeleteBuffers(2, buffers);
-    }
-    else {
+    } else {
         alDeleteBuffers(1, &buffers[0]);
     }
 #else
@@ -176,11 +177,13 @@ auto Clip::update() -> void {
 
             if (shouldLoop) {
                 stb_vorbis_seek_start(stream);
-                totalSamplesLeft = stb_vorbis_stream_length_in_samples(stream) * info.channels;
+                totalSamplesLeft =
+                    stb_vorbis_stream_length_in_samples(stream) * info.channels;
                 shouldExit = !streamData(buffer);
             }
 
-            if (shouldExit) return;
+            if (shouldExit)
+                return;
         }
         alSourceQueueBuffers(source, 1, &buffer);
     }
