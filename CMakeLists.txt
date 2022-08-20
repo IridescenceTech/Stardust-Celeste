@@ -13,7 +13,7 @@ if(PSP)
     target_link_libraries(Stardust-Celeste PUBLIC pspgum pspgu pspge psputility pspdisplay pspctrl pspnet pspnet_apctl psppower pspaudio)
     target_include_directories(Stardust-Celeste PUBLIC ext/)
 elseif(VITA)
-    list(APPEND SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/ext/stb_vorbis.c}")
+    list(APPEND SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/ext/stb_vorbis.c")
 
     SET(CMAKE_SYSTEM_NAME Generic)
     SET(CMAKE_SYSTEM_VERSION 1)

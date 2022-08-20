@@ -12,10 +12,8 @@
 #include <osl_sound/oslib.h>
 #endif
 
-namespace Stardust_Celeste::Audio
-{
-  class Clip
-  {
+namespace Stardust_Celeste::Audio {
+class Clip {
   public:
     Clip(std::string path, bool stream = false);
     ~Clip();
@@ -38,7 +36,8 @@ namespace Stardust_Celeste::Audio
     auto stop() -> void;
 
   private:
-      bool isStreaming;
+    bool isStreaming;
+    bool shouldLoop;
 #ifndef PSP
     ALuint ID;
 
@@ -53,9 +52,8 @@ namespace Stardust_Celeste::Audio
 
     size_t totalSamplesLeft;
 
-    bool shouldLoop;
 #else
     OSL_SOUND *sound;
 #endif
-  };
+};
 } // namespace Stardust_Celeste::Audio
