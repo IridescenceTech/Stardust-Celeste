@@ -21,11 +21,12 @@ Current Modules Until Intial V0.6 Release:
 - [x] Graphics Base
 - [x] Input / Game Utils
 - [x] Graphics 2D
+- [ ] Graphics Intermediate Layer
+- [ ] Scripting System
 - [ ] Graphics 3D
-- [ ] Audio Core
+- [x] Audio Core
 - [ ] Mathematics Library
 - [ ] Scene Manager
-- [ ] Scripting System
 
 ## Projects Using Stardust-Celeste
 
