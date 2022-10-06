@@ -13,34 +13,107 @@
 #endif
 
 namespace Stardust_Celeste::Audio {
+/**
+ * @brief Clip is the foundational audio class -- it loads an audio stream from
+ * a file in either static or streaming mode and then allows you to playback
+ * said audio.
+ *
+ * Limitations:
+ * Windows/Mac/Linux/PS Vita - WAV (non streamed) OGG (streamed)
+ * PSP - WAV, BGM, FLAC (either)
+ *
+ * It is extensible
+ */
 class Clip {
   public:
-    Clip(std::string path, bool stream = false);
-    ~Clip();
+    /**
+     * @brief Construct a new Audio Clip object
+     *
+     * @param path Path to the file
+     * @param stream Whether the object is streaming
+     */
+    Clip(const std::string &&path, const bool stream = false);
 
-    auto set_pitch(float val) -> void;
-    auto set_volume(float val) -> void;
+    /**
+     * @brief Destroy the Clip object
+     *
+     */
+    virtual ~Clip();
 
-    auto set_position(glm::vec3 position) -> void;
-    auto set_velocity(glm::vec3 velocity) -> void;
-    auto set_looping(bool looping) -> void;
+    /////////////////////////////
+    ///  P R O P E R T I E S  ///
+    /////////////////////////////
+
+    /**
+     * @brief Set the pitch value
+     *
+     * @param val Pitch modification [?, ?]
+     */
+    auto set_pitch(const float val) -> void;
+
+    /**
+     * @brief Set the volume value
+     *
+     * @param val Volume [0, 1]
+     */
+    auto set_volume(const float val) -> void;
+
+    /**
+     * @brief Set the position of the audio
+     *
+     * @param position 3D Position of the clip
+     */
+    auto set_position(const glm::vec3 &&position) -> void;
+
+    /**
+     * @brief Set the velocity of the audio
+     *
+     * @param velocity 3D Velocity of the clip
+     */
+    auto set_velocity(const glm::vec3 &&velocity) -> void;
+
+    /**
+     * @brief Set the clip to looping
+     *
+     * @param looping Whether or not the clip loops
+     */
+    auto set_looping(const bool looping) -> void;
+
+    /**
+     * @brief Play the clip [on the specified channel (PSP only)]
+     *
+     * @param channel Channel to play on PSP
+     */
+    auto play(const uint32_t channel = 0) -> void;
+
+    /**
+     * @brief Pause the audio clip (defaults to toggle behavior)
+     *
+     */
+    auto pause() -> void;
+
+    /**
+     * @brief Stops the audio clip from playing
+     *
+     */
+    auto stop() -> void;
+
+    /**
+     * @brief Updates a given audio clip (fetches data if streaming)
+     *
+     */
+    auto update() -> void;
+
+  protected:
+    bool isStreaming;
+    bool shouldLoop;
 
 #ifndef PSP
     auto streamData(ALuint buffer) -> bool;
 #endif
 
-    auto update() -> void;
-
-    auto play() -> void;
-    auto pause() -> void;
-    auto stop() -> void;
-
-  private:
-    bool isStreaming;
-    bool shouldLoop;
 #ifndef PSP
     ALuint ID;
-
     stb_vorbis *stream;
     stb_vorbis_info info;
 
@@ -49,9 +122,7 @@ class Clip {
     ALenum format;
 
     size_t bufferSize;
-
     size_t totalSamplesLeft;
-
 #else
     OSL_SOUND *sound;
 #endif

@@ -16,9 +16,6 @@ ALCcontext *context;
 
 #endif
 
-AudioContext::AudioContext() {}
-AudioContext::~AudioContext() {}
-
 auto AudioContext::initialize() -> void {
 #ifndef PSP
     device = alcOpenDevice(NULL);

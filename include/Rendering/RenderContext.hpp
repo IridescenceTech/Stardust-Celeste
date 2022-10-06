@@ -1,13 +1,3 @@
-/**
- * @file RenderContext.hpp
- * @author Nathan Bourgeois <iridescentrosesfall@gmail.com>
- * @brief Rendering Context
- * @version 0.1
- * @date 2021-12-26
- *
- * @copyright Copyright (c) 2021
- *
- */
 #pragma once
 
 #include "Utilities/Assertion.hpp"
@@ -40,8 +30,8 @@ class RenderContext : public Singleton {
 
   public:
     RenderContext()
-        : _gfx_model(1), _gfx_ortho(1), _gfx_persp(1), _gfx_proj(&_gfx_ortho),
-          _gfx_view(1), c{0xFF, 0xFF, 0xFF, 0xFF} {};
+        : c{0xFF, 0xFF, 0xFF, 0xFF}, _gfx_proj(&_gfx_ortho), _gfx_persp(1),
+          _gfx_ortho(1), _gfx_view(1), _gfx_model(1){};
 
     auto initialize(const RenderContextSettings app) -> void;
     auto terminate() -> void;

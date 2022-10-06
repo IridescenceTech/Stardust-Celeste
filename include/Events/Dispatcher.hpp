@@ -1,13 +1,3 @@
-/**
- * @file Dispatcher.hpp
- * @author Nathan Bourgeois <iridescentrosesfall@gmail.com>
- * @brief Dispatches events to an observer
- * @version 0.1
- * @date 2021-12-20
- *
- * @copyright Copyright (c) 2021
- *
- */
 #include "Event.hpp"
 #include <algorithm>
 #include <functional>

@@ -1,13 +1,3 @@
-/**
- * @file Application.hpp
- * @author Nathan Bourgeois <iridescentrosesfall@gmail.com>
- * @brief Application definition
- * @version 0.1
- * @date 2021-12-17
- *
- * @copyright Copyright (c) 2021
- *
- */
 #pragma once
 #include <vector>
 
@@ -15,6 +5,9 @@
 #include "../Utilities/Utilities.hpp"
 #include "State.hpp"
 
+/**
+ * @brief Predeclared main
+ */
 int main(int argc, char **argv);
 
 namespace Stardust_Celeste::Core {

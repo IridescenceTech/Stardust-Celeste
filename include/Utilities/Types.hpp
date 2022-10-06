@@ -1,13 +1,3 @@
-/**
- * @file Types.hpp
- * @author Nathan Bourgeois <iridescentrosesfall@gmail.com>
- * @brief Defines helpful utility types / renames
- * @version 0.1
- * @date 2021-12-11
- *
- * @copyright Copyright (c) 2021
- *
- */
 #pragma once
 #include <any>
 #include <cstdint>

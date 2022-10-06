@@ -63,7 +63,7 @@ auto Clip::streamData(ALuint buffer) -> bool {
 }
 #endif
 
-Clip::Clip(std::string path, bool s) {
+Clip::Clip(const std::string &&path, bool s) {
     isStreaming = s;
 #ifndef PSP
     alGenSources((ALuint)1, &source);
@@ -179,12 +179,12 @@ auto Clip::set_volume(float val) -> void {
 #endif
 }
 
-auto Clip::set_position(glm::vec3 position) -> void {
+auto Clip::set_position(const glm::vec3 &&position) -> void {
 #ifndef PSP
     alSource3f(source, AL_POSITION, position.x, position.y, position.z);
 #endif
 }
-auto Clip::set_velocity(glm::vec3 velocity) -> void {
+auto Clip::set_velocity(const glm::vec3 &&velocity) -> void {
 #ifndef PSP
     alSource3f(source, AL_VELOCITY, velocity.x, velocity.y, velocity.z);
 #endif
@@ -198,11 +198,11 @@ auto Clip::set_looping(bool looping) -> void {
 #endif
 }
 
-auto Clip::play() -> void {
+auto Clip::play(const uint32_t channel) -> void {
 #ifndef PSP
     alSourcePlay(source);
 #else
-    oslPlaySound(sound, isStreaming ? 1 : 0);
+    oslPlaySound(sound, channel);
 #endif
 }
 auto Clip::pause() -> void {

@@ -1,13 +1,3 @@
-/**
- * @file Timer.hpp
- * @author Nathan Bourgeois <iridescentrosesfall@gmail.com>
- * @brief Adds a timer
- * @version 0.1
- * @date 2021-12-15
- *
- * @copyright Copyright (c) 2021
- *
- */
 #pragma once
 #include "NonCopy.hpp"
 #include "Types.hpp"

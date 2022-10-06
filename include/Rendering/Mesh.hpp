@@ -1,13 +1,3 @@
-/**
- * @file RenderContext.hpp
- * @author Nathan Bourgeois <iridescentrosesfall@gmail.com>
- * @brief Rendering Context
- * @version 0.1
- * @date 2021-12-26
- *
- * @copyright Copyright (c) 2021
- *
- */
 #pragma once
 
 #include "Utilities/Assertion.hpp"
@@ -71,7 +61,7 @@ class Mesh : public NonCopy {
   public:
     Mesh()
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA
-        : ebo(0), vao(0), vbo(0)
+        : vbo(0), vao(0), ebo(0)
 #endif
                               {};
 

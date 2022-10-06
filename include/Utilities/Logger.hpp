@@ -1,14 +1,3 @@
-/**
- * @file Logger.hpp
- * @author Nathan Bourgeois <iridescentrosesfall@gmail.com>
- * @brief Defines the global logger object
- * @version 0.1
- * @date 2021-12-15
- *
- * @copyright Copyright (c) 2021
- *
- */
-
 #pragma once
 #include "../Platform/Platform.hpp"
 #include "../fmt/core.h"

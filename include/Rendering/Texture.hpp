@@ -1,13 +1,3 @@
-/**
- * @file Texture.hpp
- * @author Nathan Bourgeois <iridescentrosesfall@gmail.com>
- * @brief
- * @version 0.1
- * @date 2021-12-28
- *
- * @copyright Copyright (c) 2021
- *
- */
 #include "RenderTypes.hpp"
 #include <Utilities/Singleton.hpp>
 #include <map>
