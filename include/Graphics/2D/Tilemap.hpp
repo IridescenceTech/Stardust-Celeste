@@ -18,7 +18,7 @@ namespace Stardust_Celeste::Graphics::G2D
   {
   public:
     Tilemap(u32 texture, glm::vec2 atlasSize);
-    ~Tilemap();
+    virtual ~Tilemap();
 
     auto add_tile(Tile tile) -> void;
     auto generate_map() -> void;
