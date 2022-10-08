@@ -1,3 +1,4 @@
+#pragma once
 #include <Graphics/2D/Tilemap.hpp>
 
 namespace Stardust_Celeste::Graphics::G2D {
