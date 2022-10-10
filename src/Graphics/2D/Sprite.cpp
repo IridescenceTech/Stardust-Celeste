@@ -25,6 +25,7 @@ Sprite::Sprite(u32 tex, Rendering::Rectangle bnd, Rendering::Rectangle sel) {
     verts = nullptr;
     idxs = nullptr;
 
+    layer = 0;
     update_mesh();
 }
 
@@ -39,6 +40,7 @@ Sprite::Sprite(u32 tex, Rendering::Rectangle bnd, Rendering::Rectangle sel,
     verts = nullptr;
     idxs = nullptr;
 
+    layer = 0;
     update_mesh();
 }
 Sprite::Sprite(u32 tex, Rendering::Rectangle bnd, Rendering::Color col) {
