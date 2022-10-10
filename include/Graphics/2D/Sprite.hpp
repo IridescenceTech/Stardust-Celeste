@@ -12,9 +12,9 @@ class Sprite {
     Sprite(u32 texture, Rendering::Rectangle bounds,
            Rendering::Rectangle selection, Rendering::Color color);
     Sprite(u32 texture, Rendering::Rectangle bounds, Rendering::Color color);
-    ~Sprite();
+    virtual ~Sprite();
 
-    auto update(double dt) -> void;
+    virtual auto update(double dt) -> void;
     auto draw() -> void;
 
     auto set_position(glm::vec2 position) -> void;
@@ -27,8 +27,6 @@ class Sprite {
 
   protected:
     auto update_mesh() -> void;
-
-  private:
     Rendering::Rectangle selection;
     Rendering::Rectangle bounds;
     Rendering::Color color;

@@ -25,7 +25,7 @@ namespace Stardust_Celeste::Graphics::G2D
     auto add_tiles(std::vector<Tile> tiles) -> void;
     auto clear_tiles() -> void;
 
-    auto update(double dt) -> void;
+    virtual auto update(double dt) -> void;
     auto draw() -> void;
 
     u32 texture;

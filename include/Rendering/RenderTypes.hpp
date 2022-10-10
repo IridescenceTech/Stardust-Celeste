@@ -49,7 +49,7 @@ struct Texture {
     inline static std::array<float, 8> get_tile_uvs(glm::vec2 dimensions,
                                                     int idx) {
         int row = idx / (int)dimensions.x;
-        int column = idx % (int)dimensions.y;
+        int column = idx % (int)dimensions.x;
 
         float sizeX = 1.f / ((float)dimensions.x);
         float sizeY = 1.f / ((float)dimensions.y);
