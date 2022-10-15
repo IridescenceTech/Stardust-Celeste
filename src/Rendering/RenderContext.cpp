@@ -185,6 +185,7 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
 
     sceGuEnable(GU_BLEND);
     sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
+    sceGuEnable(GU_ALPHA_TEST);
     sceGuAlphaFunc(GU_GREATER, 0x20, 0xff);
 
     sceGuStencilFunc(GU_ALWAYS, 1, 1); // always set 1 bit in 1 bit mask
