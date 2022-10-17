@@ -19,7 +19,7 @@
 #endif
 
 #if BUILD_PC
-namespace Stardust_Celeste::Rendering {
+namespace GI {
 extern GLFWwindow *window;
 }
 #endif
@@ -55,8 +55,8 @@ auto set_cursor_center() -> void {
     if (diff_mode[0]) {
         // Reset to center - hide cursor
         int w, h;
-        glfwGetWindowSize(Rendering::window, &w, &h);
-        glfwSetCursorPos(Rendering::window, w / 2.0, h / 2.0);
+        glfwGetWindowSize(GI::window, &w, &h);
+        glfwSetCursorPos(GI::window, w / 2.0, h / 2.0);
     }
 #endif
 }
@@ -79,10 +79,10 @@ auto get_axis(std::string device, std::string axis) -> float {
     if (devIDX == 0) {
 #if BUILD_PC
         double lx, ly;
-        glfwGetCursorPos(Rendering::window, &lx, &ly);
+        glfwGetCursorPos(GI::window, &lx, &ly);
 
         int w, h;
-        glfwGetWindowSize(Rendering::window, &w, &h);
+        glfwGetWindowSize(GI::window, &w, &h);
 
         if (axis == "X") {
             res = lx / (float)w;
@@ -123,11 +123,9 @@ auto set_differential_mode(std::string device, bool diff) -> void {
     if (device == "Mouse") {
 #if BUILD_PC
         if (diff)
-            glfwSetInputMode(Rendering::window, GLFW_CURSOR,
-                             GLFW_CURSOR_DISABLED);
+            glfwSetInputMode(GI::window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         else
-            glfwSetInputMode(Rendering::window, GLFW_CURSOR,
-                             GLFW_CURSOR_NORMAL);
+            glfwSetInputMode(GI::window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
 #endif
         diff_mode[0] = diff;

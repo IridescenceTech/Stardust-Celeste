@@ -1,11 +1,13 @@
 #include <Platform/Platform.hpp>
 #include <Rendering/ShaderManager.hpp>
 #include <stdexcept>
-
+#ifndef PSP
+namespace GI {
+extern GLuint programID;
+}
+#endif
 namespace Stardust_Celeste::Rendering {
 #ifndef PSP
-
-extern GLuint programID;
 
 ShaderManager::~ShaderManager() {
     for (auto &[key, val] : fullMap) {
@@ -79,8 +81,8 @@ auto ShaderManager::load_shader(std::string vs, std::string fs) -> int {
 
 #if BUILD_PLAT != BUILD_VITA
     GLuint ubo;
-    GLuint ubi = glGetUniformBlockIndex(programID, "Matrices");
-    glUniformBlockBinding(programID, ubi, 0);
+    GLuint ubi = glGetUniformBlockIndex(GI::programID, "Matrices");
+    glUniformBlockBinding(GI::programID, ubi, 0);
     glGenBuffers(1, &ubo);
     glBindBuffer(GL_UNIFORM_BUFFER, ubo);
     glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4), NULL,
@@ -105,7 +107,7 @@ auto ShaderManager::bind_shader(u32 id) -> void {
     if (fullMap.find(id) != fullMap.end()) {
         current_shader = id;
         auto shader = fullMap[id];
-        programID = shader.programID;
+        GI::programID = shader.programID;
         glUseProgram(shader.programID);
 
 #if BUILD_PLAT != BUILD_VITA

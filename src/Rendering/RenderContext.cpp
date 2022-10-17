@@ -38,7 +38,7 @@
 namespace Stardust_Celeste::Rendering {
 
 auto RenderContext::initialize(const RenderContextSettings app) -> void {
-    GI::init();
+    GI::init(app);
 
     GI::enable(GI_DEPTH_TEST);
     GI::depth_func(GI_LEQUAL);

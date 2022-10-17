@@ -1,18 +1,21 @@
+#pragma once
 #include <Platform/Platform.hpp>
 #include <Rendering/RenderTypes.hpp>
 #define BUILD_PC (BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX)
 
 #if BUILD_PC
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
 #include <glad/glad.hpp>
 #elif BUILD_PLAT == BUILD_PSP
-#include <gu2gl.h>
+#include "../ext/gu2gl/gu2gl.h"
 #elif BUILD_PLAT == BUILD_VITA
 #include <vitaGL.h>
 #endif
 
+#ifndef GL_ALPHA_TEST
+#define GI_ALPHA_TEST 0
+#else
 #define GI_ALPHA_TEST GL_ALPHA_TEST
+#endif
 #define GI_DEPTH_TEST GL_DEPTH_TEST
 #define GI_SCISSOR_TEST GL_SCISSOR_TEST
 #define GI_STENCIL_TEST GL_STENCIL_TEST
@@ -53,6 +56,18 @@
 #define GI_DEPTH_BUFFER_BIT GL_DEPTH_BUFFER_BIT
 
 /**
+ * @brief Render Context Settings
+ * width -- Width of window
+ * height -- Height of window
+ * title -- Title of window
+ */
+struct RenderContextSettings {
+    u32 width = 1280;
+    u32 height = 720;
+    const char *title = "Stardust App";
+};
+
+/**
  * @brief Graphics Intermediate Layer -- this interacts directly with the
  * graphics API Recommended not to use this unless you know what you're doing
  *
@@ -61,7 +76,7 @@ namespace GI {
 
 using namespace Stardust_Celeste::Rendering;
 
-auto init() -> void;
+auto init(const RenderContextSettings app) -> void;
 auto terminate() -> void;
 
 auto enable(u32 state) -> void;

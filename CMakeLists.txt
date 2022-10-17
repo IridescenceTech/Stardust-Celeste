@@ -41,7 +41,7 @@ if(!MSVC)
     target_compile_options(Stardust-Celeste PUBLIC -fno-rtti)
 endif()
 
-target_include_directories(Stardust-Celeste PUBLIC include/ ./ ext/glm/glm/)
+target_include_directories(Stardust-Celeste PUBLIC include/ ext/ ext/glm/glm/)
 
 if(NOT VITA)
     add_subdirectory(ext/yaml)
