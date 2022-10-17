@@ -105,25 +105,25 @@ auto Sprite::update_mesh() -> void {
         verts = new Rendering::Vertex[4];
 
     verts[0] = Rendering::Vertex{
-        selection.position.x, selection.position.y, color,
-        bounds.position.x,    bounds.position.y,    (float)layer};
+        selection.position.x , selection.position.y +selection.extent.y, color,
+        bounds.position.x,    bounds.position.y + bounds.extent.y,    (float)layer};
     verts[1] = Rendering::Vertex{selection.position.x + selection.extent.x,
-                                 selection.position.y,
+                                 selection.position.y + selection.extent.y,
+                                 color,
+                                 bounds.position.x + bounds.extent.x,
+                                 bounds.position.y + bounds.extent.y,
+                                 (float)layer};
+    verts[2] = Rendering::Vertex{selection.position.x + selection.extent.x,
+                                 selection.position.y ,
                                  color,
                                  bounds.position.x + bounds.extent.x,
                                  bounds.position.y,
                                  (float)layer};
-    verts[2] = Rendering::Vertex{selection.position.x + selection.extent.x,
-                                 selection.position.y + selection.extent.y,
-                                 color,
-                                 bounds.position.x + bounds.extent.x,
-                                 bounds.position.y + bounds.extent.y,
-                                 (float)layer};
     verts[3] = Rendering::Vertex{selection.position.x,
-                                 selection.position.y + selection.extent.y,
+                                 selection.position.y ,
                                  color,
                                  bounds.position.x,
-                                 bounds.position.y + bounds.extent.y,
+                                 bounds.position.y ,
                                  (float)layer};
 
     if (idxs == nullptr) {
