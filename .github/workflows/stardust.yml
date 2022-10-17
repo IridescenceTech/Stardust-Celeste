@@ -24,9 +24,8 @@ jobs:
           git submodule update --init --recursive --remote
           mkdir -p build
           cd build
-          cmake -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release ..
+          cmake -DCMAKE_BUILD_TYPE=Release ..
           make
-          make test
       - name: Publish artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -47,9 +46,8 @@ jobs:
           git submodule update --init --recursive --remote
           mkdir -p build
           cd build
-          cmake -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release ..
+          cmake -DCMAKE_BUILD_TYPE=Release ..
           make
-          make test
       - name: Publish artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -69,9 +67,8 @@ jobs:
       - name: Build
         run: |
           git submodule update --init --recursive --remote
-          cmake -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -A x64 .
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:\vcpkg\scripts\buildsystems\vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows -A x64 .
           cmake --build . --config Release
-          cmake --build . --config Release --target RUN_TESTS
       - name: Publish artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -100,7 +97,7 @@ jobs:
           git submodule update --init --recursive --remote
           mkdir -p build
           cd build
-          cmake -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$PSPDEV/psp/share/pspdev.cmake ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=$PSPDEV/psp/share/pspdev.cmake ..
           make
       - name: Publish artifacts
         uses: actions/upload-artifact@v2
