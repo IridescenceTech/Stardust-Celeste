@@ -1,4 +1,5 @@
 #include <Platform/Platform.hpp>
+#include <Rendering/GI.hpp>
 #include <Rendering/Texture.hpp>
 
 #define BUILD_PC (BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX)
@@ -178,11 +179,10 @@ auto TextureManager::load_texture(std::string filename, u32 magFilter,
 
 auto TextureManager::bind_texture(u32 id) -> void {
     if (fullMap.find(id) != fullMap.end()) {
+        GI::enable(GI_TEXTURE_2D);
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA
-        glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, fullMap[id]->id);
 #elif BUILD_PLAT == BUILD_PSP
-        sceGuEnable(GU_TEXTURE_2D);
         Texture *tex = fullMap[id];
 
         sceGuTexMode(tex->colorMode, 0, 0, tex->swizzle);

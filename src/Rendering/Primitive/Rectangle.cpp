@@ -1,3 +1,4 @@
+#include <Rendering/GI.hpp>
 #include <Rendering/Primitive/Rectangle.hpp>
 
 namespace Stardust_Celeste::Rendering::Primitive {
@@ -17,24 +18,11 @@ Rectangle::~Rectangle() {
 }
 
 void Rectangle::draw() {
-#if BUILD_PC
-    glDisable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
-#elif BUILD_PLAT == BUILD_VITA
-    glDisable(GL_TEXTURE_2D);
-#elif BUILD_PLAT == BUILD_PSP
-    sceGuDisable(GU_TEXTURE_2D);
-#endif
+    GI::disable(GI_TEXTURE_2D);
 
     mesh->draw();
 
-#if BUILD_PC
-    glEnable(GL_TEXTURE_2D);
-#elif BUILD_PLAT == BUILD_VITA
-    glEnable(GL_TEXTURE_2D);
-#elif BUILD_PLAT == BUILD_PSP
-    sceGuEnable(GU_TEXTURE_2D);
-#endif
+    GI::enable(GI_TEXTURE_2D);
 }
 
 void Rectangle::build_mesh() {

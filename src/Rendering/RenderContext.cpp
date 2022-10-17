@@ -1,7 +1,7 @@
 #include <Core/Application.hpp>
 #include <Platform/Platform.hpp>
+#include <Rendering/GI.hpp>
 #include <Rendering/RenderContext.hpp>
-
 #define BUILD_PC (BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX)
 
 #if BUILD_PC
@@ -36,247 +36,38 @@
 #include <gtx/string_cast.hpp>
 
 namespace Stardust_Celeste::Rendering {
-#if BUILD_PC
-GLFWwindow *window;
-GLuint programID;
-#elif BUILD_PLAT == BUILD_PSP
-char list[0x100000] __attribute__((aligned(64)));
-void *_fbp0;
-void *_fbp1;
-void *_zbp;
-#elif BUILD_PLAT == BUILD_VITA
-#include <vitaGL.h>
-GLuint programID;
-#endif
-
-auto to_vec4(Color &c) -> glm::vec4 {
-    return {static_cast<float>(c.rgba.r) / 255.0f,
-            static_cast<float>(c.rgba.g) / 255.0f,
-            static_cast<float>(c.rgba.b) / 255.0f,
-            static_cast<float>(c.rgba.a) / 255.0f};
-}
-
-#if BUILD_PC
-const std::string vert_source =
-    std::string("#version 400\n") + "layout (location = 0) in vec3 aPos;\n" +
-    "layout (location = 2) in vec2 aTex;\n" +
-    "layout (location = 1) in vec4 aCol;\n" +
-    "layout (std140) uniform Matrices { uniform mat4 proj;\n" +
-    "uniform mat4 view;\n" + "uniform mat4 model;};\n" + "out vec2 uv;\n" +
-    "out vec4 color;\n" + "void main() {\n" +
-    "    gl_Position = proj * view * model * vec4(aPos, 1.0);\n" +
-    "    uv = aTex;\n" + "    color = aCol;\n" + "}\n";
-const std::string frag_source =
-    std::string("#version 400\n") + "out vec4 FragColor;\n" +
-    "uniform sampler2D tex;\n" + "in vec2 uv;\n" + "in vec4 color;\n" +
-    "void main() {\n" + "    vec4 mc = texture(tex, uv);\n" +
-    "    mc *= vec4(1.0f / 255.0f) * color;\n" + "    FragColor = mc;\n" +
-    //"    FragColor.rgb = pow(mc.rgb, vec3(1.0 / 2.2));\n" +
-    //"    FragColor.rgb = ((FragColor.rgb - 0.5f) * 1.5f) + 0.22f;\n" +
-    "    if(FragColor.a < 0.1f)\n" + "        discard;\n" + "}\n";
-const std::string frag_source2 =
-    std::string("#version 400\n") + "out vec4 FragColor;\n" +
-    "uniform sampler2D tex;\n" + "in vec2 uv;\n" + "in vec4 color;\n" +
-    "void main() {\n" + "    vec4 mc = texture(tex, uv);\n" +
-    "    mc *= vec4(1.0f / 255.0f) * color;\n" + "    FragColor = mc;\n" +
-    "    FragColor.rgb = pow(mc.rgb, vec3(1.0 / 2.2));\n" +
-    "    FragColor.rgb = ((FragColor.rgb - 0.5f) * 1.5f) + 0.22f;\n" +
-    "    if(FragColor.a < 0.1f)\n" + "        discard;\n" + "}\n";
-
-void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-    glViewport(0, 0, width, height);
-}
-
-#elif BUILD_VITA
-
-const std::string vert_source =
-    R"(
-void main(float3 position, float4 color, float2 uv,
-    float2 out vTexcoord : TEXCOORD0, float4 out vPosition : POSITION, float4 out vColor : COLOR, 
-    uniform float4x4 proj, uniform float4x4 view, uniform float4x4 model){
-        vPosition = mul(mul(mul(float4(position, 1.f), model), view), proj);
-        vTexcoord = uv;
-        vColor = color;
-    }
-)";
-
-const std::string frag_source =
-    R"(
-float4 main(float2 vTexcoord : TEXCOORD0, float4 vColor : COLOR0, uniform sampler2D tex) {
-
-    float4 texColor = tex2D(tex, vTexcoord);
-    texColor *= vColor;
-    texColor = clamp(texColor, 0.0f, 1.0f);
-
-    if(texColor.a < 0.1f)
-        discard;
-
-    return texColor;
-}
-)";
-
-#endif
 
 auto RenderContext::initialize(const RenderContextSettings app) -> void {
-#if BUILD_PC
-    SC_CORE_ASSERT(glfwInit(), "GLFW Init Failed!");
+    GI::init();
 
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    GI::enable(GI_DEPTH_TEST);
+    GI::depth_func(GI_LEQUAL);
 
-    window = glfwCreateWindow(app.width, app.height, app.title, NULL, NULL);
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSwapInterval(0);
+    GI::set_culling_mode(true, true);
 
-    SC_CORE_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
-                   "OpenGL Init Failed!");
+    GI::enable(GI_BLEND);
+    GI::blend_func(GI_SRC_ALPHA, GI_ONE_MINUS_SRC_ALPHA);
 
-    programID = ShaderManager::get().load_shader(vert_source, frag_source);
+    GI::enable(GI_ALPHA_TEST);
+    GI::alpha_func(GI_GREATER, 0x20, 0xFF);
 
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CCW);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-#elif BUILD_PLAT == BUILD_PSP
-
-    // Get static vram buffer starts at offset 0
-    // Offset 0 += memSize each time for result
-
-    u32 offset = 0;
-    _fbp0 = (void *)(offset); // getStaticVramBuffer(BUF_WIDTH, SCR_HEIGHT,
-                              // GU_PSM_8888);
-    offset += 4 * BUF_WIDTH * SCR_HEIGHT; // PSM 8888 is 4 bytes
-    _fbp1 = (void *)(offset); // getStaticVramBuffer(BUF_WIDTH, SCR_HEIGHT,
-                              // GU_PSM_8888);
-    offset += 4 * BUF_WIDTH * SCR_HEIGHT; // PSM 8888 is 4 bytes
-    _zbp = (void *)(offset); // getStaticVramBuffer(BUF_WIDTH, SCR_HEIGHT,
-
-    sceGuInit();
-
-    sceGuStart(GU_DIRECT, list);
-
-    sceGuDrawBuffer(GU_PSM_8888, _fbp0, BUF_WIDTH);
-    sceGuDispBuffer(SCR_WIDTH, SCR_HEIGHT, _fbp1, BUF_WIDTH);
-    sceGuDepthBuffer(_zbp, BUF_WIDTH);
-
-    sceGuOffset(2048 - (SCR_WIDTH / 2), 2048 - (SCR_HEIGHT / 2));
-    sceGuViewport(2048, 2048, SCR_WIDTH, SCR_HEIGHT);
-
-    sceGuDepthRange(10000, 50000);
-
-    sceGuEnable(GU_SCISSOR_TEST);
-    sceGuScissor(0, 0, SCR_WIDTH, SCR_HEIGHT);
-    sceGuEnable(GU_SCISSOR_TEST);
-    sceGuDepthFunc(GU_LESS);
-    sceGuEnable(GU_DEPTH_TEST);
-
-    sceGuDisable(GU_TEXTURE_2D);
-    sceGuEnable(GU_CLIP_PLANES);
-
-    sceGuEnable(GU_CULL_FACE);
-    sceGuFrontFace(GU_CCW);
-
-    sceGuEnable(GU_BLEND);
-    sceGuBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
-    sceGuEnable(GU_ALPHA_TEST);
-    sceGuAlphaFunc(GU_GREATER, 0x20, 0xff);
-
-    sceGuStencilFunc(GU_ALWAYS, 1, 1); // always set 1 bit in 1 bit mask
-    sceGuStencilOp(GU_KEEP, GU_KEEP,
-                   GU_REPLACE); // keep value on failed test (fail and zfail)
-                                // and replace on pass
-
-    sceGuTexFilter(GU_LINEAR, GU_LINEAR);
-    sceGuShadeModel(GU_SMOOTH);
-    sceGuFinish();
-    sceGuSync(0, 0);
-
-    sceCtrlSetSamplingCycle(0);
-    sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
-
-    sceDisplayWaitVblankStart();
-    sceGuDisplay(GU_TRUE);
-
-    sceGumMatrixMode(GU_PROJECTION);
-    sceGumLoadIdentity();
-    sceGumOrtho(-1, 1, -1, 1, -1, 1);
-    sceGumMatrixMode(GU_VIEW);
-    sceGumLoadIdentity();
-    sceGumMatrixMode(GU_MODEL);
-    sceGumLoadIdentity();
-#elif BUILD_PLAT == BUILD_VITA
-    vglInit(0x800000);
-    vglWaitVblankStart(GL_TRUE);
-
-    programID = ShaderManager::get().load_shader(vert_source, frag_source);
-    ShaderManager::get().bind_shader(programID);
-
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CCW);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    glUseProgram(programID);
-#endif
+    // PSP: SETUP MATRICES
     c.color = 0xFFFFFFFF;
     is_init = true;
     _gfx_proj = &_gfx_ortho;
 }
 
-auto RenderContext::terminate() -> void {
-#if BUILD_PC
-    glfwDestroyWindow(window);
-    glfwTerminate();
-#elif BUILD_PLAT == BUILD_PSP
-    sceGuTerm();
-#elif BUILD_PLAT == BUILD_VITA
-    vglEnd();
-#endif
-}
+auto RenderContext::terminate() -> void { GI::terminate(); }
 
 auto RenderContext::clear() -> void {
-#if BUILD_PC || BUILD_PLAT == BUILD_VITA
-    auto color = to_vec4(c);
-    glClearColor(color.r, color.g, color.b, color.a);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-#elif BUILD_PLAT == BUILD_PSP
-    sceGuStart(GU_DIRECT, list); // We can only clear 1x per frame (why would
-                                 // you want to clear more than once?)
-    sceGuClearColor(c.color);
-    sceGuClear(GU_COLOR_BUFFER_BIT | GU_DEPTH_BUFFER_BIT |
-               GU_STENCIL_BUFFER_BIT);
-#endif
+    GI::start_frame();
+
+    GI::clear_color(c);
+    GI::clear(GI_COLOR_BUFFER_BIT | GI_DEPTH_BUFFER_BIT |
+              GI_STENCIL_BUFFER_BIT);
 }
 
-auto RenderContext::render() -> void {
-#if BUILD_PC
-    glfwPollEvents();
-
-    if (glfwWindowShouldClose(window))
-        Core::Application::get().exit();
-
-    glfwSwapBuffers(window);
-#elif BUILD_PLAT == BUILD_PSP
-    sceGuFinish();
-    sceGuSync(0, 0);
-    // sceDisplayWaitVblankStart();
-    sceGuSwapBuffers();
-#elif BUILD_PLAT == BUILD_VITA
-    vglSwapBuffers(GL_FALSE);
-#endif
-}
+auto RenderContext::render() -> void { GI::end_frame(vsync); }
 
 auto RenderContext::matrix_push() -> void {
     _matrixStack.push_back(_gfx_model);

@@ -11,7 +11,7 @@ if(PSP)
     list(APPEND SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/ext/osl_sound/audio.c" "${CMAKE_CURRENT_SOURCE_DIR}/ext/osl_sound/bgm.c" "${CMAKE_CURRENT_SOURCE_DIR}/ext/osl_sound/media.c" "${CMAKE_CURRENT_SOURCE_DIR}/ext/osl_sound/pgeWav.c" "${CMAKE_CURRENT_SOURCE_DIR}/ext/osl_sound/vfsFile.c" "${CMAKE_CURRENT_SOURCE_DIR}/ext/osl_sound/VirtualFile.c")
     add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES})
     target_link_libraries(Stardust-Celeste PUBLIC pspgum pspgu pspge psputility pspdisplay pspctrl pspnet pspnet_apctl psppower pspaudio)
-    target_include_directories(Stardust-Celeste PUBLIC ext/)
+    target_include_directories(Stardust-Celeste PUBLIC ext/ ext/gu2gl)
 elseif(VITA)
     list(APPEND SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/ext/stb_vorbis.c")
 
