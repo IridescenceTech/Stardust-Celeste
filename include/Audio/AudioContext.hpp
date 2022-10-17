@@ -37,6 +37,6 @@ class AudioContext final : public Singleton {
      * @brief Terminates the current audio context
      *
      */
-    auto terminate() -> void;
+    auto terminate() noexcept -> void;
 };
 } // namespace Stardust_Celeste::Audio

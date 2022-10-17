@@ -12,8 +12,6 @@ namespace Stardust_Celeste::Core
 
     auto PlatformLayer::initialize(const AppConfig app) -> void
     {
-        // TODO: Add layers as needed
-
 #if PSP
         scePowerSetClockFrequency(333, 333, 166);
 #endif

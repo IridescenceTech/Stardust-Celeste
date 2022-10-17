@@ -3,6 +3,7 @@
 #include <Audio/dr_wav.h>
 #include <Utilities/Logger.hpp>
 #include <stdexcept>
+#include "Utilities/Assertion.hpp"
 
 #if BUILD_PLAT == BUILD_VITA
 #include <vorbis/codec.h>
@@ -64,6 +65,7 @@ auto Clip::streamData(ALuint buffer) -> bool {
 #endif
 
 Clip::Clip(const std::string &&path, bool s) {
+    SC_CORE_ASSERT(path != "", "Path is blank!");
     isStreaming = s;
 #ifndef PSP
     alGenSources((ALuint)1, &source);
@@ -174,6 +176,8 @@ auto Clip::set_pitch(float val) -> void {
 #endif
 }
 auto Clip::set_volume(float val) -> void {
+    SC_CORE_ASSERT(val >= 0.0f, "Value must be in range [0, 1]");
+    SC_CORE_ASSERT(val <= 1.0f, "Value must be in range [0, 1]");
 #ifndef PSP
     alSourcef(source, AL_GAIN, val);
 #endif
