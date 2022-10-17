@@ -5,31 +5,31 @@
 namespace Stardust_Celeste::Graphics::G2D {
 
 /**
- * @brief Draws a 2D Rectangular Sprite 
- * 
+ * @brief Draws a 2D Rectangular Sprite
+ *
  */
 class Sprite {
   public:
     /**
      * @brief Construct a new Sprite object
-     * 
+     *
      * @param texture Texture ID
      * @param bounds Bounding rectangle
      */
     Sprite(u32 texture, Rendering::Rectangle bounds);
     /**
      * @brief Construct a new Sprite object
-     * 
+     *
      * @param texture Texture ID
      * @param bounds Bounding rectangle
      * @param selection Selection rectangle in texture coordinates
      */
     Sprite(u32 texture, Rendering::Rectangle bounds,
            Rendering::Rectangle selection);
-    
+
     /**
      * @brief Construct a new Sprite object
-     * 
+     *
      * @param texture Texture ID
      * @param bounds Bounding rectangle
      * @param selection Selection rectangle in texture coordinates
@@ -37,80 +37,86 @@ class Sprite {
      */
     Sprite(u32 texture, Rendering::Rectangle bounds,
            Rendering::Rectangle selection, Rendering::Color color);
-           
+
     /**
      * @brief Construct a new Sprite object
-     * 
+     *
      * @param texture Texture ID
      * @param bounds Bounding rectangle
      * @param color Tint color
      */
     Sprite(u32 texture, Rendering::Rectangle bounds, Rendering::Color color);
+
+    /**
+     * @brief Destroy the Sprite object
+     *
+     */
     virtual ~Sprite();
 
     /**
-     * @brief Update method -- this does nothing in the base class, but is useful for animations and transitions
-     * 
+     * @brief Update method -- this does nothing in the base class, but is
+     * useful for animations and transitions
+     *
      * @param dt Delta Time
      */
     virtual auto update(double dt) -> void;
 
     /**
      * @brief Draws the sprite to the screen
-     * 
+     *
      */
-    auto draw() -> void;
+    virtual auto draw() -> void;
 
     /**
      * @brief Set the position of the sprite
-     * 
+     *
      * @param position Sprite Position XY
      */
-    auto set_position(glm::vec2 position) -> void;
+    virtual auto set_position(glm::vec2 position) -> void;
 
     /**
      * @brief Set the size of the sprite
-     * 
+     *
      * @param size Sprite Size WH
      */
-    auto set_size(glm::vec2 size) -> void;
+    virtual auto set_size(glm::vec2 size) -> void;
 
     /**
      * @brief Set the rectangle boundaries
-     * 
+     *
      * @param bounds Boundaries of the rectangle
      */
-    auto set_rect(Rendering::Rectangle bounds) -> void;
+    virtual auto set_rect(Rendering::Rectangle bounds) -> void;
 
     /**
      * @brief Set the selection area for texture slicing
-     * 
+     *
      * @param selection Boundaries of the selection area
      */
     auto set_selection(Rendering::Rectangle selection) -> void;
 
     /**
      * @brief Set the layer
-     * 
+     *
      * @param layer Layer of the sprite
      */
-    auto set_layer(s16 layer) -> void;
+    virtual auto set_layer(s16 layer) -> void;
 
     /**
      * @brief Set the tint color of the sprite
-     * 
+     *
      * @param color Tint color
      */
-    auto set_color(Rendering::Color color) -> void;
+    virtual auto set_color(Rendering::Color color) -> void;
 
     /**
      * @brief Texture ID
-     * 
+     *
      */
     u32 texture;
 
   protected:
-    auto update_mesh() -> void;
+    virtual auto update_mesh() -> void;
     Rendering::Rectangle selection;
     Rendering::Rectangle bounds;
     Rendering::Color color;

@@ -41,7 +41,7 @@ auto AudioContext::initialize() -> void {
     oslInitAudio();
 #endif
 }
-auto AudioContext::terminate() -> void {
+auto AudioContext::terminate() noexcept -> void {
 #ifndef PSP
     device = alcGetContextsDevice(context);
     alcMakeContextCurrent(NULL);
