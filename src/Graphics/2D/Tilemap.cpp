@@ -1,9 +1,13 @@
 #include <Graphics/2D/Tilemap.hpp>
 #include <Rendering/Texture.hpp>
+#include <Utilities/Assertion.hpp>
 
 namespace Stardust_Celeste::Graphics::G2D {
 
 Tilemap::Tilemap(u32 tex, glm::vec2 atlasSize) {
+    SC_CORE_ASSERT(tex != 0, "Tilemap construction: Texture ID is 0!");
+    SC_CORE_ASSERT(atlasSize.x * atlasSize.y > 0,
+                   "Tilemap construction: Atlas Size is <= 0!");
     texture = tex;
     atlasDimensions = atlasSize;
     mesh = create_scopeptr<Rendering::Mesh>();
@@ -18,6 +22,8 @@ Tilemap::~Tilemap() {
 auto Tilemap::add_tile(Tile tile) -> void { tileMap.push_back(tile); }
 
 auto Tilemap::add_tiles(std::vector<Tile> tiles) -> void {
+    SC_CORE_ASSERT(tiles.size() > 0,
+                   "Tilemap, tile array insertion is of size() <= 0");
     tileMap.insert(tileMap.end(), tiles.begin(), tiles.end());
 }
 

@@ -1,9 +1,11 @@
 #include <Graphics/2D/Sprite.hpp>
 #include <Rendering/Texture.hpp>
+#include <Utilities/Assertion.hpp>
 
 namespace Stardust_Celeste::Graphics::G2D {
 
 Sprite::Sprite(u32 tex, Rendering::Rectangle bnd) {
+    SC_CORE_ASSERT(tex != 0, "Sprite construction: Texture ID is 0!");
     texture = tex;
     bounds = bnd;
     selection = Rendering::Rectangle{{0, 0}, {1, 1}};
@@ -17,6 +19,7 @@ Sprite::Sprite(u32 tex, Rendering::Rectangle bnd) {
 }
 
 Sprite::Sprite(u32 tex, Rendering::Rectangle bnd, Rendering::Rectangle sel) {
+    SC_CORE_ASSERT(tex != 0, "Sprite construction: Texture ID is 0!");
     texture = tex;
     bounds = bnd;
     selection = sel;
@@ -31,6 +34,7 @@ Sprite::Sprite(u32 tex, Rendering::Rectangle bnd, Rendering::Rectangle sel) {
 
 Sprite::Sprite(u32 tex, Rendering::Rectangle bnd, Rendering::Rectangle sel,
                Rendering::Color col) {
+    SC_CORE_ASSERT(tex != 0, "Sprite construction: Texture ID is 0!");
 
     texture = tex;
     bounds = bnd;
@@ -44,6 +48,7 @@ Sprite::Sprite(u32 tex, Rendering::Rectangle bnd, Rendering::Rectangle sel,
     update_mesh();
 }
 Sprite::Sprite(u32 tex, Rendering::Rectangle bnd, Rendering::Color col) {
+    SC_CORE_ASSERT(tex != 0, "Sprite construction: Texture ID is 0!");
     texture = tex;
     bounds = bnd;
     selection = Rendering::Rectangle{{0, 0}, {1, 1}};
