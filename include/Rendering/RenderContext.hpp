@@ -7,6 +7,7 @@
 #include <glm.hpp>
 #include <vector>
 
+#include "GI.hpp"
 #include "RenderTypes.hpp"
 
 #include <Platform/Platform.hpp>
@@ -176,5 +177,11 @@ class RenderContext final : public Singleton {
      *
      */
     auto set_mode_3D() -> void;
+
+    /**
+     * @brief VSYNC Enable / Disable
+     *
+     */
+    bool vsync;
 };
 } // namespace Stardust_Celeste::Rendering
