@@ -10,3 +10,6 @@
 [submodule "ext/yaml"]
 	path = ext/yaml
 	url = https://github.com/jbeder/yaml-cpp/
+[submodule "ext/gu2gl"]
+	path = ext/gu2gl
+	url = https://github.com/IridescentRose/gu2gl
