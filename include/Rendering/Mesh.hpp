@@ -48,6 +48,7 @@ struct PACKED Vertex {
 
 // TODO: Optimized Vertex structure - u16 x,y,z - u16 color - u16 u,v
 // TODO: Lit data structure including normals
+// TODO: Look at this class again with FixedMesh
 
 /**
  * @brief Mesh takes ownership of vertices and indices

@@ -8,6 +8,5 @@
 #include "NonMove.hpp"
 #include "Profiler.hpp"
 #include "Singleton.hpp"
-#include "ThreadSafe.hpp"
 #include "Timer.hpp"
 #include "Types.hpp"

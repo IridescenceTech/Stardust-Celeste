@@ -5,6 +5,11 @@
 #include <string>
 
 namespace Stardust_Celeste::Rendering {
+
+/**
+ * @brief Color union object
+ *
+ */
 union Color {
     struct RGBA {
         u8 r;
@@ -17,11 +22,20 @@ union Color {
     u32 color;
 };
 
+/**
+ * @brief Rectangle Structure
+ * position -- Position of rectangle
+ * extent -- Size of rectangle
+ */
 struct Rectangle {
     glm::vec2 position;
     glm::vec2 extent;
 };
 
+/**
+ * @brief Texture Data
+ *
+ */
 struct Texture {
     u32 width, height;
 
@@ -63,5 +77,8 @@ struct Texture {
 
     std::string name;
 };
+
+inline auto deg2rad(float deg) -> float { return deg / 180.0f * 3.14159f; }
+inline auto rad2deg(float rad) -> float { return rad * 180.0f / 3.14159f; }
 
 } // namespace Stardust_Celeste::Rendering

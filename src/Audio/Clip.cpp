@@ -1,9 +1,9 @@
 #include <Audio/Clip.hpp>
 #define DR_WAV_IMPLEMENTATION
+#include "Utilities/Assertion.hpp"
 #include <Audio/dr_wav.h>
 #include <Utilities/Logger.hpp>
 #include <stdexcept>
-#include "Utilities/Assertion.hpp"
 
 #if BUILD_PLAT == BUILD_VITA
 #include <vorbis/codec.h>
@@ -152,8 +152,10 @@ Clip::Clip(const std::string &&path, bool s) {
 #endif
     }
 #else
-    auto fmt = s ? OSL_FMT_STREAM : OSL_FMT_NONE;
-    sound = oslLoadSoundFile(path.c_str(), OSL_FMT_NONE);
+    int fmt = OSL_FMT_NONE;
+    if (s)
+        fmt = OSL_FMT_STREAM;
+    sound = oslLoadSoundFile(path.c_str(), fmt);
 #endif
 }
 Clip::~Clip() {

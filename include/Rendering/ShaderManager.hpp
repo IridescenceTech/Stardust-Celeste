@@ -15,6 +15,10 @@ namespace Stardust_Celeste::Rendering {
 
 #ifndef PSP
 
+/**
+ * @brief Shader data structure
+ *
+ */
 struct Shader {
     GLuint programID;
     GLuint ubi;
@@ -24,19 +28,53 @@ struct Shader {
     GLuint modLoc;
 };
 
-class ShaderManager : public Singleton {
+/**
+ * @brief Desktop + Vita Shader Management
+ *
+ */
+class ShaderManager final : public Singleton {
   public:
     ShaderManager() = default;
-    ~ShaderManager();
+    virtual ~ShaderManager();
 
+    /**
+     * @brief Create a brand new Shader Program
+     *
+     * @param vs Vertex Shader Source
+     * @param fs Fragment Shader Source
+     * @return int
+     */
     auto load_shader(std::string vs, std::string fs) -> int;
+
+    /**
+     * @brief Bind shader object given an ID
+     *
+     * @param id ID of shader object
+     */
     auto bind_shader(u32 id) -> void;
 
+    /**
+     * @brief Get the shader object given an ID
+     *
+     * @param id ID of shader object
+     * @return Shader
+     */
     inline auto get_shader(u32 id) -> Shader { return fullMap[id]; }
+
+    /**
+     * @brief Get the current shader object
+     *
+     * @return Shader
+     */
     inline auto get_current_shader() -> Shader {
         return fullMap[current_shader];
     }
 
+    /**
+     * @brief Gets static instance of the ShaderManager
+     *
+     * @return ShaderManager& Instance
+     */
     inline static auto get() -> ShaderManager & {
         static ShaderManager smx;
         return smx;
