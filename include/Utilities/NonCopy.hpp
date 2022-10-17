@@ -1,5 +1,9 @@
 #pragma once
 
+/**
+ * @brief Class without copy constructors
+ *
+ */
 class NonCopy {
   public:
     NonCopy(const NonCopy &) = delete;

@@ -5,6 +5,10 @@
 
 namespace Stardust_Celeste::Utilities {
 
+/**
+ * @brief Basic object to grab time differences
+ *
+ */
 class Timer final : public NonCopy {
   public:
     Timer();
