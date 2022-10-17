@@ -52,15 +52,14 @@ auto FontRenderer::add_text(std::string text, glm::vec2 position,
     stringVector.push_back({text, position, color, layer});
 }
 
-auto FontRenderer::clear() -> void {
+auto FontRenderer::clear_tiles() -> void {
     stringVector.clear();
     stringVector.shrink_to_fit();
+
+    Tilemap::clear_tiles();
 }
 
-auto FontRenderer::update(double dt) -> void { Tilemap::update(dt); }
-auto FontRenderer::draw() -> void { Tilemap::draw(); }
-
-auto FontRenderer::rebuild() -> void {
+auto FontRenderer::generate_map() -> void {
 
     clear_tiles();
 
@@ -83,7 +82,7 @@ auto FontRenderer::rebuild() -> void {
         }
     }
 
-    generate_map();
+    Tilemap::generate_map();
 }
 
 auto FontRenderer::calculate_size(std::string text) -> float {

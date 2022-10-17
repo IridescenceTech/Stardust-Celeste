@@ -3,17 +3,18 @@
 
 namespace Stardust_Celeste::Graphics::G2D {
 
-AnimatedTilemap::AnimatedTilemap(u32 tex, glm::vec2 atlasSize) : Tilemap(tex, atlasSize) {
+AnimatedTilemap::AnimatedTilemap(u32 tex, glm::vec2 atlasSize)
+    : Tilemap(tex, atlasSize) {
     atileMap.clear();
     atime = 0.0f;
-    tickPerSec = 4.0f;
+    ticksPerSec = 4.0f;
 }
 
-AnimatedTilemap::~AnimatedTilemap() {
-    atileMap.clear();
-}
+AnimatedTilemap::~AnimatedTilemap() { atileMap.clear(); }
 
-auto AnimatedTilemap::add_tile(AnimatedTile tile) -> void { atileMap.push_back(tile); }
+auto AnimatedTilemap::add_tile(AnimatedTile tile) -> void {
+    atileMap.push_back(tile);
+}
 
 auto AnimatedTilemap::add_tiles(std::vector<AnimatedTile> tiles) -> void {
     atileMap.insert(atileMap.end(), tiles.begin(), tiles.end());
@@ -22,23 +23,24 @@ auto AnimatedTilemap::add_tiles(std::vector<AnimatedTile> tiles) -> void {
 auto AnimatedTilemap::clear_tiles() -> void {
     atileMap.clear();
     atileMap.shrink_to_fit();
+
+    Tilemap::clear_tiles();
 }
 
 auto AnimatedTilemap::update(double dt) -> void {
     atime += dt;
 
-    if(atime > 1.0f / tickPerSec) {
+    if (atime > 1.0f / ticksPerSec) {
         tick();
         atime = 0.0f;
     }
 }
 
-
 auto AnimatedTilemap::tick() -> void {
-    for(auto& t : atileMap) {
+    for (auto &t : atileMap) {
         t.index++;
 
-        if(t.index < t.start_idx || t.index >= t.final_idx) {
+        if (t.index < t.start_idx || t.index >= t.final_idx) {
             t.index = t.start_idx;
         }
     }
