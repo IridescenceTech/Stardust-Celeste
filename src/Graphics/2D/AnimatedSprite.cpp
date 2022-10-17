@@ -1,4 +1,5 @@
 #include <Graphics/2D/AnimatedSprite.hpp>
+#include <Rendering/Texture.hpp>
 
 namespace Stardust_Celeste::Graphics::G2D {
 AnimatedSprite::AnimatedSprite(u32 texture, Rendering::Rectangle bounds,
