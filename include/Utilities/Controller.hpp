@@ -5,23 +5,23 @@
 
 namespace Stardust_Celeste::Utilities {
 
-    enum KeyFlag {
-        None        = 0x00,
-        Press       = 0x01,
-        Held        = 0x02,
-        Release     = 0x04,
-        Untouched   = 0x08
-    };
+enum KeyFlag {
+    None = 0x00,
+    Press = 0x01,
+    Held = 0x02,
+    Release = 0x04,
+    Untouched = 0x08
+};
 
-    struct KeyData {
-        int key;
-        int flags;
-    };
+struct KeyData {
+    int key;
+    int flags;
+};
 
-    struct KeyCommandPair {
-        KeyData key;
-        Command cmd;
-    };
+struct KeyCommandPair {
+    KeyData key;
+    Command cmd;
+};
 
 class Controller {
   public:
@@ -35,7 +35,7 @@ class Controller {
      * @param command Command to be executed
      */
     inline auto add_command(KeyData key, Command command) -> void {
-        command_map.push_back({ key, command });
+        command_map.push_back({key, command});
     }
 
     /**
