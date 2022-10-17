@@ -23,7 +23,7 @@
 
 namespace Stardust_Celeste::Rendering {
 
-class TextureManager : public Singleton {
+class TextureManager final : public Singleton {
   public:
     TextureManager() = default;
     ~TextureManager();

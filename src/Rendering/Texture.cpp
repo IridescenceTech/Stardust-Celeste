@@ -66,7 +66,6 @@ inline auto swizzle_fast(u8 *out, const u8 *in, unsigned int width,
     }
 }
 
-
 u32 offset = 10 * 512 * 272;
 
 #endif
@@ -92,8 +91,8 @@ auto TextureManager::get_texture(std::string name) -> u32 {
 }
 
 auto TextureManager::load_texture(std::string filename, u32 magFilter,
-                                  u32 minFilter, bool repeat, bool flip, bool vram)
-    -> u32 {
+                                  u32 minFilter, bool repeat, bool flip,
+                                  bool vram) -> u32 {
 
     int width, height, nrChannels;
     if (flip)
@@ -155,11 +154,12 @@ auto TextureManager::load_texture(std::string filename, u32 magFilter,
     stbi_image_free(data);
     tex->data = (uint16_t *)dataBuffer;
 
-    unsigned int* swizzled_pixels = nullptr;
+    unsigned int *swizzled_pixels = nullptr;
     if (!vram)
-        swizzled_pixels = (unsigned int*)memalign(16, tex->pH * tex->pW * 4);
+        swizzled_pixels = (unsigned int *)memalign(16, tex->pH * tex->pW * 4);
     else {
-        swizzled_pixels = (unsigned int*)(offset + sceGeEdramGetAddr());
+        swizzled_pixels =
+            (unsigned int *)((int)offset + (int)sceGeEdramGetAddr());
         offset += tex->pH * tex->pW * 4;
     }
 

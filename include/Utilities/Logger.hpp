@@ -2,11 +2,11 @@
 #include "../Platform/Platform.hpp"
 #include "../fmt/core.h"
 #include "Singleton.hpp"
-#include "ThreadSafe.hpp"
 #include "Types.hpp"
 #include <ctime>
 #include <iomanip>
 #include <iostream>
+#include <mutex>
 #include <sstream>
 
 namespace Stardust_Celeste::Utilities {

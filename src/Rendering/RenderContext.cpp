@@ -312,7 +312,7 @@ auto RenderContext::matrix_scale(glm::vec3 v) -> void {
 
 auto RenderContext::matrix_perspective(float fovy, float aspect, float zn,
                                        float zf) -> void {
-    _gfx_persp = glm::perspective(fovy, aspect, zn, zf);
+    _gfx_persp = glm::perspective(deg2rad(fovy), aspect, zn, zf);
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
