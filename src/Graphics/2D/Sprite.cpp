@@ -126,6 +126,23 @@ auto Sprite::update_mesh() -> void {
                                  bounds.position.y + bounds.extent.y,
                                  (float)layer};
 
+#if PSP
+    auto tInfo = Rendering::TextureManager::get().get_texture(texture);
+
+    float wRatio = 1.0f;
+    float hRatio = 1.0f;
+
+    if (tInfo != nullptr) {
+        wRatio = (float)tInfo->width / (float)tInfo->pW;
+        hRatio = (float)tInfo->height / (float)tInfo->pH;
+    }
+
+    for (int i = 0; i < 4; i++) {
+        verts[i].u *= wRatio;
+        verts[i].v *= hRatio;
+    }
+#endif
+
     if (idxs == nullptr) {
         idxs = new u16[6];
         idxs[0] = 0;
