@@ -8,6 +8,7 @@
 
 #include "Core/Core.hpp"
 #include "Events/Event.hpp"
+#include "Graphics/Graphics.hpp"
 #include "Network/Network.hpp"
 #include "Platform/Platform.hpp"
 #include "Rendering/Rendering.hpp"

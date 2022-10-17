@@ -1,5 +1,9 @@
 #pragma once
 
+/**
+ * @brief Class without move constructors
+ *
+ */
 class NonMove {
   public:
     NonMove(const NonMove &&) = delete;

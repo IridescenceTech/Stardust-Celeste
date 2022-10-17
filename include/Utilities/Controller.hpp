@@ -23,6 +23,10 @@ struct KeyCommandPair {
     Command cmd;
 };
 
+/**
+ * @brief Describes a control surface for user keys to be bound to commands
+ *
+ */
 class Controller {
   public:
     Controller() = default;
