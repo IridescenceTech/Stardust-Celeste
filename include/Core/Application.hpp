@@ -14,7 +14,7 @@ namespace Stardust_Celeste::Core {
 
 /**
  * @brief Base application class -- must be overriden for users
- * 
+ *
  */
 class Application {
   public:
@@ -29,11 +29,11 @@ class Application {
 
     /**
      * @brief Set the state
-     * 
+     *
      * @param state Valid ApplicationState
      */
     void set_state(RefPtr<ApplicationState> state) {
-        SC_CORE_ASSERT(state.get() == nullptr, "State set was nullptr!");
+        SC_CORE_ASSERT(state.get() != nullptr, "State set was nullptr!");
 
         stateStack.clear();
         state->on_start();
@@ -43,21 +43,22 @@ class Application {
 
     /**
      * @brief Push the state
-     * 
+     *
      * @param state Valid ApplicationState
      */
     void push_state(RefPtr<ApplicationState> state) {
-        SC_CORE_ASSERT(state.get() == nullptr, "State pushed was nullptr!");
+        SC_CORE_ASSERT(state.get() != nullptr, "State pushed was nullptr!");
         state->on_start();
         stateStack.emplace_back(state);
     }
 
     /**
      * @brief Pops the state
-     * 
+     *
      */
     void pop_state() {
-        SC_CORE_ASSERT(stateStack.size() > 0, "StateStack.size() == 0, but pop_state was called!");
+        SC_CORE_ASSERT(stateStack.size() > 0,
+                       "StateStack.size() == 0, but pop_state was called!");
         stateStack.back()->on_cleanup();
         stateStack.pop_back();
     }
@@ -66,14 +67,14 @@ class Application {
 
     /**
      * @brief Exits the application
-     * 
+     *
      */
     void exit() { running = false; }
 
   private:
     /**
      * @brief Runs the base application
-     * 
+     *
      */
     void run() {
         Utilities::Timer timer;

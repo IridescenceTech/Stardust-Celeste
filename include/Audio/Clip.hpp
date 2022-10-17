@@ -6,7 +6,7 @@
 
 #ifndef PSP
 #include "AL/al.h"
-#include <ext/stb_vorbis.h>
+#include <stb_vorbis.h>
 #else
 #include <osl_sound/audio.h>
 #include <osl_sound/oslib.h>

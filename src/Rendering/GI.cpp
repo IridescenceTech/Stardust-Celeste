@@ -1,3 +1,6 @@
+#if PSP
+#define GUGL_IMPLEMENTATION
+#endif
 #include <Rendering/GI.hpp>
 #include <string>
 
@@ -75,7 +78,9 @@ float4 main(float2 vTexcoord : TEXCOORD0, float4 vColor : COLOR0, uniform sample
 
 #endif
 
+#include <Core/Application.hpp>
 #include <Rendering/ShaderManager.hpp>
+#include <Utilities/Assertion.hpp>
 
 namespace GI {
 
@@ -89,7 +94,7 @@ static unsigned int __attribute__((aligned(16))) list[0x10000];
 GLuint programID;
 #endif
 
-auto init() -> void {
+auto init(const RenderContextSettings app) -> void {
 #if BUILD_PC
     SC_CORE_ASSERT(glfwInit(), "GLFW Init Failed!");
 
@@ -190,7 +195,7 @@ auto end_frame(bool vsync, bool dialog) -> void {
         glfwSwapInterval(0);
 
     if (glfwWindowShouldClose(window))
-        Core::Application::get().exit();
+        Stardust_Celeste::Core::Application::get().exit();
 
     glfwSwapBuffers(window);
 #elif BUILD_PLAT == BUILD_PSP

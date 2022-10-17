@@ -13,18 +13,6 @@
 #include <Platform/Platform.hpp>
 namespace Stardust_Celeste::Rendering {
 
-/**
- * @brief Render Context Settings
- * width -- Width of window
- * height -- Height of window
- * title -- Title of window
- */
-struct RenderContextSettings {
-    u32 width = 1280;
-    u32 height = 720;
-    const char *title = "Stardust App";
-};
-
 class RenderContext final : public Singleton {
 
   private:

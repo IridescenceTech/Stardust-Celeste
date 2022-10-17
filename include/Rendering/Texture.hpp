@@ -45,7 +45,7 @@ class TextureManager final : public Singleton {
 
   private:
     std::map<unsigned int, Texture *> fullMap;
-    u32 texCount = 0;
+    u32 texCount = 1;
 };
 
 } // namespace Stardust_Celeste::Rendering
