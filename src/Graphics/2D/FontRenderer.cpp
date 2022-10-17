@@ -7,6 +7,11 @@ namespace Stardust_Celeste::Graphics::G2D {
 
 FontRenderer::FontRenderer(u32 texture, glm::vec2 atlasSize)
     : Tilemap(texture, atlasSize) {
+
+    SC_CORE_ASSERT(texture != 0, "Tilemap construction: Texture ID is 0!");
+    SC_CORE_ASSERT(atlasSize.x * atlasSize.y > 0,
+                   "Tilemap construction: Atlas Size is <= 0!");
+
     size_map = (float *)malloc(atlasSize.x * atlasSize.y * sizeof(float));
     scale_factor = 1.0f;
 
