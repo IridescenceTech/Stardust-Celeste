@@ -73,10 +73,3 @@ elseif(DEFINED VITA)
 else()
     add_compile_definitions(BUILD_PLAT=1)
 endif()
-
-option(BUILD_TESTS "Build test programs" OFF)
-
-if(BUILD_TESTS)
-    enable_testing()
-    add_subdirectory(tests)
-endif()
