@@ -54,6 +54,24 @@ auto Tilemap::generate_map() -> void {
 
         auto uvs = Rendering::Texture::get_tile_uvs(atlasDimensions, t.index);
 
+#if PSP
+        auto tInfo = Rendering::TextureManager::get().get_texture(texture);
+
+        float wRatio = 1.0f;
+        float hRatio = 1.0f;
+
+        if (tInfo != nullptr) {
+            wRatio = (float)tInfo->width / (float)tInfo->pW;
+            hRatio = (float)tInfo->height / (float)tInfo->pH;
+        }
+
+        for (int i = 0; i < 4; i++) {
+            uvs[i * 2 + 0] *= wRatio;
+            uvs[i * 2 + 1] *= hRatio;
+        }
+#endif
+
+
         vert_data.push_back(
             Rendering::Vertex{uvs[0], uvs[1], t.color, x, y, t.layer});
         vert_data.push_back(
