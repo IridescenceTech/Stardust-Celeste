@@ -1,3 +1,4 @@
+#pragma once
 #include <Graphics/2D/Sprite.hpp>
 
 namespace Stardust_Celeste::Graphics::G2D {
