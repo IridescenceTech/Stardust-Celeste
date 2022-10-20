@@ -85,10 +85,12 @@ class Logger final : public Singleton {
                 fmt::print(formatMsg);
 #endif
 
+            if(m_FileOut != nullptr){
             fmt::print(m_FileOut, formatMsg);
 
             if (flush_output)
                 fflush(m_FileOut);
+            }
         }
     }
 
