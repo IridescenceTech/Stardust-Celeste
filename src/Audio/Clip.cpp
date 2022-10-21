@@ -117,7 +117,7 @@ Clip::Clip(const std::string &&path, bool s) {
         streamData(buffers[1]);
 
         alSourceQueueBuffers(source, 2, buffers);
-        alSourcePlay(source);
+        //alSourcePlay(source);
 
         totalSamplesLeft = 1;
 #else
@@ -143,7 +143,7 @@ Clip::Clip(const std::string &&path, bool s) {
         streamData(buffers[1]);
 
         alSourceQueueBuffers(source, 2, buffers);
-        alSourcePlay(source);
+        //alSourcePlay(source);
 
         totalSamplesLeft =
             stb_vorbis_stream_length_in_samples(stream) * info.channels;
