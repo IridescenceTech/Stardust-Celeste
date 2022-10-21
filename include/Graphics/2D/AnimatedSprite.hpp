@@ -1,4 +1,3 @@
-#pragma once
 #include <Graphics/2D/Sprite.hpp>
 
 namespace Stardust_Celeste::Graphics::G2D {
@@ -16,6 +15,7 @@ class AnimatedSprite : public Sprite {
         this->endIDX = endIDX;
     }
 
+    bool animEnd = false;
     float ticksPerSec;
     private:
     float tickTimer;

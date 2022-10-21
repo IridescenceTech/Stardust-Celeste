@@ -72,14 +72,14 @@ auto Tilemap::generate_map() -> void {
 #endif
 
 
-        vert_data.push_back(
-            Rendering::Vertex{uvs[0], uvs[1], t.color, x, y, t.layer});
-        vert_data.push_back(
-            Rendering::Vertex{uvs[2], uvs[3], t.color, x + w, y, t.layer});
-        vert_data.push_back(
-            Rendering::Vertex{uvs[4], uvs[5], t.color, x + w, y + h, t.layer});
-        vert_data.push_back(
-            Rendering::Vertex{uvs[6], uvs[7], t.color, x, y + h, t.layer});
+    vert_data.push_back(
+        Rendering::Vertex{uvs[0], uvs[1], t.color, x, y + h, t.layer});
+    vert_data.push_back(
+        Rendering::Vertex{uvs[2], uvs[3], t.color, x + w, y + h, t.layer});
+    vert_data.push_back(
+        Rendering::Vertex{uvs[4], uvs[5], t.color, x + w, y, t.layer});
+    vert_data.push_back(
+        Rendering::Vertex{uvs[6], uvs[7], t.color, x, y, t.layer});
 
         idx_data.insert(idx_data.end(),
                         {(u16)(idxc + 0), (u16)(idxc + 1), (u16)(idxc + 2),
