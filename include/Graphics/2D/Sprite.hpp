@@ -121,9 +121,7 @@ class Sprite {
     Rendering::Rectangle bounds;
     Rendering::Color color;
     s16 layer;
-    ScopePtr<Rendering::Mesh> mesh;
-    Rendering::Vertex *verts;
-    u16 *idxs;
+    ScopePtr<Rendering::FixedMesh<Rendering::Vertex, 4, 6>> mesh;
 };
 
 } // namespace Stardust_Celeste::Graphics::G2D

@@ -4,6 +4,7 @@
 #include "Utilities/Logger.hpp"
 #include "Utilities/Singleton.hpp"
 #include "Utilities/Types.hpp"
+#include <array>
 
 #include "RenderTypes.hpp"
 
@@ -53,7 +54,7 @@ struct PACKED Vertex {
 /**
  * @brief Mesh takes ownership of vertices and indices
  */
-class Mesh : public NonCopy {
+template <class T> class Mesh : public NonCopy {
   private:
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA
     GLuint vbo, vao, ebo;
@@ -64,30 +65,27 @@ class Mesh : public NonCopy {
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA
         : vbo(0), vao(0), ebo(0)
 #endif
-                              {};
-
-    Mesh(Vertex *vertices, size_t vcount, u16 *indices, size_t idx_count) {
-        add_data(vertices, vcount, indices, idx_count);
-    }
+    {
+        vertices.clear();
+        vertices.shrink_to_fit();
+        indices.clear();
+        indices.shrink_to_fit();
+    };
 
     ~Mesh() { delete_data(); }
 
-    auto add_data(Vertex *vertices, size_t vcount, u16 *indices, size_t idxc)
-        -> void {
-        vert_data = vertices;
-        idx_data = indices;
-        idx_count = idxc;
-
+    // TODO: Vert type changes enabled attributes
+    auto setup_buffer() -> void {
 #if BUILD_PC
         glGenVertexArrays(1, &vao);
         glGenBuffers(1, &vbo);
         bind();
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vcount, vert_data,
-                     GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(T) * vertices.size(),
+                     vertices.data(), GL_STATIC_DRAW);
 
-        const auto stride = sizeof(Vertex);
+        const auto stride = sizeof(T);
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride,
@@ -100,26 +98,26 @@ class Mesh : public NonCopy {
 
         glGenBuffers(1, &ebo);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * idx_count, idx_data,
-                     GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * indices.size(),
+                     indices.data(), GL_STATIC_DRAW);
 
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 #elif BUILD_PLAT == BUILD_VITA
-        if (idxc <= 0 || vcount <= 0)
+        if (indices.size() <= 0 || vertices.size() <= 0)
             return;
 
         glGenBuffers(1, &vbo);
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * vcount, vert_data,
-                     GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(T) * vertices.size(),
+                     vertices.data(), GL_STATIC_DRAW);
 
         glGenBuffers(1, &ebo);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * idx_count, idx_data,
-                     GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * indices.size(),
+                     indices.data(), GL_STATIC_DRAW);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -129,24 +127,28 @@ class Mesh : public NonCopy {
     }
 
     auto delete_data() -> void {
-        vert_data = NULL;
-        idx_data = NULL;
 
 #if BUILD_PC
         glDeleteVertexArrays(1, &vao);
         glDeleteBuffers(1, &vbo);
         glDeleteBuffers(1, &ebo);
 #elif BUILD_PLAT == BUILD_VITA
-        if (idx_count <= 0)
+        if (indices.size() <= 0)
             return;
 
         glDeleteBuffers(1, &vbo);
         glDeleteBuffers(1, &ebo);
 #endif
 
-        idx_count = 0;
+        vertices.clear();
+        vertices.shrink_to_fit();
+
+        indices.clear();
+        indices.shrink_to_fit();
     }
 
+    // TODO: Optional drawing modes for draw()
+    // TODO: Vert type changes enabled attributes
     auto draw() -> void {
         bind();
 
@@ -154,18 +156,19 @@ class Mesh : public NonCopy {
 
 #if BUILD_PC
         // TODO: Bind Program
-        glDrawElements(GL_TRIANGLES, idx_count, GL_UNSIGNED_SHORT, nullptr);
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
+                       nullptr);
 #elif BUILD_PLAT == BUILD_PSP
         sceGuShadeModel(GU_SMOOTH);
         sceGumDrawArray(GU_TRIANGLES,
                         GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
                             GU_VERTEX_32BITF | GU_TRANSFORM_3D,
-                        idx_count, idx_data, vert_data);
+                        indices.size(), indices.data(), vertices.data());
 #elif BUILD_PLAT == BUILD_VITA
         if (vert_data == NULL || idx_data == NULL)
             return;
 
-        const auto stride = sizeof(Vertex);
+        const auto stride = sizeof(T);
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride,
@@ -176,60 +179,11 @@ class Mesh : public NonCopy {
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
 
-        glDrawElements(GL_TRIANGLES, idx_count, GL_UNSIGNED_SHORT, nullptr);
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
+                       nullptr);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-#endif
-    }
-
-    auto draw_lines() -> void {
-        bind();
-
-        Rendering::RenderContext::get().set_matrices();
-
-#if BUILD_PC
-        // TODO: Bind Program
-        glLineWidth(2.0f);
-        glDisable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        glDrawElements(GL_LINE_STRIP, idx_count, GL_UNSIGNED_SHORT, nullptr);
-
-        glEnable(GL_TEXTURE_2D);
-#elif BUILD_PLAT == BUILD_PSP
-        sceGuShadeModel(GU_SMOOTH);
-        sceGuDisable(GU_TEXTURE_2D);
-
-        sceGumDrawArray(GU_LINE_STRIP,
-                        GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
-                            GU_VERTEX_32BITF | GU_TRANSFORM_3D,
-                        idx_count, idx_data, vert_data);
-
-        sceGuEnable(GU_TEXTURE_2D);
-#elif BUILD_PLAT == BUILD_VITA
-        glLineWidth(2.0f);
-        glDisable(GL_TEXTURE_2D);
-
-        if (vert_data == NULL || idx_data == NULL)
-            return;
-
-        const auto stride = sizeof(Vertex);
-
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride,
-                              reinterpret_cast<void *>(sizeof(float) * 3));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, stride,
-                              reinterpret_cast<void *>(sizeof(float) * 2));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
-
-        glDrawElements(GL_LINE_STRIP, idx_count, GL_UNSIGNED_SHORT, nullptr);
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        glEnable(GL_TEXTURE_2D);
 #endif
     }
 
@@ -242,12 +196,161 @@ class Mesh : public NonCopy {
 #endif
     }
 
-    inline auto get_index_count() -> s32 { return idx_count; }
+    inline auto get_index_count() -> s32 { return indices.size(); }
 
+    std::vector<T> vertices;
+    std::vector<u16> indices;
+};
+
+template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
   private:
-    size_t idx_count = 0;
-    Vertex *vert_data = nullptr;
-    u16 *idx_data = nullptr;
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
+    GLuint vbo, vao, ebo;
+#endif
+
+  public:
+    FixedMesh()
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
+        : vbo(0), vao(0), ebo(0)
+#endif
+    {
+        for (int i = 0; i < V; i++) {
+            vertices[i] = {0};
+        }
+        for (int i = 0; i < I; i++) {
+            indices[i] = 0;
+        }
+    };
+
+    ~FixedMesh() { delete_data(); }
+
+    // TODO: Vert type changes enabled attributes
+    auto setup_buffer() -> void {
+#if BUILD_PC
+        glGenVertexArrays(1, &vao);
+        glGenBuffers(1, &vbo);
+        bind();
+
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(T) * vertices.size(),
+                     vertices.data(), GL_STATIC_DRAW);
+
+        const auto stride = sizeof(T);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride,
+                              reinterpret_cast<void *>(sizeof(float) * 3));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, stride,
+                              reinterpret_cast<void *>(sizeof(float) * 2));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
+
+        glGenBuffers(1, &ebo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * indices.size(),
+                     indices.data(), GL_STATIC_DRAW);
+
+        glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+#elif BUILD_PLAT == BUILD_VITA
+        if (indices.size() <= 0 || vertices.size() <= 0)
+            return;
+
+        glGenBuffers(1, &vbo);
+
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(T) * vertices.size(),
+                     vertices.data(), GL_STATIC_DRAW);
+
+        glGenBuffers(1, &ebo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * indices.size(),
+                     indices.data(), GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#elif BUILD_PLAT == BUILD_PSP
+        sceKernelDcacheWritebackInvalidateAll();
+#endif
+    }
+
+    auto delete_data() -> void {
+
+#if BUILD_PC
+        glDeleteVertexArrays(1, &vao);
+        glDeleteBuffers(1, &vbo);
+        glDeleteBuffers(1, &ebo);
+#elif BUILD_PLAT == BUILD_VITA
+        if (indices.size() <= 0)
+            return;
+
+        glDeleteBuffers(1, &vbo);
+        glDeleteBuffers(1, &ebo);
+#endif
+
+        for (int i = 0; i < V; i++) {
+            vertices[i] = {0};
+        }
+        for (int i = 0; i < I; i++) {
+            indices[i] = 0;
+        }
+    }
+
+    // TODO: Optional drawing modes for draw()
+    // TODO: Vert type changes enabled attributes
+    auto draw() -> void {
+        bind();
+
+        Rendering::RenderContext::get().set_matrices();
+
+#if BUILD_PC
+        // TODO: Bind Program
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
+                       nullptr);
+#elif BUILD_PLAT == BUILD_PSP
+        sceGuShadeModel(GU_SMOOTH);
+        sceGumDrawArray(GU_TRIANGLES,
+                        GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
+                            GU_VERTEX_32BITF | GU_TRANSFORM_3D,
+                        indices.size(), indices.data(), vertices.data());
+#elif BUILD_PLAT == BUILD_VITA
+        if (vert_data == NULL || idx_data == NULL)
+            return;
+
+        const auto stride = sizeof(T);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride,
+                              reinterpret_cast<void *>(sizeof(float) * 3));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, stride,
+                              reinterpret_cast<void *>(sizeof(float) * 2));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
+
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
+                       nullptr);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#endif
+    }
+
+    auto bind() -> void {
+#if BUILD_PC
+        glBindVertexArray(vao);
+#elif BUILD_PLAT == BUILD_VITA
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+#endif
+    }
+
+    inline auto get_index_count() -> s32 { return indices.size(); }
+
+    std::array<T, V> vertices;
+    std::array<u16, I> indices;
 };
 
 } // namespace Stardust_Celeste::Rendering

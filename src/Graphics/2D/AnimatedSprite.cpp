@@ -25,14 +25,14 @@ auto AnimatedSprite::tick() -> void {
     // UPDATE UVs
     auto uvs = Rendering::Texture::get_tile_uvs(atlas, currentIDX);
 
-    verts[0].u = uvs[0];
-    verts[0].v = uvs[1];
-    verts[1].u = uvs[2];
-    verts[1].v = uvs[3];
-    verts[2].u = uvs[4];
-    verts[2].v = uvs[5];
-    verts[3].u = uvs[6];
-    verts[3].v = uvs[7];
+    mesh->vertices[0].u = uvs[0];
+    mesh->vertices[0].v = uvs[1];
+    mesh->vertices[1].u = uvs[2];
+    mesh->vertices[1].v = uvs[3];
+    mesh->vertices[2].u = uvs[4];
+    mesh->vertices[2].v = uvs[5];
+    mesh->vertices[3].u = uvs[6];
+    mesh->vertices[3].v = uvs[7];
 
 #if PSP
     auto tInfo = Rendering::TextureManager::get().get_texture(texture);
@@ -51,7 +51,7 @@ auto AnimatedSprite::tick() -> void {
     }
 #endif
 
-    mesh->add_data(verts, 4, idxs, 6);
+    mesh->setup_buffer();
 }
 
 auto AnimatedSprite::update(double dt) -> void {
