@@ -73,9 +73,7 @@ class Tilemap {
 
   protected:
     std::vector<Tile> tileMap;
-    ScopePtr<Rendering::Mesh> mesh;
-    std::vector<Rendering::Vertex> vert_data;
-    std::vector<u16> idx_data;
+    ScopePtr<Rendering::Mesh<Rendering::Vertex>> mesh;
     glm::vec2 atlasDimensions;
 };
 

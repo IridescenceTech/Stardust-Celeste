@@ -18,8 +18,6 @@ class Rectangle {
 
     void build_mesh();
 
-    ScopePtr<Rendering::Mesh> mesh;
-    Rendering::Vertex *verts;
-    u16 *idxs;
+    ScopePtr<Rendering::FixedMesh<Rendering::Vertex, 4, 6>> mesh;
 };
 } // namespace Stardust_Celeste::Rendering::Primitive

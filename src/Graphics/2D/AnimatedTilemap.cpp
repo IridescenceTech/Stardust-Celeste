@@ -51,11 +51,6 @@ auto AnimatedTilemap::tick() -> void {
 auto AnimatedTilemap::generate_map() -> void {
     mesh->delete_data();
 
-    vert_data.clear();
-    vert_data.shrink_to_fit();
-    idx_data.clear();
-    idx_data.shrink_to_fit();
-
     auto idxc = 0;
 
     for (auto &t : atileMap) {
@@ -83,23 +78,23 @@ auto AnimatedTilemap::generate_map() -> void {
         }
 #endif
 
-        vert_data.push_back(
+        mesh->vertices.push_back(
             Rendering::Vertex{uvs[0], uvs[1], t.color, x, y, t.layer});
-        vert_data.push_back(
+        mesh->vertices.push_back(
             Rendering::Vertex{uvs[2], uvs[3], t.color, x + w, y, t.layer});
-        vert_data.push_back(
+        mesh->vertices.push_back(
             Rendering::Vertex{uvs[4], uvs[5], t.color, x + w, y + h, t.layer});
-        vert_data.push_back(
+        mesh->vertices.push_back(
             Rendering::Vertex{uvs[6], uvs[7], t.color, x, y + h, t.layer});
 
-        idx_data.insert(idx_data.end(),
-                        {(u16)(idxc + 0), (u16)(idxc + 1), (u16)(idxc + 2),
-                         (u16)(idxc + 2), (u16)(idxc + 3), (u16)(idxc + 0)});
+        mesh->indices.insert(mesh->indices.end(),
+                             {(u16)(idxc + 0), (u16)(idxc + 1), (u16)(idxc + 2),
+                              (u16)(idxc + 2), (u16)(idxc + 3),
+                              (u16)(idxc + 0)});
         idxc += 4;
     }
 
-    mesh->add_data(vert_data.data(), vert_data.size(), idx_data.data(),
-                   idx_data.size());
+    mesh->setup_buffer();
 }
 
 } // namespace Stardust_Celeste::Graphics::G2D

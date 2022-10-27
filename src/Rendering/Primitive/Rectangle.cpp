@@ -5,17 +5,12 @@ namespace Stardust_Celeste::Rendering::Primitive {
 
 Rectangle::Rectangle(Rendering::Rectangle bnd, Rendering::Color col, float lay)
     : bound(bnd), color(col), layer(lay) {
-    verts = nullptr;
-    idxs = nullptr;
     mesh = nullptr;
 
     build_mesh();
 }
 
-Rectangle::~Rectangle() {
-    delete[] verts;
-    delete[] idxs;
-}
+Rectangle::~Rectangle() { mesh->delete_data(); }
 
 void Rectangle::draw() {
     GI::disable(GI_TEXTURE_2D);
@@ -26,46 +21,41 @@ void Rectangle::draw() {
 }
 
 void Rectangle::build_mesh() {
-    if (verts == nullptr)
-        verts = new Rendering::Vertex[4];
 
-    verts[0] = Rendering::Vertex{
+    if (mesh == nullptr) {
+        mesh = create_scopeptr<Rendering::FixedMesh<Rendering::Vertex, 4, 6>>();
+    }
+
+    mesh->vertices[0] = Rendering::Vertex{
         0, 0, color, bound.position.x, bound.position.y, (float)layer};
-    verts[1] = Rendering::Vertex{0,
-                                 0,
-                                 color,
-                                 bound.position.x + bound.extent.x,
-                                 bound.position.y,
-                                 (float)layer};
-    verts[2] = Rendering::Vertex{0,
-                                 0,
-                                 color,
-                                 bound.position.x + bound.extent.x,
-                                 bound.position.y + bound.extent.y,
-                                 (float)layer};
-    verts[3] = Rendering::Vertex{0,
-                                 0,
-                                 color,
-                                 bound.position.x,
-                                 bound.position.y + bound.extent.y,
-                                 (float)layer};
+    mesh->vertices[1] = Rendering::Vertex{0,
+                                          0,
+                                          color,
+                                          bound.position.x + bound.extent.x,
+                                          bound.position.y,
+                                          (float)layer};
+    mesh->vertices[2] = Rendering::Vertex{0,
+                                          0,
+                                          color,
+                                          bound.position.x + bound.extent.x,
+                                          bound.position.y + bound.extent.y,
+                                          (float)layer};
+    mesh->vertices[3] = Rendering::Vertex{0,
+                                          0,
+                                          color,
+                                          bound.position.x,
+                                          bound.position.y + bound.extent.y,
+                                          (float)layer};
 
-    if (idxs == nullptr) {
-        idxs = new u16[6];
-        idxs[0] = 0;
-        idxs[1] = 1;
-        idxs[2] = 2;
-        idxs[3] = 2;
-        idxs[4] = 3;
-        idxs[5] = 0;
-    }
+    mesh->indices[0] = (0);
+    mesh->indices[1] = (1);
+    mesh->indices[2] = (2);
+    mesh->indices[3] = (2);
+    mesh->indices[4] = (3);
+    mesh->indices[5] = (0);
 
-    if (mesh.get() == nullptr)
-        mesh = create_scopeptr<Rendering::Mesh>(verts, 4, idxs, 6);
-    else {
-        mesh->delete_data();
-        mesh->add_data(verts, 4, idxs, 6);
-    }
+    mesh->delete_data();
+    mesh->setup_buffer();
 }
 
 } // namespace Stardust_Celeste::Rendering::Primitive
