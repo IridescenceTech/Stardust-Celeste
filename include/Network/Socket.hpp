@@ -18,7 +18,7 @@ class Socket {
   public:
     virtual ~Socket();
 
-    auto send(ScopePtr<PacketOut>) const -> void;
+    auto send(ScopePtr<PacketOut>, bool send_len = true) const -> void;
     auto recv(int size = -1) const -> RefPtr<PacketIn>;
 
     auto set_blocking(bool blocking) -> bool;
