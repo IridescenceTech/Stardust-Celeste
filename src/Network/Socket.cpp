@@ -29,11 +29,14 @@ auto Socket::close() const -> void {
 }
 Socket::~Socket() { close(); }
 
-auto Socket::send(ScopePtr<PacketOut> packetOut) const -> void {
+auto Socket::send(ScopePtr<PacketOut> packetOut, bool send_len) const -> void {
     size_t packetLength = packetOut->buffer->GetUsedSpace() + 1;
 
     auto byteBuffer = create_scopeptr<ByteBuffer>(packetLength + 5); // 512 KB
-    byteBuffer->WriteVarI32(static_cast<uint32_t>(packetLength));
+
+    if (send_len)
+        byteBuffer->WriteVarI32(static_cast<uint32_t>(packetLength));
+
     byteBuffer->WriteI8(packetOut->ID);
 
     for (int i = 0; i < packetOut->buffer->GetUsedSpace(); i++) {
