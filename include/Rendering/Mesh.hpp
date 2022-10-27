@@ -165,7 +165,7 @@ template <class T> class Mesh : public NonCopy {
                             GU_VERTEX_32BITF | GU_TRANSFORM_3D,
                         indices.size(), indices.data(), vertices.data());
 #elif BUILD_PLAT == BUILD_VITA
-        if (vert_data == NULL || idx_data == NULL)
+        if (vertices.size() == 0 || indices.size() == 0)
             return;
 
         const auto stride = sizeof(T);
@@ -316,7 +316,7 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
                             GU_VERTEX_32BITF | GU_TRANSFORM_3D,
                         indices.size(), indices.data(), vertices.data());
 #elif BUILD_PLAT == BUILD_VITA
-        if (vert_data == NULL || idx_data == NULL)
+        if (vertices.size() == 0 || indices.size() == 0)
             return;
 
         const auto stride = sizeof(T);

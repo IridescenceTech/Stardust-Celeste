@@ -148,7 +148,7 @@ auto Socket::recv(int size) const -> RefPtr<PacketIn> {
 
         size_t totalReceived = 0;
         while (size > totalReceived) {
-            size_t received = ::recv(my_socket, b + totalReceived,
+            size_t received = ::recv(my_socket, (char *)(b + totalReceived),
                                      static_cast<int>(1 - totalReceived), 0);
             if (received <= 0) {
                 delay(1);

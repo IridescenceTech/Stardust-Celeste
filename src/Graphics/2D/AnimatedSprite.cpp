@@ -46,8 +46,8 @@ auto AnimatedSprite::tick() -> void {
     }
 
     for (int i = 0; i < 4; i++) {
-        verts[i].u *= wRatio;
-        verts[i].v *= hRatio;
+        mesh->vertices[i].u *= wRatio;
+        mesh->vertices[i].v *= hRatio;
     }
 #endif
 
