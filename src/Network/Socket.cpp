@@ -63,78 +63,104 @@ auto Socket::is_alive() const -> bool {
     return connected;
 }
 
-auto Socket::recv() const -> RefPtr<PacketIn> {
-    std::vector<u8> len;
-    u8 newByte;
-    int res =
-        ::recv(my_socket, reinterpret_cast<char *>(&newByte), 1, MSG_PEEK);
+auto Socket::recv(int size) const -> RefPtr<PacketIn> {
 
-    if (res > 0) {
-        char data[5] = {0};
-        size_t dataLen = 0;
-        do {
-            size_t totalReceived = 0;
-            while (1 > totalReceived) {
-                size_t received =
-                    ::recv(my_socket, &data[dataLen] + totalReceived,
-                           static_cast<int>(1 - totalReceived), 0);
-                if (received <= 0) {
-                    delay(1);
+    if (size == -1) {
+        std::vector<u8> len;
+        u8 newByte;
+        int res =
+            ::recv(my_socket, reinterpret_cast<char *>(&newByte), 1, MSG_PEEK);
+
+        if (res > 0) {
+            char data[5] = {0};
+            size_t dataLen = 0;
+            do {
+                size_t totalReceived = 0;
+                while (1 > totalReceived) {
+                    size_t received =
+                        ::recv(my_socket, &data[dataLen] + totalReceived,
+                               static_cast<int>(1 - totalReceived), 0);
+                    if (received <= 0) {
+                        delay(1);
+                    } else {
+                        totalReceived += received;
+                    }
+                }
+            } while ((data[dataLen++] & 0x80) != 0);
+
+            int readed = 0;
+            int result = 0;
+            char read;
+            do {
+                read = data[readed];
+                int value = (read & 0b01111111);
+                result |= (value << (7 * readed));
+                readed++;
+            } while ((read & 0b10000000) != 0);
+
+            int length = result;
+
+            auto pIn = new PacketIn(length);
+            SC_CORE_DEBUG("LENGTH: " + std::to_string(length));
+
+            int totalTaken = 0;
+
+            u8 *b = new u8[length];
+            for (int i = 0; i < length; i++) {
+                b[i] = 0;
+            }
+
+            while (totalTaken < length) {
+                res = ::recv(my_socket, reinterpret_cast<char *>(b), length, 0);
+                if (res > 0) {
+                    totalTaken += res;
                 } else {
-                    totalReceived += received;
+                    delay(1);
                 }
             }
-        } while ((data[dataLen++] & 0x80) != 0);
 
-        int readed = 0;
-        int result = 0;
-        char read;
-        do {
-            read = data[readed];
-            int value = (read & 0b01111111);
-            result |= (value << (7 * readed));
-            readed++;
-        } while ((read & 0b10000000) != 0);
+            for (int i = 0; i < length; i++) {
+                pIn->buffer->WriteU8(b[i]);
+            }
 
-        int length = result;
+            delete[] b;
 
-        auto pIn = new PacketIn(length);
-        SC_CORE_DEBUG("LENGTH: " + std::to_string(length));
-
-        int totalTaken = 0;
-
-        u8 *b = new u8[length];
-        for (int i = 0; i < length; i++) {
-            b[i] = 0;
-        }
-
-        while (totalTaken < length) {
-            res = ::recv(my_socket, reinterpret_cast<char *>(b), length, 0);
-            if (res > 0) {
-                totalTaken += res;
+            if (pIn->buffer->GetUsedSpace() > 0) {
+                uint8_t t = 0;
+                pIn->buffer->ReadU8(t);
+                pIn->ID = t;
             } else {
+                pIn->ID = -1;
+            }
+
+            SC_CORE_DEBUG("Received Packet!");
+            SC_CORE_DEBUG("Packet ID: " + std::to_string(pIn->ID));
+
+            return RefPtr<PacketIn>{pIn};
+        } else {
+            return nullptr;
+        }
+    } else {
+        u8 *b = new u8[size];
+
+        size_t totalReceived = 0;
+        while (size > totalReceived) {
+            size_t received = ::recv(my_socket, b + totalReceived,
+                                     static_cast<int>(1 - totalReceived), 0);
+            if (received <= 0) {
                 delay(1);
+            } else {
+                totalReceived += received;
             }
         }
+        auto pIn = new PacketIn(size);
 
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < size; i++) {
             pIn->buffer->WriteU8(b[i]);
         }
 
-        if (pIn->buffer->GetUsedSpace() > 0) {
-            uint8_t t = 0;
-            pIn->buffer->ReadU8(t);
-            pIn->ID = t;
-        } else {
-            pIn->ID = -1;
-        }
-
-        SC_CORE_DEBUG("Received Packet!");
-        SC_CORE_DEBUG("Packet ID: " + std::to_string(pIn->ID));
-
+        delete[] b;
         return RefPtr<PacketIn>{pIn};
-    } else {
-        return nullptr;
     }
 }
 
