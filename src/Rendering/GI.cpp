@@ -2,6 +2,7 @@
 #define GUGL_IMPLEMENTATION
 #endif
 #include <Rendering/GI.hpp>
+#include <Rendering/ShaderManager.hpp>
 #include <string>
 
 #if BUILD_PC
@@ -114,7 +115,7 @@ auto init(const RenderContextSettings app) -> void {
 
     programID = Stardust_Celeste::Rendering::ShaderManager::get().load_shader(
         vert_source, frag_source);
-    glUseProgram(programID);
+    Stardust_Celeste::Rendering::ShaderManager::get().bind_shader(programID);
 #elif BUILD_PLAT == BUILD_PSP
     guglInit(list);
 

@@ -143,7 +143,6 @@ auto Sprite::update_mesh() -> void {
     mesh->indices[4] = 3;
     mesh->indices[5] = 0;
 
-    mesh->delete_data();
     mesh->setup_buffer();
 }
 

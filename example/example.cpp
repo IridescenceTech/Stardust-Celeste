@@ -9,35 +9,19 @@ using namespace Stardust_Celeste::Utilities::Input;
 class GameState : public Core::ApplicationState {
 
   public:
-    GameState() : vitaCTRL(nullptr) {}
+    GameState() {}
 
     void on_update(Core::Application *app, double dt) {
         appref = app;
         Utilities::Input::update();
+
+        SC_APP_INFO("Hello World!");
     }
     void on_draw(Core::Application *app, double dt) {
         if (sprite.get() != nullptr)
             sprite->draw();
     }
-
-    static void quit(std::any a) {
-        SC_APP_INFO("Pressed Cross!");
-        auto gs = std::any_cast<GameState *>(a);
-        SC_APP_INFO("SECRET: {}", gs->secret_value);
-        gs->appref->exit();
-    }
-
     void on_start() {
-        SC_APP_INFO("Hello World!");
-        auto vitaCTRL = new Utilities::Input::VitaController();
-
-        vitaCTRL->add_command(
-            {static_cast<int>(Utilities::Input::VitaButtons::Cross),
-             Utilities::KeyFlag::Press},
-            {GameState::quit, this});
-
-        Utilities::Input::add_controller(vitaCTRL);
-
         Rendering::RenderContext::get().matrix_ortho(-1, 1, -1, 1, -1, 1);
         Rendering::RenderContext::get().set_mode_2D();
 
@@ -55,7 +39,6 @@ class GameState : public Core::ApplicationState {
   private:
     bool added;
     const int secret_value = 12;
-    VitaController *vitaCTRL;
     Core::Application *appref;
     ScopePtr<Graphics::G2D::Sprite> sprite;
     u32 tex_id;
