@@ -51,6 +51,8 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
     GI::enable(GI_ALPHA_TEST);
     GI::alpha_func(GI_GREATER, 0x20, 0xFF);
 
+    GI::enable(GI_TEXTURE_2D);
+
     // PSP: SETUP MATRICES
     c.color = 0xFFFFFFFF;
     is_init = true;
