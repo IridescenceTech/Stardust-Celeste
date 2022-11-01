@@ -13,3 +13,9 @@
 [submodule "ext/gu2gl"]
 	path = ext/gu2gl
 	url = https://github.com/IridescentRose/gu2gl
+[submodule "ext/ogg"]
+	path = ext/ogg
+	url = https://github.com/xiph/ogg.git
+[submodule "ext/vorbis"]
+	path = ext/vorbis
+	url = https://github.com/xiph/vorbis
