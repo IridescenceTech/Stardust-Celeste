@@ -1,3 +1,4 @@
+#include <Audio/Clip.hpp>
 #include <Graphics/2D/Sprite.hpp>
 #include <Stardust-Celeste.hpp>
 #include <Utilities/Controllers/VitaController.hpp>
@@ -15,7 +16,7 @@ class GameState : public Core::ApplicationState {
         appref = app;
         Utilities::Input::update();
 
-        SC_APP_INFO("Hello World!");
+        music->update();
     }
     void on_draw(Core::Application *app, double dt) {
         if (sprite.get() != nullptr)
@@ -32,6 +33,9 @@ class GameState : public Core::ApplicationState {
         auto tex = Rendering::TextureManager::get().get_texture(tex_id);
         sprite = create_scopeptr<Graphics::G2D::Sprite>(
             tex_id, Rendering::Rectangle{{-1, -1}, {2, 2}});
+
+        music = create_scopeptr<Audio::Clip>("test.ogg", true);
+        music->play();
     }
 
     void on_cleanup() {}
@@ -41,6 +45,7 @@ class GameState : public Core::ApplicationState {
     const int secret_value = 12;
     Core::Application *appref;
     ScopePtr<Graphics::G2D::Sprite> sprite;
+    ScopePtr<Audio::Clip> music;
     u32 tex_id;
 };
 

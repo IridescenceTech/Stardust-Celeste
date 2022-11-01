@@ -13,17 +13,13 @@ if(PSP)
     target_link_libraries(Stardust-Celeste PUBLIC pspgum pspgu pspge psputility pspdisplay pspctrl pspnet pspnet_apctl psppower pspaudio)
     target_include_directories(Stardust-Celeste PUBLIC ext/ ext/gu2gl)
 elseif(VITA)
-    list(APPEND SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/ext/stb_vorbis.c")
-
     include(setup_vita.cmake)
 
     setup_vita()
     file(GLOB_RECURSE YAML_FILES ext/yaml/src/*.cpp)
 
     add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES} ${YAML_FILES})
-
 else()
-    list(APPEND SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/ext/stb_vorbis.c")
     set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build GLFW without examples")
     set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build GLFW without tests")
     set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build GLFW without docs")
@@ -34,7 +30,7 @@ else()
 
     target_include_directories(Stardust-Celeste PUBLIC ext/glfw/include/)
     target_include_directories(Stardust-Celeste PUBLIC ext/openal/include/)
-    target_link_libraries(Stardust-Celeste PUBLIC glfw OpenAL)
+    target_link_libraries(Stardust-Celeste PUBLIC glfw OpenAL vorbis vorbisfile ogg)
 endif()
 
 if(!MSVC)
