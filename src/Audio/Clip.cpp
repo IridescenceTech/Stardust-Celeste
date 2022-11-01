@@ -5,14 +5,11 @@
 #include <Utilities/Logger.hpp>
 #include <stdexcept>
 
-#if BUILD_PLAT == BUILD_VITA
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
 OggVorbis_File vf;
 vorbis_info *vi;
 int current_section = 0;
-
-#endif
 
 namespace Stardust_Celeste::Audio {
 
@@ -20,7 +17,7 @@ namespace Stardust_Celeste::Audio {
 auto Clip::streamData(ALuint buffer) -> bool {
 
 #define BUFFER_SIZE 4096 * 32
-#if BUILD_PLAT == BUILD_VITA
+
     char pcm[BUFFER_SIZE];
 
     int size = 0;
@@ -38,26 +35,6 @@ auto Clip::streamData(ALuint buffer) -> bool {
         return false;
 
     alBufferData(buffer, format, pcm, size, vi->rate);
-#else
-    ALshort pcm[BUFFER_SIZE];
-    int size = 0;
-    int result = 0;
-
-    while (size < BUFFER_SIZE) {
-        result = stb_vorbis_get_samples_short_interleaved(
-            stream, info.channels, pcm + size, BUFFER_SIZE - size);
-        if (result > 0)
-            size += result * info.channels;
-        else
-            break;
-    }
-
-    if (size == 0)
-        return false;
-
-    alBufferData(buffer, format, pcm, size * sizeof(ALshort), info.sample_rate);
-    totalSamplesLeft -= size;
-#endif
 
 #undef BUFFER_SIZE
     return true;
@@ -97,7 +74,6 @@ Clip::Clip(const std::string &&path, bool s) {
         drwav_uninit(&wav);
         alSourcei(source, AL_BUFFER, buffers[0]);
     } else {
-#if BUILD_PLAT == BUILD_VITA
         alGenBuffers(2, buffers);
         FILE *fp = fopen(path.c_str(), "rb");
 
@@ -119,37 +95,9 @@ Clip::Clip(const std::string &&path, bool s) {
         streamData(buffers[1]);
 
         alSourceQueueBuffers(source, 2, buffers);
-        //alSourcePlay(source);
+        // alSourcePlay(source);
 
         totalSamplesLeft = 1;
-#else
-        alGenBuffers(2, buffers);
-        bufferSize = 4096 * 8;
-        shouldLoop = false;
-
-        stream = stb_vorbis_open_filename(path.c_str(), NULL, NULL);
-
-        if (!stream) {
-            SC_CORE_INFO("FAILED TO LOAD OGG FILE");
-            throw std::runtime_error("Could not load streaming sound file: " +
-                                     path);
-        }
-
-        info = stb_vorbis_get_info(stream);
-        if (info.channels == 2)
-            format = AL_FORMAT_STEREO16;
-        else
-            format = AL_FORMAT_MONO16;
-
-        streamData(buffers[0]);
-        streamData(buffers[1]);
-
-        alSourceQueueBuffers(source, 2, buffers);
-        //alSourcePlay(source);
-
-        totalSamplesLeft =
-            stb_vorbis_stream_length_in_samples(stream) * info.channels;
-#endif
     }
 #else
     int fmt = OSL_FMT_NONE;
@@ -162,7 +110,6 @@ Clip::~Clip() {
 #ifndef PSP
     alDeleteSources(1, &source);
     if (isStreaming) {
-        stb_vorbis_close(stream);
         alDeleteBuffers(2, buffers);
     } else {
         alDeleteBuffers(1, &buffers[0]);
@@ -238,15 +185,6 @@ auto Clip::update() -> void {
 
         if (!streamData(buffer)) {
             bool shouldExit = true;
-
-#if BUILD_PLAT != BUILD_VITA
-            if (shouldLoop) {
-                stb_vorbis_seek_start(stream);
-                totalSamplesLeft =
-                    stb_vorbis_stream_length_in_samples(stream) * info.channels;
-                shouldExit = !streamData(buffer);
-            }
-#endif
 
             if (shouldExit)
                 return;

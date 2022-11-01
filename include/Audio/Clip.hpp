@@ -6,7 +6,6 @@
 
 #ifndef PSP
 #include "AL/al.h"
-#include <stb_vorbis.h>
 #else
 #include <osl_sound/audio.h>
 #include <osl_sound/oslib.h>
@@ -114,8 +113,6 @@ class Clip {
 
 #ifndef PSP
     ALuint ID;
-    stb_vorbis *stream;
-    stb_vorbis_info info;
 
     ALuint buffers[2];
     ALuint source;
