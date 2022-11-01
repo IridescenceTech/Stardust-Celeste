@@ -1,19 +1,16 @@
+#include "Utilities/Assertion.hpp"
 #include <Audio/Clip.hpp>
 #define DR_WAV_IMPLEMENTATION
-#include "Utilities/Assertion.hpp"
 #include <Audio/dr_wav.h>
 #include <Utilities/Logger.hpp>
 #include <stdexcept>
 
-#include <vorbis/codec.h>
-#include <vorbis/vorbisfile.h>
 OggVorbis_File vf;
 vorbis_info *vi;
 int current_section = 0;
 
 namespace Stardust_Celeste::Audio {
 
-#ifndef PSP
 auto Clip::streamData(ALuint buffer) -> bool {
 
 #define BUFFER_SIZE 4096 * 32
@@ -39,12 +36,10 @@ auto Clip::streamData(ALuint buffer) -> bool {
 #undef BUFFER_SIZE
     return true;
 }
-#endif
 
 Clip::Clip(const std::string &&path, bool s) {
     SC_CORE_ASSERT(path != "", "Path is blank!");
     isStreaming = s;
-#ifndef PSP
     alGenSources((ALuint)1, &source);
 
     alSourcef(source, AL_PITCH, 1);
@@ -99,82 +94,39 @@ Clip::Clip(const std::string &&path, bool s) {
 
         totalSamplesLeft = 1;
     }
-#else
-    int fmt = OSL_FMT_NONE;
-    if (s)
-        fmt = OSL_FMT_STREAM;
-    sound = oslLoadSoundFile(path.c_str(), fmt);
-#endif
 }
 Clip::~Clip() {
-#ifndef PSP
     alDeleteSources(1, &source);
     if (isStreaming) {
         alDeleteBuffers(2, buffers);
     } else {
         alDeleteBuffers(1, &buffers[0]);
     }
-#else
-    oslDeleteSound(sound);
-#endif
 }
 
-auto Clip::set_pitch(float val) -> void {
-#ifndef PSP
-    alSourcef(source, AL_PITCH, val);
-#endif
-}
+auto Clip::set_pitch(float val) -> void { alSourcef(source, AL_PITCH, val); }
 auto Clip::set_volume(float val) -> void {
     SC_CORE_ASSERT(val >= 0.0f, "Value must be in range [0, 1]");
     SC_CORE_ASSERT(val <= 1.0f, "Value must be in range [0, 1]");
-#ifndef PSP
     alSourcef(source, AL_GAIN, val);
-#endif
 }
 
 auto Clip::set_position(const glm::vec3 &&position) -> void {
-#ifndef PSP
     alSource3f(source, AL_POSITION, position.x, position.y, position.z);
-#endif
 }
 auto Clip::set_velocity(const glm::vec3 &&velocity) -> void {
-#ifndef PSP
     alSource3f(source, AL_VELOCITY, velocity.x, velocity.y, velocity.z);
-#endif
 }
 auto Clip::set_looping(bool looping) -> void {
     shouldLoop = looping;
-#ifndef PSP
     alSourcei(source, AL_LOOPING, shouldLoop);
-#else
-    oslSetSoundLoop(sound, shouldLoop);
-#endif
 }
 
-auto Clip::play(const uint32_t channel) -> void {
-#ifndef PSP
-    alSourcePlay(source);
-#else
-    oslPlaySound(sound, channel);
-#endif
-}
-auto Clip::pause() -> void {
-#ifndef PSP
-    alSourcePause(source);
-#else
-    oslPauseSound(sound, -1);
-#endif
-}
-auto Clip::stop() -> void {
-#ifndef PSP
-    alSourceStop(source);
-#else
-    oslStopSound(sound);
-#endif
-}
+auto Clip::play() -> void { alSourcePlay(source); }
+auto Clip::pause() -> void { alSourcePause(source); }
+auto Clip::stop() -> void { alSourceStop(source); }
 
 auto Clip::update() -> void {
-#ifndef PSP
     ALint processed = 0;
     alGetSourcei(source, AL_BUFFERS_PROCESSED, &processed);
 
@@ -191,7 +143,6 @@ auto Clip::update() -> void {
         }
         alSourceQueueBuffers(source, 1, &buffer);
     }
-#endif
 }
 
 } // namespace Stardust_Celeste::Audio
