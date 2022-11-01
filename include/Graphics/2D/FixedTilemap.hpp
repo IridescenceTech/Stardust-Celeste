@@ -27,7 +27,7 @@ template <size_t N> class FixedTilemap {
      * @brief Generates the map mesh -- must be called before draw
      *
      */
-    virtual auto generate_map() -> void override;
+    virtual auto generate_map() -> void;
 
     /**
      * @brief Adds a list of tiles to insert into the internal tile list
