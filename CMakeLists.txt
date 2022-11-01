@@ -25,6 +25,8 @@ else()
     set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build GLFW without docs")
     add_subdirectory(ext/glfw)
     add_subdirectory(ext/openal)
+    add_subdirectory(ext/ogg)
+    add_subdirectory(ext/vorbis)
 
     add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES})
 
