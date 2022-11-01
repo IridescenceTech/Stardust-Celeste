@@ -4,12 +4,9 @@
 #include <glm.hpp>
 #include <string>
 
-#ifndef PSP
 #include "AL/al.h"
-#else
-#include <osl_sound/audio.h>
-#include <osl_sound/oslib.h>
-#endif
+#include <vorbis/codec.h>
+#include <vorbis/vorbisfile.h>
 
 namespace Stardust_Celeste::Audio {
 /**
@@ -18,8 +15,7 @@ namespace Stardust_Celeste::Audio {
  * said audio.
  *
  * Limitations:
- * Windows/Mac/Linux/PS Vita - WAV (non streamed) OGG (streamed)
- * PSP - WAV, BGM, FLAC (either)
+ * WAV (non streamed) OGG (streamed)
  *
  * It is extensible
  */
@@ -79,11 +75,10 @@ class Clip {
     auto set_looping(const bool looping) -> void;
 
     /**
-     * @brief Play the clip [on the specified channel (PSP only)]
+     * @brief Play the clip
      *
-     * @param channel Channel to play on PSP
      */
-    auto play(const uint32_t channel = 0) -> void;
+    auto play() -> void;
 
     /**
      * @brief Pause the audio clip (defaults to toggle behavior)
@@ -107,11 +102,8 @@ class Clip {
     bool isStreaming;
     bool shouldLoop;
 
-#ifndef PSP
     auto streamData(ALuint buffer) -> bool;
-#endif
 
-#ifndef PSP
     ALuint ID;
 
     ALuint buffers[2];
@@ -120,8 +112,5 @@ class Clip {
 
     size_t bufferSize;
     size_t totalSamplesLeft;
-#else
-    OSL_SOUND *sound;
-#endif
 };
 } // namespace Stardust_Celeste::Audio
