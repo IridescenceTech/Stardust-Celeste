@@ -15,7 +15,11 @@
 #endif
 
 #include <Platform/Platform.hpp>
+#if USE_EASTL
+#include <EASTL/vector.h>
+#else
 #include <vector>
+#endif
 
 namespace Stardust_Celeste::Network {
 auto Socket::close() const -> void {
@@ -69,7 +73,11 @@ auto Socket::is_alive() const -> bool {
 auto Socket::recv(int size) const -> RefPtr<PacketIn> {
 
     if (size == -1) {
+#if USE_EASTL
+        eastl::vector<u8> len;
+#else
         std::vector<u8> len;
+#endif
         u8 newByte;
         int res =
             ::recv(my_socket, reinterpret_cast<char *>(&newByte), 1, MSG_PEEK);

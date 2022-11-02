@@ -20,7 +20,11 @@ Tilemap::~Tilemap() {
 
 auto Tilemap::add_tile(Tile tile) -> void { tileMap.push_back(tile); }
 
+#if USE_EASTL
+auto Tilemap::add_tiles(eastl::vector<Tile> tiles) -> void {
+#else
 auto Tilemap::add_tiles(std::vector<Tile> tiles) -> void {
+#endif
     SC_CORE_ASSERT(tiles.size() > 0,
                    "Tilemap, tile array insertion is of size() <= 0");
     tileMap.insert(tileMap.end(), tiles.begin(), tiles.end());

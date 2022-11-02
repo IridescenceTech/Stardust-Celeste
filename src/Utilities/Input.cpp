@@ -2,7 +2,11 @@
 #include <Utilities/Input.hpp>
 #include <Utilities/Logger.hpp>
 #include <string>
+#if USE_EASTL
+#include <EASTL/vector.h>
+#else
 #include <vector>
+#endif
 
 #if PSP
 #include <pspctrl.h>
@@ -26,7 +30,11 @@ extern GLFWwindow *window;
 
 namespace Stardust_Celeste::Utilities::Input {
 
+#if USE_EASTL
+eastl::vector<Controller *> controller_map;
+#else
 std::vector<Controller *> controller_map;
+#endif
 
 auto add_controller(Controller *controller) -> void {
     SC_CORE_DEBUG("Added Controller!");

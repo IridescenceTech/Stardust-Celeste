@@ -29,12 +29,16 @@ template <size_t N> class FixedTilemap {
      */
     virtual auto generate_map() -> void;
 
-    /**
-     * @brief Adds a list of tiles to insert into the internal tile list
-     *
-     * @param tiles Tile list to add
-     */
+/**
+ * @brief Adds a list of tiles to insert into the internal tile list
+ *
+ * @param tiles Tile list to add
+ */
+#if USE_EASTL
+    virtual auto add_tiles(eastl::vector<Tile> tiles) -> void;
+#else
     virtual auto add_tiles(std::vector<Tile> tiles) -> void;
+#endif
 
     /**
      * @brief Clears the internal tile list

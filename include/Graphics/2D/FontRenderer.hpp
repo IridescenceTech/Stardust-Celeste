@@ -85,7 +85,11 @@ class FontRenderer : public Tilemap {
     float scale_factor;
 
   protected:
+#if USE_EASTL
+    eastl::vector<TextData> stringVector;
+#else
     std::vector<TextData> stringVector;
+#endif
 };
 
 } // namespace Stardust_Celeste::Graphics::G2D

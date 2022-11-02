@@ -21,6 +21,8 @@
 #define SC_TEX_FILTER_LINEAR GL_LINEAR
 #endif
 
+#include <unordered_map>
+
 namespace Stardust_Celeste::Rendering {
 
 class TextureManager final : public Singleton {
@@ -44,7 +46,7 @@ class TextureManager final : public Singleton {
     inline auto get_texture(unsigned int i) -> Texture * { return fullMap[i]; }
 
   private:
-    std::map<unsigned int, Texture *> fullMap;
+    std::unordered_map<unsigned int, Texture *> fullMap;
     u32 texCount = 1;
 };
 

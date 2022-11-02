@@ -16,7 +16,11 @@ auto AnimatedTilemap::add_tile(AnimatedTile tile) -> void {
     atileMap.push_back(tile);
 }
 
+#if USE_EASTL
+auto AnimatedTilemap::add_tiles(eastl::vector<AnimatedTile> tiles) -> void {
+#else
 auto AnimatedTilemap::add_tiles(std::vector<AnimatedTile> tiles) -> void {
+#endif
     atileMap.insert(atileMap.end(), tiles.begin(), tiles.end());
 }
 
