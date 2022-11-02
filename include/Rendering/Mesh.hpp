@@ -35,6 +35,11 @@
 #include <vitaGL.h>
 #endif
 
+#if USE_EASTL
+#include <EASTL/array.h>
+#include <EASTL/vector.h>
+#endif
+
 #include <Rendering/RenderContext.hpp>
 
 namespace Stardust_Celeste::Rendering {
@@ -197,9 +202,13 @@ template <class T> class Mesh : public NonCopy {
     }
 
     inline auto get_index_count() -> s32 { return indices.size(); }
-
+#if USE_EASTL
+    eastl::vector<T> vertices;
+    eastl::vector<u16> indices;
+#else
     std::vector<T> vertices;
     std::vector<u16> indices;
+#endif
 };
 
 template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
@@ -349,8 +358,13 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
 
     inline auto get_index_count() -> s32 { return indices.size(); }
 
+#if USE_EASTL
+    eastl::array<T, V> vertices;
+    eastl::array<u16, I> indices;
+#else
     std::array<T, V> vertices;
     std::array<u16, I> indices;
+#endif
 };
 
 } // namespace Stardust_Celeste::Rendering

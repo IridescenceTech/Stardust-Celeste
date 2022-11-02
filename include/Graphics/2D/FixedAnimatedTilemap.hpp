@@ -35,12 +35,16 @@ template <size_t N> class FixedAnimatedTilemap : public FixedTilemap<N> {
      */
     virtual auto add_tile(AnimatedTile tile) -> void;
 
-    /**
-     * @brief Adds a list of animated tiles to the internal tile set
-     *
-     * @param tile Animated Tile List to insert
-     */
+/**
+ * @brief Adds a list of animated tiles to the internal tile set
+ *
+ * @param tile Animated Tile List to insert
+ */
+#if USE_EASTL
+    virtual auto add_tiles(eastl::vector<AnimatedTile> tiles) -> void;
+#else
     virtual auto add_tiles(std::vector<AnimatedTile> tiles) -> void;
+#endif
 
     /**
      * @brief Clears tile set

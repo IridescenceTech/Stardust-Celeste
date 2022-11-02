@@ -85,7 +85,11 @@ template <size_t N> class FixedFontRenderer : public FixedTilemap<N> {
     float scale_factor;
 
   protected:
+#if USE_EASTL
+    eastl::vector<TextData> stringVector;
+#else
     std::vector<TextData> stringVector;
+#endif
 };
 
 } // namespace Stardust_Celeste::Graphics::G2D

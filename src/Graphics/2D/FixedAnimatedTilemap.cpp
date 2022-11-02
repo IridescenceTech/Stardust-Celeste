@@ -21,7 +21,11 @@ auto FixedAnimatedTilemap<N>::add_tile(AnimatedTile tile) -> void {
 }
 
 template <size_t N>
+#if USE_EASTL
+auto FixedAnimatedTilemap<N>::add_tiles(eastl::vector<AnimatedTile> tiles)
+#else
 auto FixedAnimatedTilemap<N>::add_tiles(std::vector<AnimatedTile> tiles)
+#endif
     -> void {
     atileMap.insert(atileMap.end(), tiles.begin(), tiles.end());
 }

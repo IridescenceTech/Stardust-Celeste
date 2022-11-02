@@ -29,7 +29,12 @@
 #include <glm.hpp>
 #include <stb_image.hpp>
 #include <string>
+
+#if USE_EASTL
+#include <EASTL/vector.h>
+#else
 #include <vector>
+#endif
 
 #if BUILD_PLAT == BUILD_VITA
 #include <vitaGL.h>
@@ -213,7 +218,11 @@ auto TextureManager::delete_texture(u32 id) -> void {
 }
 
 TextureManager::~TextureManager() {
+#if USE_EASTL
+    eastl::vector<u32> ids;
+#else
     std::vector<u32> ids;
+#endif
     for (auto &[key, val] : fullMap)
         ids.push_back(key);
 

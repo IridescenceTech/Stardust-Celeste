@@ -3,6 +3,11 @@
 #include <Rendering/Mesh.hpp>
 #include <Utilities/Types.hpp>
 
+#if USE_EASTL
+#include <EASTL/map.h>
+#include <EASTL/vector.h>
+#endif
+
 namespace Stardust_Celeste::Graphics::G2D {
 
 /**
@@ -44,7 +49,12 @@ class Tilemap {
      *
      * @param tiles Tile list to add
      */
+
+#if USE_EASTL
+    virtual auto add_tiles(eastl::vector<Tile> tiles) -> void;
+#else
     virtual auto add_tiles(std::vector<Tile> tiles) -> void;
+#endif
 
     /**
      * @brief Clears the internal tile list
@@ -72,7 +82,11 @@ class Tilemap {
     u32 texture;
 
   protected:
+#if USE_EASTL
+    eastl::vector<Tile> tileMap;
+#else
     std::vector<Tile> tileMap;
+#endif
     ScopePtr<Rendering::Mesh<Rendering::Vertex>> mesh;
     glm::vec2 atlasDimensions;
 };

@@ -24,7 +24,11 @@ template <size_t N> auto FixedTilemap<N>::add_tile(Tile tile) -> void {
 }
 
 template <size_t N>
+#if USE_EASTL
+auto FixedTilemap<N>::add_tiles(eastl::vector<Tile> tiles) -> void {
+#else
 auto FixedTilemap<N>::add_tiles(std::vector<Tile> tiles) -> void {
+#endif
     SC_CORE_ASSERT(tiles.size() > 0,
                    "FixedTilemap, tile array insertion is of size() <= 0");
     tileMap.insert(tileMap.end(), tiles.begin(), tiles.end());
