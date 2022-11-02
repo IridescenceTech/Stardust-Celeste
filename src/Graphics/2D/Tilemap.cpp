@@ -92,6 +92,10 @@ auto Tilemap::generate_map() -> void {
     }
 
     mesh->setup_buffer();
+
+#if PSP
+    sceKernelDcacheWritebackInvalidateAll();
+#endif // PSP
 }
 
 } // namespace Stardust_Celeste::Graphics::G2D
