@@ -56,6 +56,11 @@ struct PACKED Vertex {
 // TODO: Lit data structure including normals
 // TODO: Look at this class again with FixedMesh
 
+enum PrimType {
+    PRIM_TYPE_TRIANGLE,
+    PRIM_TYPE_LINE
+};
+
 /**
  * @brief Mesh takes ownership of vertices and indices
  */
@@ -166,23 +171,34 @@ template <class T> class Mesh : public NonCopy {
 #endif
     }
 
-    // TODO: Optional drawing modes for draw()
     // TODO: Vert type changes enabled attributes
-    auto draw() -> void {
+    auto draw(PrimType p = PRIM_TYPE_TRIANGLE) -> void {
         bind();
 
         Rendering::RenderContext::get().set_matrices();
 
 #if BUILD_PC
         // TODO: Bind Program
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
+        if(p == PRIM_TYPE_TRIANGLE) {
+            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
                        nullptr);
+        } else {
+            glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_SHORT,
+                       nullptr);
+        }
 #elif BUILD_PLAT == BUILD_PSP
         sceGuShadeModel(GU_SMOOTH);
+        if(p == PRIM_TYPE_TRIANGLE) {
         sceGumDrawArray(GU_TRIANGLES,
                         GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
                             GU_VERTEX_32BITF | GU_TRANSFORM_3D,
                         indices.size(), indices.data(), vertices.data());
+        } else {
+        sceGumDrawArray(GU_LINE_STRIP,
+                        GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
+                            GU_VERTEX_32BITF | GU_TRANSFORM_3D,
+                        indices.size(), indices.data(), vertices.data());
+        }
 #elif BUILD_PLAT == BUILD_VITA
         if (vertices.size() == 0 || indices.size() == 0)
             return;
@@ -198,8 +214,13 @@ template <class T> class Mesh : public NonCopy {
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
 
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
+        if(p == PRIM_TYPE_TRIANGLE) {
+            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
                        nullptr);
+        } else {
+            glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_SHORT,
+                       nullptr);
+        }
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
