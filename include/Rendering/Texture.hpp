@@ -1,3 +1,4 @@
+#pragma once
 #include "RenderTypes.hpp"
 #include <Utilities/Singleton.hpp>
 #include <map>
