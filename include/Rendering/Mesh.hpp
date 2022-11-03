@@ -56,10 +56,7 @@ struct PACKED Vertex {
 // TODO: Lit data structure including normals
 // TODO: Look at this class again with FixedMesh
 
-enum PrimType {
-    PRIM_TYPE_TRIANGLE,
-    PRIM_TYPE_LINE
-};
+enum PrimType { PRIM_TYPE_TRIANGLE, PRIM_TYPE_LINE };
 
 /**
  * @brief Mesh takes ownership of vertices and indices
@@ -89,7 +86,7 @@ template <class T> class Mesh : public NonCopy {
     auto setup_buffer() -> void {
 #if BUILD_PC
 
-        if(!setup) {
+        if (!setup) {
             glGenVertexArrays(1, &vao);
             glGenBuffers(1, &vbo);
         }
@@ -110,7 +107,7 @@ template <class T> class Mesh : public NonCopy {
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
 
-        if(!setup){
+        if (!setup) {
             glGenBuffers(1, &ebo);
             setup = true;
         }
@@ -125,14 +122,14 @@ template <class T> class Mesh : public NonCopy {
         if (indices.size() <= 0 || vertices.size() <= 0)
             return;
 
-        if(!setup){
+        if (!setup) {
             glGenBuffers(1, &vbo);
         }
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(T) * vertices.size(),
                      vertices.data(), GL_STATIC_DRAW);
 
-        if(!setup){
+        if (!setup) {
             glGenBuffers(1, &ebo);
             setup = true;
         }
@@ -179,25 +176,25 @@ template <class T> class Mesh : public NonCopy {
 
 #if BUILD_PC
         // TODO: Bind Program
-        if(p == PRIM_TYPE_TRIANGLE) {
+        if (p == PRIM_TYPE_TRIANGLE) {
             glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
-                       nullptr);
+                           nullptr);
         } else {
             glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_SHORT,
-                       nullptr);
+                           nullptr);
         }
 #elif BUILD_PLAT == BUILD_PSP
         sceGuShadeModel(GU_SMOOTH);
-        if(p == PRIM_TYPE_TRIANGLE) {
-        sceGumDrawArray(GU_TRIANGLES,
-                        GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
-                            GU_VERTEX_32BITF | GU_TRANSFORM_3D,
-                        indices.size(), indices.data(), vertices.data());
+        if (p == PRIM_TYPE_TRIANGLE) {
+            sceGumDrawArray(GU_TRIANGLES,
+                            GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
+                                GU_VERTEX_32BITF | GU_TRANSFORM_3D,
+                            indices.size(), indices.data(), vertices.data());
         } else {
-        sceGumDrawArray(GU_LINE_STRIP,
-                        GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
-                            GU_VERTEX_32BITF | GU_TRANSFORM_3D,
-                        indices.size(), indices.data(), vertices.data());
+            sceGumDrawArray(GU_LINE_STRIP,
+                            GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
+                                GU_VERTEX_32BITF | GU_TRANSFORM_3D,
+                            indices.size(), indices.data(), vertices.data());
         }
 #elif BUILD_PLAT == BUILD_VITA
         if (vertices.size() == 0 || indices.size() == 0)
@@ -214,12 +211,12 @@ template <class T> class Mesh : public NonCopy {
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
 
-        if(p == PRIM_TYPE_TRIANGLE) {
+        if (p == PRIM_TYPE_TRIANGLE) {
             glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
-                       nullptr);
+                           nullptr);
         } else {
             glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_SHORT,
-                       nullptr);
+                           nullptr);
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -280,19 +277,18 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(T) * vertices.size(),
-            vertices.data(), GL_STATIC_DRAW);
+                     vertices.data(), GL_STATIC_DRAW);
 
         const auto stride = sizeof(T);
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride,
-            reinterpret_cast<void*>(sizeof(float) * 3));
+                              reinterpret_cast<void *>(sizeof(float) * 3));
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, stride,
-            reinterpret_cast<void*>(sizeof(float) * 2));
+                              reinterpret_cast<void *>(sizeof(float) * 2));
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
-
 
         if (!setup) {
             glGenBuffers(1, &ebo);
@@ -301,7 +297,7 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * indices.size(),
-            indices.data(), GL_STATIC_DRAW);
+                     indices.data(), GL_STATIC_DRAW);
 
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -310,15 +306,13 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
         if (indices.size() <= 0 || vertices.size() <= 0)
             return;
 
-
         if (!setup) {
             glGenBuffers(1, &vbo);
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(T) * vertices.size(),
-            vertices.data(), GL_STATIC_DRAW);
-
+                     vertices.data(), GL_STATIC_DRAW);
 
         if (!setup) {
             glGenBuffers(1, &ebo);
@@ -338,7 +332,7 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
 
     auto clear_data() -> void {
         for (int i = 0; i < V; i++) {
-            vertices[i] = { 0 };
+            vertices[i] = {0};
         }
         for (int i = 0; i < I; i++) {
             indices[i] = 0;
@@ -346,14 +340,16 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
     }
 
     auto delete_data() -> void {
+#if BUILD_PC
         if (!setup)
             return;
-#if BUILD_PC
         glDeleteVertexArrays(1, &vao);
         glDeleteBuffers(1, &vbo);
         glDeleteBuffers(1, &ebo);
         setup = false;
 #elif BUILD_PLAT == BUILD_VITA
+        if (!setup)
+            return;
         if (indices.size() <= 0)
             return;
 
@@ -366,8 +362,10 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
     // TODO: Optional drawing modes for draw()
     // TODO: Vert type changes enabled attributes
     auto draw() -> void {
+#ifndef PSP
         if (!setup)
             return;
+#endif
 
         bind();
 
