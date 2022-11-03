@@ -66,7 +66,7 @@ auto FontRenderer::clear_tiles() -> void {
 
 auto FontRenderer::generate_map() -> void {
 
-    clear_tiles();
+    Tilemap::clear_tiles();
 
     for (auto &s : stringVector) {
         auto pos = s.pos;
