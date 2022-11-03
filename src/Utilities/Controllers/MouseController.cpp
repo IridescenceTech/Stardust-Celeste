@@ -62,7 +62,7 @@ auto MouseController::setup_scroll() -> void {
             for (const auto &[key, value] : thizz->command_map) {
                 // Only look for Press
                 if (!(key.flags & KeyFlag::Press))
-                    return;
+                    continue;
                 if ((key.key == (int)MouseButtons::MWheelUp) && (y >= 0)) {
                     current_scroll_value += y;
                     if (current_scroll_value > scroll_wheel_threshold) {
