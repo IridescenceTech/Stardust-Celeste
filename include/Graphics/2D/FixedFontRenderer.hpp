@@ -1,22 +1,13 @@
 #pragma once
 #include <Graphics/2D/FixedTilemap.hpp>
+#include <Graphics/2D/FontRenderer.hpp>
 #include <Rendering/Mesh.hpp>
 #include <Utilities/Types.hpp>
 #include <map>
 #include <vector>
+#include <stb_image.hpp>
 
 namespace Stardust_Celeste::Graphics::G2D {
-
-/**
- * @brief Defines the text data required to render text to the screen
- *
- */
-struct TextData {
-    std::string text;
-    glm::vec2 pos;
-    Rendering::Color color;
-    float layer;
-};
 
 /**
  * @brief Font Rendering Tilemap
@@ -30,13 +21,60 @@ template <size_t N> class FixedFontRenderer : public FixedTilemap<N> {
      * @param texture Texture ID
      * @param atlasSize Texture Atlas Size
      */
-    FixedFontRenderer(u32 texture, glm::vec2 atlasSize);
+      FixedFontRenderer(u32 texture, glm::vec2 atlasSize) : FixedTilemap<N>(texture, atlasSize) {
+
+          SC_CORE_ASSERT(texture != 0, "Tilemap construction: Texture ID is 0!");
+          SC_CORE_ASSERT(atlasSize.x * atlasSize.y > 0,
+              "Tilemap construction: Atlas Size is <= 0!");
+
+          auto size = atlasSize.x * atlasSize.y;
+          size_map = (float*)malloc(size * sizeof(float));
+          SC_CORE_ASSERT(size_map != nullptr, "Sizemap returned Null!");
+          SC_CORE_INFO("{}", size);
+          scale_factor = 1.0f;
+
+          for (int i = 0; i < atlasSize.x * atlasSize.y; i++)
+              size_map[i] = 8;
+
+          int width, height, nrChannels;
+          Rendering::Color* data = (Rendering::Color*)stbi_load(
+              Rendering::TextureManager::get().get_texture(texture)->name.c_str(),
+              &width, &height, &nrChannels, STBI_rgb_alpha);
+
+          int w_per_char = width / atlasSize.x;
+          int h_per_char = height / atlasSize.y;
+
+          for (int i = 0; i < atlasSize.x * atlasSize.y; i++) {
+              int x = i % (int)atlasSize.x;
+              int y = i / atlasSize.x;
+
+              auto len_cal = 1;
+
+              for (int sx = x * w_per_char; sx < (x + 1) * w_per_char; sx++) {
+                  bool hit = false;
+                  for (int sy = y * h_per_char; sy < (y + 1) * h_per_char; sy++) {
+                      auto idx = sx + sy * width;
+                      if (data[idx].rgba.a != 0)
+                          hit = true;
+                  }
+
+                  if (hit)
+                      len_cal = sx - x * w_per_char;
+              }
+
+              size_map[i] = len_cal + 2;
+          }
+
+          stbi_image_free(data);
+    }
 
     /**
      * @brief Destroy the Font Renderer object
      *
      */
-    virtual ~FixedFontRenderer();
+      virtual ~FixedFontRenderer() {
+          free(size_map);
+    }
 
     /**
      * @brief Adds text to a list to draw
@@ -47,19 +85,54 @@ template <size_t N> class FixedFontRenderer : public FixedTilemap<N> {
      * @param layer Layer of text
      */
     virtual auto add_text(std::string text, glm::vec2 position,
-                          Rendering::Color color, float layer) -> void;
+                          Rendering::Color color, float layer) -> void {
+        stringVector.push_back({ text, position, color, layer });
+    }
 
     /**
      * @brief Clears the list of text data
      *
      */
-    virtual auto clear_tiles() -> void override;
+    virtual auto clear_tiles() -> void override {
+        stringVector.clear();
+        stringVector.shrink_to_fit();
+
+        FixedTilemap<N>::clear_tiles();
+    }
 
     /**
      * @brief Generate the tile map
      *
      */
-    virtual auto generate_map() -> void override;
+    virtual auto generate_map() -> void override {
+        if (size_map == NULL)
+            return;
+
+        FixedTilemap<N>::clear_tiles();
+
+        for (auto& s : stringVector) {
+            auto pos = s.pos;
+            for (int i = 0; i < s.text.length(); i++) {
+                auto c = s.text[i];
+
+                if (c < 0) {
+                    c = 0;
+                }
+                else if (c >= 128) {
+                    c = 128;
+                }
+
+                FixedTilemap<N>::add_tile(
+                    { {pos, glm::vec2(8 * scale_factor, 8 * scale_factor)},
+                     s.color,
+                     static_cast<u16>(c),
+                     s.layer });
+                pos.x += size_map[c] * scale_factor;
+            }
+        }
+
+        FixedTilemap<N>::generate_map();
+    }
 
     /**
      * @brief Calculates the necessary size for a text object (useful for center
@@ -68,7 +141,19 @@ template <size_t N> class FixedFontRenderer : public FixedTilemap<N> {
      * @param text Text information
      * @return float Space needed
      */
-    virtual auto calculate_size(std::string text) -> float;
+    virtual auto calculate_size(std::string text) -> float {
+        if (size_map == nullptr)
+            return 0;
+
+        float x = 0;
+
+        for (int i = 0; i < text.length(); i++) {
+            auto c = text[i];
+            x += size_map[c] * scale_factor;
+        }
+
+        return x;
+    }
 
     /**
      * @brief This is the kerning map -- sometimes may want to set this

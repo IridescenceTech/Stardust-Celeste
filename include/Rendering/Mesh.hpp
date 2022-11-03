@@ -63,12 +63,13 @@ template <class T> class Mesh : public NonCopy {
   private:
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA
     GLuint vbo, vao, ebo;
+    bool setup;
 #endif
 
   public:
     Mesh()
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA
-        : vbo(0), vao(0), ebo(0)
+        : vbo(0), vao(0), ebo(0), setup(false)
 #endif
     {
         vertices.clear();
@@ -82,8 +83,11 @@ template <class T> class Mesh : public NonCopy {
     // TODO: Vert type changes enabled attributes
     auto setup_buffer() -> void {
 #if BUILD_PC
-        glGenVertexArrays(1, &vao);
-        glGenBuffers(1, &vbo);
+
+        if(!setup) {
+            glGenVertexArrays(1, &vao);
+            glGenBuffers(1, &vbo);
+        }
         bind();
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -101,7 +105,10 @@ template <class T> class Mesh : public NonCopy {
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
 
-        glGenBuffers(1, &ebo);
+        if(!setup){
+            glGenBuffers(1, &ebo);
+            setup = true;
+        }
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * indices.size(),
                      indices.data(), GL_STATIC_DRAW);
@@ -113,13 +120,17 @@ template <class T> class Mesh : public NonCopy {
         if (indices.size() <= 0 || vertices.size() <= 0)
             return;
 
-        glGenBuffers(1, &vbo);
-
+        if(!setup){
+            glGenBuffers(1, &vbo);
+        }
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(T) * vertices.size(),
                      vertices.data(), GL_STATIC_DRAW);
 
-        glGenBuffers(1, &ebo);
+        if(!setup){
+            glGenBuffers(1, &ebo);
+            setup = true;
+        }
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * indices.size(),
                      indices.data(), GL_STATIC_DRAW);
@@ -131,25 +142,28 @@ template <class T> class Mesh : public NonCopy {
 #endif
     }
 
+    auto clear_data() -> void {
+        vertices.clear();
+        indices.clear();
+        vertices.shrink_to_fit();
+        indices.shrink_to_fit();
+    }
+
     auto delete_data() -> void {
 
 #if BUILD_PC
         glDeleteVertexArrays(1, &vao);
         glDeleteBuffers(1, &vbo);
         glDeleteBuffers(1, &ebo);
+        setup = false;
 #elif BUILD_PLAT == BUILD_VITA
         if (indices.size() <= 0)
             return;
 
         glDeleteBuffers(1, &vbo);
         glDeleteBuffers(1, &ebo);
+        setup = false;
 #endif
-
-        vertices.clear();
-        vertices.shrink_to_fit();
-
-        indices.clear();
-        indices.shrink_to_fit();
     }
 
     // TODO: Optional drawing modes for draw()
@@ -215,12 +229,13 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
   private:
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA
     GLuint vbo, vao, ebo;
+    bool setup;
 #endif
 
   public:
     FixedMesh()
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA
-        : vbo(0), vao(0), ebo(0)
+        : vbo(0), vao(0), ebo(0), setup(false)
 #endif
     {
         for (int i = 0; i < V; i++) {
@@ -236,29 +251,36 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
     // TODO: Vert type changes enabled attributes
     auto setup_buffer() -> void {
 #if BUILD_PC
-        glGenVertexArrays(1, &vao);
-        glGenBuffers(1, &vbo);
+        if (!setup) {
+            glGenVertexArrays(1, &vao);
+            glGenBuffers(1, &vbo);
+        }
         bind();
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(T) * vertices.size(),
-                     vertices.data(), GL_STATIC_DRAW);
+            vertices.data(), GL_STATIC_DRAW);
 
         const auto stride = sizeof(T);
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride,
-                              reinterpret_cast<void *>(sizeof(float) * 3));
+            reinterpret_cast<void*>(sizeof(float) * 3));
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, stride,
-                              reinterpret_cast<void *>(sizeof(float) * 2));
+            reinterpret_cast<void*>(sizeof(float) * 2));
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
 
-        glGenBuffers(1, &ebo);
+
+        if (!setup) {
+            glGenBuffers(1, &ebo);
+            setup = true;
+        }
+
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * indices.size(),
-                     indices.data(), GL_STATIC_DRAW);
+            indices.data(), GL_STATIC_DRAW);
 
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -267,13 +289,21 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
         if (indices.size() <= 0 || vertices.size() <= 0)
             return;
 
-        glGenBuffers(1, &vbo);
+
+        if (!setup) {
+            glGenBuffers(1, &vbo);
+        }
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(T) * vertices.size(),
-                     vertices.data(), GL_STATIC_DRAW);
+            vertices.data(), GL_STATIC_DRAW);
 
-        glGenBuffers(1, &ebo);
+
+        if (!setup) {
+            glGenBuffers(1, &ebo);
+            setup = true;
+        }
+
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * indices.size(),
                      indices.data(), GL_STATIC_DRAW);
@@ -285,31 +315,39 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
 #endif
     }
 
-    auto delete_data() -> void {
-
-#if BUILD_PC
-        glDeleteVertexArrays(1, &vao);
-        glDeleteBuffers(1, &vbo);
-        glDeleteBuffers(1, &ebo);
-#elif BUILD_PLAT == BUILD_VITA
-        if (indices.size() <= 0)
-            return;
-
-        glDeleteBuffers(1, &vbo);
-        glDeleteBuffers(1, &ebo);
-#endif
-
+    auto clear_data() -> void {
         for (int i = 0; i < V; i++) {
-            vertices[i] = {0};
+            vertices[i] = { 0 };
         }
         for (int i = 0; i < I; i++) {
             indices[i] = 0;
         }
     }
 
+    auto delete_data() -> void {
+        if (!setup)
+            return;
+#if BUILD_PC
+        glDeleteVertexArrays(1, &vao);
+        glDeleteBuffers(1, &vbo);
+        glDeleteBuffers(1, &ebo);
+        setup = false;
+#elif BUILD_PLAT == BUILD_VITA
+        if (indices.size() <= 0)
+            return;
+
+        glDeleteBuffers(1, &vbo);
+        glDeleteBuffers(1, &ebo);
+        setup = false;
+#endif
+    }
+
     // TODO: Optional drawing modes for draw()
     // TODO: Vert type changes enabled attributes
     auto draw() -> void {
+        if (!setup)
+            return;
+
         bind();
 
         Rendering::RenderContext::get().set_matrices();
