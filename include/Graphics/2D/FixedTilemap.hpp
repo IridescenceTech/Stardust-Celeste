@@ -99,9 +99,9 @@ template <size_t N> class FixedTilemap {
      *
      */
     virtual auto clear_tiles() -> void {
-        for (int i = 0; i < count; i++) {
-            tileMap[i] = {};
-        }
+        // for (int i = 0; i < count; i++) {
+        //     //            tileMap[i] = {0};
+        // }
         count = 0;
     }
 
