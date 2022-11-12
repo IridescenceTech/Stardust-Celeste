@@ -99,9 +99,15 @@ template <size_t N> class FixedTilemap {
      *
      */
     virtual auto clear_tiles() -> void {
-        // for (int i = 0; i < count; i++) {
-        //     //            tileMap[i] = {0};
-        // }
+        if (tileMap.empty())
+            return;
+
+        for (int i = 0; i < N; i++) {
+            tileMap[i].bounds = {{0, 0}, {0, 0}};
+            tileMap[i].color.color = 0;
+            tileMap[i].index = 0;
+            tileMap[i].layer = 0;
+        }
         count = 0;
     }
 

@@ -12,7 +12,7 @@ int current_section = 0;
 namespace Stardust_Celeste::Audio {
 
 auto Clip::streamData(ALuint buffer) -> bool {
-
+#ifndef PSP
 #define BUFFER_SIZE 4096 * 32
 
     char pcm[BUFFER_SIZE];
@@ -35,9 +35,11 @@ auto Clip::streamData(ALuint buffer) -> bool {
 
 #undef BUFFER_SIZE
     return true;
+#endif
 }
 
 Clip::Clip(const std::string &&path, bool s) {
+#ifndef PSP
     SC_CORE_ASSERT(path != "", "Path is blank!");
     isStreaming = s;
     alGenSources((ALuint)1, &source);
@@ -94,39 +96,68 @@ Clip::Clip(const std::string &&path, bool s) {
 
         totalSamplesLeft = 1;
     }
+#endif
 }
 Clip::~Clip() {
+#ifndef PSP
     alDeleteSources(1, &source);
     if (isStreaming) {
         alDeleteBuffers(2, buffers);
     } else {
         alDeleteBuffers(1, &buffers[0]);
     }
+#endif
 }
 
-auto Clip::set_pitch(float val) -> void { alSourcef(source, AL_PITCH, val); }
+auto Clip::set_pitch(float val) -> void {
+#ifndef PSP
+    alSourcef(source, AL_PITCH, val);
+#endif
+}
 auto Clip::set_volume(float val) -> void {
+#ifndef PSP
     SC_CORE_ASSERT(val >= 0.0f, "Value must be in range [0, 1]");
     SC_CORE_ASSERT(val <= 1.0f, "Value must be in range [0, 1]");
     alSourcef(source, AL_GAIN, val);
+#endif
 }
 
 auto Clip::set_position(const glm::vec3 &&position) -> void {
+#ifndef PSP
     alSource3f(source, AL_POSITION, position.x, position.y, position.z);
+#endif
 }
 auto Clip::set_velocity(const glm::vec3 &&velocity) -> void {
+#ifndef PSP
     alSource3f(source, AL_VELOCITY, velocity.x, velocity.y, velocity.z);
+#endif
 }
 auto Clip::set_looping(bool looping) -> void {
+#ifndef PSP
     shouldLoop = looping;
     alSourcei(source, AL_LOOPING, shouldLoop);
+#endif
 }
 
-auto Clip::play() -> void { alSourcePlay(source); }
-auto Clip::pause() -> void { alSourcePause(source); }
-auto Clip::stop() -> void { alSourceStop(source); }
+auto Clip::play() -> void {
+#ifndef PSP
+    alSourcePlay(source);
+#endif
+}
+auto Clip::pause() -> void {
+#ifndef PSP
+    alSourcePause(source);
+#endif
+}
+auto Clip::stop() -> void {
+#ifndef PSP
+    alSourceStop(source);
+#endif
+}
 
 auto Clip::update() -> void {
+#ifndef PSP
+
     ALint processed = 0;
     alGetSourcei(source, AL_BUFFERS_PROCESSED, &processed);
 
@@ -143,6 +174,8 @@ auto Clip::update() -> void {
         }
         alSourceQueueBuffers(source, 1, &buffer);
     }
+
+#endif
 }
 
 } // namespace Stardust_Celeste::Audio

@@ -119,6 +119,14 @@ auto init(const RenderContextSettings app) -> void {
 #elif BUILD_PLAT == BUILD_PSP
     guglInit(list);
 
+    sceGumMatrixMode(GU_PROJECTION);
+    sceGumLoadIdentity();
+    sceGumOrtho(-1, 1, -1, 1, -1, 1);
+    sceGumMatrixMode(GU_VIEW);
+    sceGumLoadIdentity();
+    sceGumMatrixMode(GU_MODEL);
+    sceGumLoadIdentity();
+
     sceCtrlSetSamplingCycle(0);
     sceCtrlSetSamplingMode(PSP_CTRL_MODE_ANALOG);
 #elif BUILD_PLAT == BUILD_VITA
@@ -152,9 +160,8 @@ auto disable(u32 state) -> void {
 }
 
 auto set_culling_mode(bool enabled, bool ccw) -> void {
-    if (enable) {
+    if (enabled) {
         glEnable(GL_CULL_FACE);
-        return;
     }
 
 #ifndef PSP

@@ -33,6 +33,7 @@ auto Tilemap::add_tiles(std::vector<Tile> tiles) -> void {
 auto Tilemap::clear_tiles() -> void {
     tileMap.clear();
     tileMap.shrink_to_fit();
+    mesh->clear_data();
 }
 
 auto Tilemap::update(double dt) -> void {

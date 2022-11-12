@@ -36,9 +36,6 @@ auto AudioContext::initialize() -> void {
     // check for errors
     alListenerfv(AL_ORIENTATION, listenerOri);
     // check for errors
-#else
-    VirtualFileInit();
-    oslInitAudio();
 #endif
 }
 auto AudioContext::terminate() noexcept -> void {
@@ -47,8 +44,6 @@ auto AudioContext::terminate() noexcept -> void {
     alcMakeContextCurrent(NULL);
     alcDestroyContext(context);
     alcCloseDevice(device);
-#else
-    oslDeinitAudio();
 #endif
 }
 } // namespace Stardust_Celeste::Audio

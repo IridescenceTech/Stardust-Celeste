@@ -40,6 +40,8 @@ namespace Stardust_Celeste::Rendering {
 auto RenderContext::initialize(const RenderContextSettings app) -> void {
     GI::init(app);
 
+    GI::start_frame();
+
     GI::enable(GI_DEPTH_TEST);
     GI::depth_func(GI_LEQUAL);
 
@@ -52,6 +54,8 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
     GI::alpha_func(GI_GREATER, 0x20, 0xFF);
 
     GI::enable(GI_TEXTURE_2D);
+
+    GI::end_frame(true, false);
 
     // PSP: SETUP MATRICES
     c.color = 0xFFFFFFFF;
