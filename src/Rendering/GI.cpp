@@ -175,9 +175,9 @@ auto depth_func(u32 mode) -> void { glDepthFunc(mode); }
 
 auto blend_func(u32 src, u32 dest) -> void {
 #ifndef PSP
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(src, dest);
 #else
-    glBlendFunc(GU_ADD, GU_SRC_ALPHA, GU_ONE_MINUS_SRC_ALPHA, 0, 0);
+    glBlendFunc(GU_ADD, src, dest, 0, 0);
 #endif
 }
 
