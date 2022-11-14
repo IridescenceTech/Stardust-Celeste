@@ -162,6 +162,8 @@ auto disable(u32 state) -> void {
 auto set_culling_mode(bool enabled, bool ccw) -> void {
     if (enabled) {
         glEnable(GL_CULL_FACE);
+    } else {
+        glDisable(GL_CULL_FACE);
     }
 
 #ifndef PSP
