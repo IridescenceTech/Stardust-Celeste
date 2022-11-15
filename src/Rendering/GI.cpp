@@ -89,7 +89,7 @@ namespace GI {
 GLFWwindow *window;
 GLuint programID;
 #elif BUILD_PLAT == BUILD_PSP
-static unsigned int __attribute__((aligned(16))) list[0x10000];
+unsigned int __attribute__((aligned(16))) list[0x10000];
 #elif BUILD_PLAT == BUILD_VITA
 #include <vitaGL.h>
 GLuint programID;
