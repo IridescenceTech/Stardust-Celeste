@@ -117,8 +117,8 @@ template <size_t N> class FixedFontRenderer : public FixedTilemap<N> {
 
                 if (c < 0) {
                     c = 0;
-                } else if (c >= 128) {
-                    c = 128;
+                } else if (c >= 127) {
+                    c = 127;
                 }
 
                 FixedTilemap<N>::add_tile(
