@@ -75,8 +75,8 @@ auto FontRenderer::generate_map() -> void {
 
             if (c < 0) {
                 c = 0;
-            } else if (c >= 128) {
-                c = 128;
+            } else if (c >= 127) {
+                c = 127;
             }
 
             add_tile({{pos, glm::vec2(8 * scale_factor, 8 * scale_factor)},
