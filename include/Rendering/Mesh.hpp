@@ -19,7 +19,6 @@
 #if BUILD_PC
 #include <glad/glad.hpp>
 #elif BUILD_PLAT == BUILD_PSP
-#include <intraFont.h>
 #include <pspctrl.h>
 #include <pspdebug.h>
 #include <pspdisplay.h>
