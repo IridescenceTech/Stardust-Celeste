@@ -1,5 +1,6 @@
 #include <Platform/Platform.hpp>
 #include <Rendering/ShaderManager.hpp>
+#include <Utilities/Logger.hpp>
 #include <stdexcept>
 #ifndef PSP
 namespace GI {
@@ -29,7 +30,9 @@ auto compileShader(const char *source, GLenum shaderType) -> GLuint {
     if (!status) {
         char log[512];
         glGetShaderInfoLog(shader, 512, nullptr, log);
-        throw std::runtime_error("Shader compile failed: " + std::string(log));
+        std::string err = "Shader compile failed: " + std::string(log);
+        SC_CORE_ERROR("SHADER COMPILE FAILED: {}", err);
+        throw std::runtime_error(err);
     }
 
     return shader;
