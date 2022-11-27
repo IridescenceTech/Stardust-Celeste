@@ -6,15 +6,16 @@ set(CMAKE_CXX_STANDARD 17)
 file(GLOB_RECURSE SRC_FILES src/*.cpp)
 file(GLOB_RECURSE INC_FILES include/*.hpp)
 
-find_package(SDL2 REQUIRED)
-
-include(FindPkgConfig)
-pkg_search_module(SDL2mixer REQUIRED SDL2_mixer)
+if(NOT PSP AND NOT VITA)
+    find_package(SDL2 REQUIRED)
+    include(FindPkgConfig)
+    pkg_search_module(SDL2mixer REQUIRED SDL2_mixer)
+endif()
 
 if(PSP)
     list(REMOVE_ITEM SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/glad.cpp")
     add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES})
-    target_link_libraries(Stardust-Celeste PUBLIC pspgum pspgu pspge psputility pspdisplay pspctrl pspnet pspnet_apctl psppower pspaudio)
+    target_link_libraries(Stardust-Celeste PUBLIC pspgum pspgu pspge psputility pspdisplay pspctrl pspnet pspnet_apctl psppower pspaudio SDL2_mixer SDL2 pspvram xmp ogg vorbisfile vorbis psphprm GL GLU glut pspvfpu)
     target_include_directories(Stardust-Celeste PUBLIC ext/ ext/gu2gl)
 elseif(VITA)
     include(setup_vita.cmake)
@@ -23,6 +24,8 @@ elseif(VITA)
     file(GLOB_RECURSE YAML_FILES ext/yaml/src/*.cpp)
 
     add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES} ${YAML_FILES})
+    target_link_libraries(Stardust-Celeste PUBLIC SDL2_mixer SDL2 SceTouch_stub SceHid_stub vitaGL SceCtrl_stub vitashark mathneon SceShaccCg_stub SceShaccCgExt SceIme_stub SceAppMgr_stub SceGxm_stub SceCommonDialog_stub SceProcessmgr_stub SceDisplay_stub SceKernelDmacMgr_stub ScePower_stub taihen_stub SceAudioIn_stub SceAudio_stub SceMotion_stub vorbisfile vorbis ogg FLAC mikmod pthread mpg123 modplug)
+
 else()
     set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build GLFW without examples")
     set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build GLFW without tests")
@@ -35,9 +38,11 @@ else()
     target_link_libraries(Stardust-Celeste PUBLIC glfw)
 endif()
 
-target_link_libraries(Stardust-Celeste PUBLIC ${SDL2_LIBRARIES}
-    ${SDL2mixer_LIBRARIES}
-    ${catkin_LIBRARIES})
+if(NOT PSP AND NOT VITA)
+    target_link_libraries(Stardust-Celeste PUBLIC ${SDL2_LIBRARIES}
+        ${SDL2mixer_LIBRARIES}
+        ${catkin_LIBRARIES})
+endif()
 
 option(USE_EASTL "Use EA Standard Template Library" OFF)
 
