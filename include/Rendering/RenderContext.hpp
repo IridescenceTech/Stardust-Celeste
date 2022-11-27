@@ -155,6 +155,13 @@ class RenderContext final : public Singleton {
     auto matrix_view(glm::mat4 mat) -> void;
 
     /**
+     * @brief Set View Matrix
+     *
+     * @param mat Matrix
+     */
+    auto matrix_model(glm::mat4 mat) -> void;
+
+    /**
      * @brief Set the mode to 2D
      *
      */

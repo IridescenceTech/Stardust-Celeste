@@ -205,6 +205,18 @@ auto RenderContext::matrix_view(glm::mat4 mat) -> void {
 #endif
 }
 
+auto RenderContext::matrix_model(glm::mat4 mat) -> void {
+#if BUILD_PC
+    _gfx_model = mat;
+#elif BUILD_PLAT == BUILD_PSP
+    sceGumMatrixMode(GU_MODEL);
+    ScePspFMatrix4 m1 = *((ScePspFMatrix4*)glm::value_ptr(mat));
+    sceGumLoadMatrix(&m1);
+#elif BUILD_VITA
+    _gfx_model = mat;
+#endif
+}
+
 auto RenderContext::set_mode_2D() -> void {
     _gfx_proj = &_gfx_ortho;
 #if BUILD_PC
