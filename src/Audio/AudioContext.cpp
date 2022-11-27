@@ -8,7 +8,7 @@ auto AudioContext::initialize() -> void {
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
         throw std::runtime_error("Audio system initialization failed!");
 
-#if PSP
+#if PSP || VITA
     if (Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 2, 4096) == -1)
 #else
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 6, 4096) == -1)
