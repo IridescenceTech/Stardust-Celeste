@@ -6,9 +6,13 @@ set(CMAKE_CXX_STANDARD 17)
 file(GLOB_RECURSE SRC_FILES src/*.cpp)
 file(GLOB_RECURSE INC_FILES include/*.hpp)
 
+find_package(SDL2 REQUIRED)
+
+include(FindPkgConfig)
+pkg_search_module(SDL2mixer REQUIRED SDL2_mixer)
+
 if(PSP)
     list(REMOVE_ITEM SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/glad.cpp")
-    list(APPEND SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/ext/osl_sound/audio.c" "${CMAKE_CURRENT_SOURCE_DIR}/ext/osl_sound/bgm.c" "${CMAKE_CURRENT_SOURCE_DIR}/ext/osl_sound/media.c" "${CMAKE_CURRENT_SOURCE_DIR}/ext/osl_sound/pgeWav.c" "${CMAKE_CURRENT_SOURCE_DIR}/ext/osl_sound/vfsFile.c" "${CMAKE_CURRENT_SOURCE_DIR}/ext/osl_sound/VirtualFile.c")
     add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES})
     target_link_libraries(Stardust-Celeste PUBLIC pspgum pspgu pspge psputility pspdisplay pspctrl pspnet pspnet_apctl psppower pspaudio)
     target_include_directories(Stardust-Celeste PUBLIC ext/ ext/gu2gl)
@@ -24,16 +28,16 @@ else()
     set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build GLFW without tests")
     set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build GLFW without docs")
     add_subdirectory(ext/glfw)
-    add_subdirectory(ext/openal)
-    add_subdirectory(ext/ogg)
-    add_subdirectory(ext/vorbis)
 
     add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES})
 
     target_include_directories(Stardust-Celeste PUBLIC ext/glfw/include/)
-    target_include_directories(Stardust-Celeste PUBLIC ext/openal/include/)
-    target_link_libraries(Stardust-Celeste PUBLIC glfw OpenAL vorbis vorbisfile ogg)
+    target_link_libraries(Stardust-Celeste PUBLIC glfw)
 endif()
+
+target_link_libraries(Stardust-Celeste PUBLIC ${SDL2_LIBRARIES}
+    ${SDL2mixer_LIBRARIES}
+    ${catkin_LIBRARIES})
 
 option(USE_EASTL "Use EA Standard Template Library" OFF)
 

@@ -1,49 +1,17 @@
 #include <Audio/AudioContext.hpp>
-
-#ifndef PSP
-#include <AL/al.h>
-#include <AL/alc.h>
-#else
-#include <osl_sound/audio.h>
-#include <osl_sound/oslib.h>
-#endif
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 
 namespace Stardust_Celeste::Audio {
 
-#ifndef PSP
-ALCdevice *device;
-ALCcontext *context;
-
-#endif
-
 auto AudioContext::initialize() -> void {
-#ifndef PSP
-    device = alcOpenDevice(NULL);
-    if (!device)
-        throw std::runtime_error("Could not find an audio device!");
+    if (SDL_Init(SDL_INIT_AUDIO) < 0)
+        throw std::runtime_error("Audio system initialization failed!");
 
-    context = alcCreateContext(device, NULL);
-    if (!alcMakeContextCurrent(context))
-        throw std::runtime_error("Could not make an audio context!");
-
-    SC_CORE_INFO("OpenAL Initialized!");
-
-    ALfloat listenerOri[] = {0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f};
-
-    alListener3f(AL_POSITION, 0, 0, 1.0f);
-    // check for errors
-    alListener3f(AL_VELOCITY, 0, 0, 0);
-    // check for errors
-    alListenerfv(AL_ORIENTATION, listenerOri);
-    // check for errors
-#endif
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 6, 4096) == -1)
+        throw std::runtime_error("Audio channel initialization failed!");
 }
-auto AudioContext::terminate() noexcept -> void {
-#ifndef PSP
-    device = alcGetContextsDevice(context);
-    alcMakeContextCurrent(NULL);
-    alcDestroyContext(context);
-    alcCloseDevice(device);
-#endif
-}
+
+auto AudioContext::terminate() noexcept -> void { Mix_CloseAudio(); }
+
 } // namespace Stardust_Celeste::Audio

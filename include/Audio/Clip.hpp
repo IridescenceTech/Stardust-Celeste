@@ -4,10 +4,6 @@
 #include <glm.hpp>
 #include <string>
 
-#include "AL/al.h"
-#include <vorbis/codec.h>
-#include <vorbis/vorbisfile.h>
-
 namespace Stardust_Celeste::Audio {
 /**
  * @brief Clip is the foundational audio class -- it loads an audio stream from
@@ -15,7 +11,8 @@ namespace Stardust_Celeste::Audio {
  * said audio.
  *
  * Limitations:
- * WAV (non streamed) OGG (streamed)
+ * WAV (Non-Streaming)
+ * Mixer_LoadMUS formats (Streaming)
  *
  * It is extensible
  */
@@ -40,32 +37,11 @@ class Clip {
     /////////////////////////////
 
     /**
-     * @brief Set the pitch value
-     *
-     * @param val Pitch modification [?, ?]
-     */
-    auto set_pitch(const float val) -> void;
-
-    /**
      * @brief Set the volume value
      *
      * @param val Volume [0, 1]
      */
     auto set_volume(const float val) -> void;
-
-    /**
-     * @brief Set the position of the audio
-     *
-     * @param position 3D Position of the clip
-     */
-    auto set_position(const glm::vec3 &&position) -> void;
-
-    /**
-     * @brief Set the velocity of the audio
-     *
-     * @param velocity 3D Velocity of the clip
-     */
-    auto set_velocity(const glm::vec3 &&velocity) -> void;
 
     /**
      * @brief Set the clip to looping
@@ -92,25 +68,11 @@ class Clip {
      */
     auto stop() -> void;
 
-    /**
-     * @brief Updates a given audio clip (fetches data if streaming)
-     *
-     */
-    auto update() -> void;
-
   protected:
     bool isStreaming;
     bool shouldLoop;
+    int chan;
 
-    auto streamData(ALuint buffer) -> bool;
-
-    ALuint ID;
-
-    ALuint buffers[2];
-    ALuint source;
-    ALenum format;
-
-    size_t bufferSize;
-    size_t totalSamplesLeft;
+    void *data; // So that we can avoid including SDL2 stuff in header
 };
 } // namespace Stardust_Celeste::Audio
