@@ -197,6 +197,8 @@ if(NOT _3DSLINK)
     endif()
 endif()
 
+set(CTRULIB "$ENV{DEVKITPRO}/libctru")
+
 # ############
 # # PICASSO ##
 # ############
@@ -310,8 +312,6 @@ function(add_3dsx_target target)
     endif()
 
     add_custom_target(${target_we}_3dsx ALL SOURCES ${CMAKE_CURRENT_BINARY_DIR}/${target_we}.3dsx)
-
-    # set_target_properties(${target} PROPERTIES LINK_FLAGS "-specs=3dsx.specs")
 endfunction()
 
 function(__add_ncch_banner target IMAGE SOUND)
