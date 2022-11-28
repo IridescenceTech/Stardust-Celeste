@@ -13,7 +13,7 @@
 
 namespace Stardust_Celeste::Rendering {
 
-#ifndef PSP
+#if BUILD_PLAT != BUILD_PSP && BUILD_PLAT != BUILD_3DS
 
 /**
  * @brief Shader data structure

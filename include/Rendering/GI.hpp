@@ -9,6 +9,8 @@
 #include "../ext/gu2gl/gu2gl.h"
 #elif BUILD_PLAT == BUILD_VITA
 #include <vitaGL.h>
+#elif BUILD_PLAT == BUILD_3DS
+#include <GL/picaGL.h>
 #endif
 
 #ifndef GL_ALPHA_TEST

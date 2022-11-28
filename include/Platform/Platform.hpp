@@ -10,7 +10,7 @@
 #define BUILD_VITA 3
 #define BUILD_PS2 4
 #define BUILD_PS3 5
-#define BUILD_GAMECUBE 6
+#define BUILD_WII 6
 #define BUILD_3DS 7
 #define BUILD_SWITCH 8
 
@@ -18,9 +18,7 @@
 #error PLATFORM NOT SUPPORTED YET
 #elif BUILD_PLAT == BUILD_PS3
 #error PLATFORM NOT SUPPORTED YET
-#elif BUILD_PLAT == BUILD_GAMECUBE
-#error PLATFORM NOT SUPPORTED YET
-#elif BUILD_PLAT == BUILD_3DS
+#elif BUILD_PLAT == BUILD_WII
 #error PLATFORM NOT SUPPORTED YET
 #elif BUILD_PLAT == BUILD_SWITCH
 #error PLATFORM NOT SUPPORTED YET
@@ -32,6 +30,8 @@
 #include <pspkernel.h>
 #elif BUILD_PLAT == BUILD_VITA
 #include <vitasdk.h>
+#elif BUILD_PLAT == BUILD_3DS
+#include <3ds.h>
 #endif
 
 #include <Utilities/Types.hpp>
@@ -57,6 +57,8 @@ constexpr auto BUILD_PLATFORM = Stardust_Celeste::PlatformType::Posix;
 constexpr auto BUILD_PLATFORM = Stardust_Celeste::PlatformType::Psp;
 #elif BUILD_PLAT == BUILD_VITA
 constexpr auto BUILD_PLATFORM = Stardust_Celeste::PlatformType::Psvita;
+#elif BUILD_PLAT == BUILD_3DS
+constexpr auto BUILD_PLATFORM = Stardust_Celeste::PlatformType::N3DS;
 #else
 #error Invalid Platform!
 #endif

@@ -20,6 +20,12 @@
 
 #define SC_TEX_FILTER_NEAREST GL_NEAREST
 #define SC_TEX_FILTER_LINEAR GL_LINEAR
+#elif BUILD_PLAT == BUILD_3DS
+#include <GL/picaGL.h>
+
+#define SC_TEX_FILTER_NEAREST GL_NEAREST
+#define SC_TEX_FILTER_LINEAR GL_LINEAR
+
 #endif
 
 #include <unordered_map>

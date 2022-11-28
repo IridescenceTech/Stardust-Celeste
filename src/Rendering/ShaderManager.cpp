@@ -2,13 +2,13 @@
 #include <Rendering/ShaderManager.hpp>
 #include <Utilities/Logger.hpp>
 #include <stdexcept>
-#ifndef PSP
+#if BUILD_PLAT != BUILD_PSP && BUILD_PLAT != BUILD_3DS
 namespace GI {
 extern GLuint programID;
 }
 #endif
 namespace Stardust_Celeste::Rendering {
-#ifndef PSP
+#if BUILD_PLAT != BUILD_PSP && BUILD_PLAT != BUILD_3DS
 
 ShaderManager::~ShaderManager() {
     for (auto &[key, val] : fullMap) {

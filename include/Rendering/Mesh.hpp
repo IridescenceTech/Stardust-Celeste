@@ -9,9 +9,9 @@
 #include "RenderTypes.hpp"
 
 #if BUILD_PLAT == BUILD_PSP
-#define PACKED __attribute__((__packed__))
+#define VERT_PACKED __attribute__((__packed__))
 #else
-#define PACKED
+#define VERT_PACKED
 #endif
 
 #define BUILD_PC (BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX)
@@ -32,6 +32,8 @@
 #include <stdarg.h>
 #elif BUILD_PLAT == BUILD_VITA
 #include <vitaGL.h>
+#elif BUILD_PLAT == BUILD_3DS
+#include <GL/picaGL.h>
 #endif
 
 #if USE_EASTL
@@ -45,7 +47,7 @@ namespace Stardust_Celeste::Rendering {
 /**
  * @brief Packed vertices
  */
-struct PACKED Vertex {
+struct VERT_PACKED Vertex {
     float u, v;
     Color color;
     float x, y, z;
@@ -361,7 +363,7 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
     // TODO: Optional drawing modes for draw()
     // TODO: Vert type changes enabled attributes
     auto draw() -> void {
-#ifndef PSP
+#if BUILD_PLAT != BUILD_PSP && BUILD_PLAT != BUILD_3DS
         if (!setup)
             return;
 #endif

@@ -16,6 +16,8 @@
 #include <pspctrl.h>
 #elif BUILD_PLAT == BUILD_VITA
 #include <vitaGL.h>
+#elfi BUILD_PLAT == BUILD_3DS
+#include <GL/picaGL.h>
 #endif
 
 #if BUILD_PC

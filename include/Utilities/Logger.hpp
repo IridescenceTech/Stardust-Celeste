@@ -8,6 +8,32 @@
 #include <iostream>
 #include <mutex>
 #include <sstream>
+#include <thread>
+
+#if BUILD_PLAT == BUILD_3DS
+namespace std {
+class mutex {
+    volatile int rep;
+
+  public:
+    void lock() {
+        while (rep != 0) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(234));
+        }
+        rep = 1;
+    }
+    bool try_lock() {
+        if (rep == 0) {
+            rep = 1;
+            return true;
+        } else {
+            return false;
+        }
+    }
+    void unlock() { rep = 0; }
+};
+} // namespace std
+#endif
 
 namespace Stardust_Celeste::Utilities {
 
@@ -85,11 +111,11 @@ class Logger final : public Singleton {
                 fmt::print(formatMsg);
 #endif
 
-            if(m_FileOut != nullptr){
-            fmt::print(m_FileOut, formatMsg);
+            if (m_FileOut != nullptr) {
+                fmt::print(m_FileOut, formatMsg);
 
-            if (flush_output)
-                fflush(m_FileOut);
+                if (flush_output)
+                    fflush(m_FileOut);
             }
         }
     }

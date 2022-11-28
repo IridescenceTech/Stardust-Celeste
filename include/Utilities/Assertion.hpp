@@ -19,6 +19,8 @@ inline auto SC_DEBUG_BREAK() -> void {
         "nop\n");
 #elif BUILD_PLAT == BUILD_VITA
     // TODO: figure this out some time
+#elif BUILD_PLAT == BUILD_3DS
+    // TODO: Figure this out later
 #else
 #warning No Debug Break!
 #endif

@@ -1,6 +1,10 @@
 #include <Audio/AudioContext.hpp>
 #include <SDL2/SDL.h>
+#if BUILD_PLAT == BUILD_3DS
+#include <SDL/SDL_mixer.h>
+#else
 #include <SDL2/SDL_mixer.h>
+#endif
 
 namespace Stardust_Celeste::Audio {
 
