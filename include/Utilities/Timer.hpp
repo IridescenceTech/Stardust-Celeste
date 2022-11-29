@@ -52,7 +52,11 @@ class Timer final : public NonCopy {
   private:
     double dt;
     double total;
+#if BUILD_PLAT == BUILD_3DS
+    u64 last;
+#else
     std::chrono::time_point<std::chrono::high_resolution_clock> last;
+#endif
 
     static RefPtr<Timer> s_Time;
 };

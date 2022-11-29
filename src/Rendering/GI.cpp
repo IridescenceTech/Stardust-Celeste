@@ -221,6 +221,7 @@ auto end_frame(bool vsync, bool dialog) -> void {
     vglSwapBuffers(dialog);
 #elif BUILD_PLAT == BUILD_3DS
     pglSwapBuffers();
+    gspWaitForVBlank();
 #endif
 }
 

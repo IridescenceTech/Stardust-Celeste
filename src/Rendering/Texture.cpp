@@ -188,7 +188,7 @@ auto TextureManager::load_texture(std::string filename, u32 magFilter,
 auto TextureManager::bind_texture(u32 id) -> void {
     if (fullMap.find(id) != fullMap.end()) {
         GI::enable(GI_TEXTURE_2D);
-#if BUILD_PC || BUILD_PLAT == BUILD_VITA
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA || BUILD_PLAT == BUILD_3DS
         glBindTexture(GL_TEXTURE_2D, fullMap[id]->id);
 #elif BUILD_PLAT == BUILD_PSP
         Texture *tex = fullMap[id];
@@ -208,8 +208,8 @@ auto TextureManager::bind_texture(u32 id) -> void {
 auto TextureManager::delete_texture(u32 id) -> void {
     if (fullMap.find(id) != fullMap.end()) {
 
-#if BUILD_PC || BUILD_PLAT == BUILD_VITA
-        glDeleteTextures(1, &fullMap[id]->id);
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA || BUILD_PLAT == BUILD_3DS
+        glDeleteTextures(1, (GLuint *)&fullMap[id]->id);
 #endif
 
         if (fullMap[id]->data)
