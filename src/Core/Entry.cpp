@@ -36,6 +36,10 @@ int SetupCallbacks(void) {
 #include <vitasdk.h>
 #endif
 
+#if BUILD_PLAT == BUILD_3DS
+#include <3ds.h>
+#endif
+
 using namespace Stardust_Celeste::Utilities;
 
 auto init_sc() -> void {
@@ -59,7 +63,6 @@ auto cleanup_sc() -> void {
 }
 
 extern Stardust_Celeste::Core::Application *CreateNewSCApp();
-#include <3ds.h>
 int main(int, char **) {
 
 #if PSP
