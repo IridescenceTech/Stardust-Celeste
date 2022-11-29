@@ -13,10 +13,7 @@ class GameState : public Core::ApplicationState {
     GameState() {}
 
     void on_update(Core::Application *app, double dt) {
-        appref = app;
         Utilities::Input::update();
-
-        music->update();
     }
     void on_draw(Core::Application *app, double dt) {
         if (sprite.get() != nullptr)
@@ -33,19 +30,13 @@ class GameState : public Core::ApplicationState {
         auto tex = Rendering::TextureManager::get().get_texture(tex_id);
         sprite = create_scopeptr<Graphics::G2D::Sprite>(
             tex_id, Rendering::Rectangle{{-1, -1}, {2, 2}});
-
-        music = create_scopeptr<Audio::Clip>("test.ogg", true);
-        music->play();
     }
 
     void on_cleanup() {}
 
   private:
     bool added;
-    const int secret_value = 12;
-    Core::Application *appref;
     ScopePtr<Graphics::G2D::Sprite> sprite;
-    ScopePtr<Audio::Clip> music;
     u32 tex_id;
 };
 

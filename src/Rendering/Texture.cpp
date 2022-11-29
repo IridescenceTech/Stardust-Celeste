@@ -127,12 +127,15 @@ auto TextureManager::load_texture(std::string filename, u32 magFilter,
 
     tex->name = filename;
 
-#if BUILD_PC || BUILD_PLAT == BUILD_VITA
-    glGenTextures(1, &tex->id);
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA || BUILD_PLAT == BUILD_3DS
+    glGenTextures(1, (GLuint *)&tex->id);
     glBindTexture(GL_TEXTURE_2D, tex->id);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
                  GL_UNSIGNED_BYTE, data);
+
+#if BUILD_PLAT != BUILD_3DS
     glGenerateMipmap(GL_TEXTURE_2D);
+#endif
     stbi_image_free(data);
 
     tex->data = nullptr;

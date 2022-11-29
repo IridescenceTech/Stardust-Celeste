@@ -13,8 +13,13 @@ namespace Stardust_Celeste::Rendering {
 union Color {
     struct RGBA {
         u8 r;
+#if BUILD_PLAT == BUILD_3DS
+        u8 b;
+        u8 g;
+#else
         u8 g;
         u8 b;
+#endif
         u8 a;
     };
 

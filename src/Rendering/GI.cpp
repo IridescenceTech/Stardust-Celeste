@@ -16,7 +16,7 @@
 #include <pspctrl.h>
 #elif BUILD_PLAT == BUILD_VITA
 #include <vitaGL.h>
-#elfi BUILD_PLAT == BUILD_3DS
+#elif BUILD_PLAT == BUILD_3DS
 #include <GL/picaGL.h>
 #endif
 
@@ -138,6 +138,9 @@ auto init(const RenderContextSettings app) -> void {
     programID = ShaderManager::get().load_shader(vert_source, frag_source);
     ShaderManager::get().bind_shader(programID);
     glUseProgram(programID);
+#elif BUILD_PLAT == BUILD_3DS
+    pglInit();
+    pglSelectScreen(GFX_TOP, 0);
 #endif
 }
 
@@ -149,6 +152,8 @@ auto terminate() -> void {
     guglTerm();
 #elif BUILD_PLAT == BUILD_VITA
     vglEnd();
+#elif BUILD_PLAT == BUILD_3DS
+    pglExit();
 #endif
 }
 
@@ -214,6 +219,8 @@ auto end_frame(bool vsync, bool dialog) -> void {
     guglSwapBuffers(vsync, dialog);
 #elif BUILD_PLAT == BUILD_VITA
     vglSwapBuffers(dialog);
+#elif BUILD_PLAT == BUILD_3DS
+    pglSwapBuffers();
 #endif
 }
 

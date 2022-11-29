@@ -14,6 +14,7 @@
 namespace Stardust_Celeste::Audio {
 
 Clip::Clip(const std::string &&path, bool s) {
+#if BUILD_PLAT != BUILD_3DS
     isStreaming = s;
 
     data = nullptr;
@@ -27,15 +28,20 @@ Clip::Clip(const std::string &&path, bool s) {
 
     chan = -1;
     shouldLoop = false;
+#endif
 }
 Clip::~Clip() {
+#if BUILD_PLAT != BUILD_3DS
     if (isStreaming && data == nullptr)
         Mix_FreeMusic(reinterpret_cast<Mix_Music *>(data));
     else
         Mix_FreeChunk(reinterpret_cast<Mix_Chunk *>(data));
+
+#endif
 }
 
 auto Clip::set_volume(float val) -> void {
+#if BUILD_PLAT != BUILD_3DS
     int v = 128 * val;
 
     if (v > 128)
@@ -48,11 +54,14 @@ auto Clip::set_volume(float val) -> void {
         Mix_VolumeMusic(v);
     else
         Mix_VolumeChunk(reinterpret_cast<Mix_Chunk *>(data), v);
+
+#endif
 }
 
 auto Clip::set_looping(bool looping) -> void { shouldLoop = looping; }
 
 auto Clip::play() -> void {
+#if BUILD_PLAT != BUILD_3DS
     int loops = 0;
     if (shouldLoop)
         loops = -1;
@@ -61,18 +70,23 @@ auto Clip::play() -> void {
         Mix_PlayMusic(reinterpret_cast<Mix_Music *>(data), loops);
     else
         chan = Mix_PlayChannel(-1, reinterpret_cast<Mix_Chunk *>(data), loops);
+#endif
 }
 auto Clip::pause() -> void {
+#if BUILD_PLAT != BUILD_3DS
     if (isStreaming)
         Mix_PauseMusic();
     else if (chan != -1)
         Mix_Pause(chan);
+#endif
 }
 auto Clip::stop() -> void {
+#if BUILD_PLAT != BUILD_3DS
     if (isStreaming)
         Mix_HaltMusic();
     else if (chan != -1)
         Mix_HaltChannel(chan);
+#endif
 }
 
 } // namespace Stardust_Celeste::Audio

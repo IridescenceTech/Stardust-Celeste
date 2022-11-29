@@ -57,7 +57,6 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
 
     GI::end_frame(true, false);
 
-    // PSP: SETUP MATRICES
     c.color = 0xFFFFFFFF;
     is_init = true;
     _gfx_proj = &_gfx_ortho;
@@ -122,6 +121,12 @@ auto RenderContext::matrix_perspective(float fovy, float aspect, float zn,
     sceGumLoadIdentity();
     sceGumMatrixMode(GU_MODEL);
     sceGumLoadIdentity();
+#elif BUILD_PLAT == BUILD_3DS
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf(glm::value_ptr(*_gfx_proj));
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 #endif
 }
 
@@ -140,6 +145,12 @@ auto RenderContext::matrix_ortho(float l, float r, float b, float t, float zn,
     sceGumLoadIdentity();
     sceGumMatrixMode(GU_MODEL);
     sceGumLoadIdentity();
+#elif BUILD_PLAT == BUILD_3DS
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf(glm::value_ptr(*_gfx_proj));
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 #endif
 }
 
@@ -183,6 +194,21 @@ auto RenderContext::set_matrices() -> void {
     sceGumMatrixMode(GU_MODEL);
     ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(newModel));
     sceGumLoadMatrix(&m1);
+
+#elif BUILD_PLAT == BUILD_3DS
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf(glm::value_ptr(*_gfx_proj));
+
+    glMatrixMode(GL_MODELVIEW);
+
+    glm::mat4 newModel = glm::mat4(1.0f);
+    for (int i = 0; i < _matrixStack.size(); i++) {
+        newModel *= _matrixStack[i];
+    }
+    newModel *= _gfx_model;
+    newModel *= _gfx_view;
+
+    glLoadMatrixf(glm::value_ptr(_gfx_model));
 #endif
 }
 
@@ -206,14 +232,12 @@ auto RenderContext::matrix_view(glm::mat4 mat) -> void {
 }
 
 auto RenderContext::matrix_model(glm::mat4 mat) -> void {
-#if BUILD_PC
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     _gfx_model = mat;
 #elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_MODEL);
-    ScePspFMatrix4 m1 = *((ScePspFMatrix4*)glm::value_ptr(mat));
+    ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(mat));
     sceGumLoadMatrix(&m1);
-#elif BUILD_VITA
-    _gfx_model = mat;
 #endif
 }
 

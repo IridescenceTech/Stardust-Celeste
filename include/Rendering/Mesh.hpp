@@ -222,6 +222,25 @@ template <class T> class Mesh : public NonCopy {
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#elif BUILD_PLAT == BUILD_3DS
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+        glVertexPointer(3, GL_FLOAT, sizeof(T),
+                        reinterpret_cast<void *>(vertices.data()) +
+                            (sizeof(float) * 3));
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(T),
+                       reinterpret_cast<void *>(vertices.data()) +
+                           (sizeof(float) * 2));
+        glTexCoordPointer(2, GL_FLOAT, sizeof(T), vertices.data());
+
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
+                       indices.data());
+
+        glDisableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #endif
     }
 
@@ -402,6 +421,26 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#elif BUILD_PLAT == BUILD_3DS
+
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+        glVertexPointer(3, GL_FLOAT, sizeof(T),
+                        reinterpret_cast<void *>(vertices.data()) +
+                            (sizeof(float) * 3));
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(T),
+                       reinterpret_cast<void *>(vertices.data()) +
+                           (sizeof(float) * 2));
+        glTexCoordPointer(2, GL_FLOAT, sizeof(T), vertices.data());
+
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
+                       indices.data());
+
+        glDisableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #endif
     }
 

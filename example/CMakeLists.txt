@@ -9,6 +9,8 @@ elseif(PSP)
     add_compile_definitions(BUILD_PLAT=2)
 elseif(VITA)
     add_compile_definitions(BUILD_PLAT=3)
+elseif(3DS)
+    add_compile_definitions(BUILD_PLAT=7)
 else()
     add_compile_definitions(BUILD_PLAT=1)
 endif()
@@ -27,30 +29,21 @@ if(PSP)
     )
 endif()
 
+if(3DS)
+    target_link_libraries(Example)
+    include(../Tools3DS.cmake)
+
+    add_3dsx_target(
+        Example
+        APP_TITLE Example
+        APP_DESCRIPTION "Stardust 3DS Sample"
+        APP_AUTHOR "Iridescence"
+    )
+endif()
+
 if(VITA)
-    SET(CMAKE_SYSTEM_NAME Generic)
-    SET(CMAKE_SYSTEM_VERSION 1)
-    SET(CMAKE_SYSTEM_PROCESSOR "arm7-a")
-    SET(CMAKE_C_COMPILER arm-vita-eabi-gcc)
-    SET(CMAKE_CXX_COMPILER arm-vita-eabi-g++)
-    set(CMAKE_ASM_COMPILER arm-vita-eabi-gcc)
-    set(CMAKE_STRIP arm-vita-eabi-strip)
-    set(CMAKE_AR arm-vita-eabi-ar)
-    set(CMAKE_LINKER arm-vita-eabi-ld)
-    set(CMAKE_NM arm-vita-eabi-nm)
-    set(CMAKE_OBJCOPY arm-vita-eabi-objcopy)
-    set(CMAKE_OBJDUMP arm-vita-eabi-objdump)
-    set(CMAKE_RANLIB arm-vita-eabi-ranlib)
-
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g3 -Wl,-q")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g3 -Wl,-q")
-
-    set(VITA_ELF_CREATE vita-elf-create)
-    set(VITA_ELF_EXPORT vita-elf-export)
-    set(VITA_LIBS_GEN vita-libs-gen)
-    set(VITA_MAKE_FSELF vita-make-fself)
-    set(VITA_MKSFOEX vita-mksfoex)
-    set(VITA_PACK_VPK vita-pack-vpk)
+    include(../setup_vita.cmake)
+    setup_vita()
 
     include("$ENV{VITASDK}/share/vita.cmake" REQUIRED)
 

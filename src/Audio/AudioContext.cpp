@@ -9,6 +9,7 @@
 namespace Stardust_Celeste::Audio {
 
 auto AudioContext::initialize() -> void {
+#if BUILD_PLAT != BUILD_3DS
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
         throw std::runtime_error("Audio system initialization failed!");
 
@@ -18,8 +19,14 @@ auto AudioContext::initialize() -> void {
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 6, 4096) == -1)
 #endif
         throw std::runtime_error("Audio channel initialization failed!");
+
+#endif
 }
 
-auto AudioContext::terminate() noexcept -> void { Mix_CloseAudio(); }
+auto AudioContext::terminate() noexcept -> void {
+#if BUILD_PLAT != BUILD_3DS
+    Mix_CloseAudio();
+#endif
+}
 
 } // namespace Stardust_Celeste::Audio

@@ -39,23 +39,32 @@ int SetupCallbacks(void) {
 using namespace Stardust_Celeste::Utilities;
 
 auto init_sc() -> void {
+#if BUILD_PLAT == BUILD_3DS
+    gfxInitDefault();
+    consoleInit(GFX_BOTTOM, NULL);
+#endif
+
     Logger::init();
     Timer::init();
     SC_CORE_INFO("Initialized base layer!");
 }
 
 auto cleanup_sc() -> void {
+#if BUILD_PLAT == BUILD_3DS
+    gfxExit();
+#endif
+
     Timer::cleanup();
     Logger::cleanup();
 }
 
 extern Stardust_Celeste::Core::Application *CreateNewSCApp();
-
+#include <3ds.h>
 int main(int, char **) {
 
 #if PSP
     SetupCallbacks();
-    //Access full texture range
+    // Access full texture range
     sceGeEdramSetSize(0x400000);
 #endif
 
