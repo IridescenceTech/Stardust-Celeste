@@ -44,7 +44,7 @@ using namespace Stardust_Celeste::Utilities;
 
 auto init_sc() -> void {
 #if BUILD_PLAT == BUILD_3DS
-    gfxInit(GSP_RGBA8_OES, GSP_RGB565_OES, false);
+    gfxInitDefault();
     consoleInit(GFX_BOTTOM, NULL);
 #endif
 
