@@ -4,6 +4,10 @@
 #include <Rendering/RenderContext.hpp>
 #define BUILD_PC (BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX)
 
+#if BUILD_PLAT == BUILD_3DS
+#include <GL/glu.h>
+#endif
+
 #if BUILD_PC
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -89,6 +93,9 @@ auto RenderContext::matrix_clear() -> void {
 #if BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_MODEL);
     sceGumLoadIdentity();
+#elif BUILD_PLAT == BUILD_3DS
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 #endif
 }
 
@@ -109,10 +116,9 @@ auto RenderContext::matrix_scale(glm::vec3 v) -> void {
 auto RenderContext::matrix_perspective(float fovy, float aspect, float zn,
                                        float zf) -> void {
     _gfx_persp = glm::perspective(deg2rad(fovy), aspect, zn, zf);
-#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
-#elif BUILD_PLAT == BUILD_PSP
+#if BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_PROJECTION);
     ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(*_gfx_proj));
     sceGumLoadMatrix(&m1);
@@ -133,10 +139,10 @@ auto RenderContext::matrix_perspective(float fovy, float aspect, float zn,
 auto RenderContext::matrix_ortho(float l, float r, float b, float t, float zn,
                                  float zf) -> void {
     _gfx_ortho = glm::ortho(l, r, b, t, zn, zf);
-#if BUILD_PC || BUILD_PLAT == BUILD_VITA
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
-#elif BUILD_PLAT == BUILD_PSP
+
+#if BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_PROJECTION);
     ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(*_gfx_proj));
     sceGumLoadMatrix(&m1);
@@ -200,15 +206,13 @@ auto RenderContext::set_matrices() -> void {
     glLoadMatrixf(glm::value_ptr(*_gfx_proj));
 
     glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
-    glm::mat4 newModel = glm::mat4(1.0f);
+    glLoadMatrixf(glm::value_ptr(_gfx_view));
     for (int i = 0; i < _matrixStack.size(); i++) {
-        newModel *= _matrixStack[i];
+        glMultMatrixf(glm::value_ptr(_matrixStack[i]));
     }
-    newModel *= _gfx_model;
-    newModel *= _gfx_view;
-
-    glLoadMatrixf(glm::value_ptr(_gfx_model));
+    glMultMatrixf(glm::value_ptr(_gfx_model));
 #endif
 }
 
@@ -226,13 +230,13 @@ auto RenderContext::matrix_view(glm::mat4 mat) -> void {
     sceGumMatrixMode(GU_VIEW);
     ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(mat));
     sceGumLoadMatrix(&m1);
-#elif BUILD_VITA
+#elif BUILD_PLAT == BUILD_VITA || BUILD_PLAT == BUILD_3DS
     _gfx_view = mat;
 #endif
 }
 
 auto RenderContext::matrix_model(glm::mat4 mat) -> void {
-#if BUILD_PC || BUILD_PLAT == BUILD_VITA
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA || BUILD_PLAT == BUILD_3DS
     _gfx_model = mat;
 #elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_MODEL);
@@ -267,7 +271,7 @@ auto RenderContext::set_mode_2D() -> void {
     sceGumLoadIdentity();
     sceGumMatrixMode(GU_MODEL);
     sceGumLoadIdentity();
-#elif BUILD_PLAT == BUILD_VITA
+#elif BUILD_PLAT == BUILD_VITA || BUILD_PLAT == BUILD_3DS
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
 #endif
@@ -298,7 +302,7 @@ auto RenderContext::set_mode_3D() -> void {
     sceGumLoadIdentity();
     sceGumMatrixMode(GU_MODEL);
     sceGumLoadIdentity();
-#elif BUILD_PLAT == BUILD_VITA
+#elif BUILD_PLAT == BUILD_VITA || BUILD_PLAT == BUILD_3DS
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
 #endif

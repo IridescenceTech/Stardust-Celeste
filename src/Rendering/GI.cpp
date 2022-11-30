@@ -193,6 +193,8 @@ auto blend_func(u32 src, u32 dest) -> void {
 auto alpha_func(u32 func, u32 value, u32 mask) -> void {
 #ifdef PSP
     glAlphaFunc(func, value, mask);
+#elif BUILD_PLAT == BUILD_3DS
+    glAlphaFunc(func, (float)value / 255.0f);
 #endif
 }
 
@@ -221,7 +223,9 @@ auto end_frame(bool vsync, bool dialog) -> void {
     vglSwapBuffers(dialog);
 #elif BUILD_PLAT == BUILD_3DS
     pglSwapBuffers();
-    gspWaitForVBlank();
+
+    if (vsync)
+        gspWaitForVBlank();
 #endif
 }
 

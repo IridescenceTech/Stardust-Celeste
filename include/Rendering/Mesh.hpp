@@ -235,8 +235,13 @@ template <class T> class Mesh : public NonCopy {
                            (sizeof(float) * 2));
         glTexCoordPointer(2, GL_FLOAT, sizeof(T), vertices.data());
 
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
-                       indices.data());
+        if (p == PRIM_TYPE_TRIANGLE) {
+            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
+                           indices.data());
+        } else {
+            glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_SHORT,
+                           indices.data());
+        }
 
         glDisableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_COLOR_ARRAY);
@@ -379,9 +384,8 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
 #endif
     }
 
-    // TODO: Optional drawing modes for draw()
     // TODO: Vert type changes enabled attributes
-    auto draw() -> void {
+    auto draw(PrimType p = PRIM_TYPE_TRIANGLE) -> void {
 #if BUILD_PLAT != BUILD_PSP && BUILD_PLAT != BUILD_3DS
         if (!setup)
             return;
@@ -434,9 +438,13 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
                        reinterpret_cast<void *>(vertices.data()) +
                            (sizeof(float) * 2));
         glTexCoordPointer(2, GL_FLOAT, sizeof(T), vertices.data());
-
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
-                       indices.data());
+        if (p == PRIM_TYPE_TRIANGLE) {
+            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
+                           indices.data());
+        } else {
+            glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_SHORT,
+                           indices.data());
+        }
 
         glDisableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_COLOR_ARRAY);

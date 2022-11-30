@@ -10,11 +10,13 @@ struct ControllerCollection {
         Input::add_controller(mouse_controller);
         Input::add_controller(psp_controller);
         Input::add_controller(vita_controller);
+        Input::add_controller(n3ds_controller);
     }
 
     Controller *keyboard_controller;
     Controller *mouse_controller;
     Controller *psp_controller;
     Controller *vita_controller;
+    Controller *n3ds_controller;
 };
 } // namespace Stardust_Celeste::Utilities::Input

@@ -50,7 +50,7 @@ auto clear_controller() -> void {
 extern SceCtrlData currentPadData;
 #endif
 
-bool diff_mode[4];
+bool diff_mode[5];
 
 auto update() -> void {
     for (auto &c : controller_map) {
@@ -80,6 +80,8 @@ auto get_axis(std::string device, std::string axis) -> float {
         devIDX = 1;
     else if (device == "Vita")
         devIDX = 2;
+    else if (device == "3DS")
+        devIDX = 3;
 
     if (devIDX == -1)
         return res;
@@ -118,6 +120,22 @@ auto get_axis(std::string device, std::string axis) -> float {
             res = (float)currentPadData.ry / 255.0f;
         }
 #endif
+    } else if (devIDX == 3) {
+#if BUILD_PLAT == BUILD_3DS
+        circlePosition cPos;
+        hidCircleRead(&cPos);
+
+        auto x = (float)cPos.dx / 154.0f;
+        auto y = (float)cPos.dy / 154.0f;
+
+        if (axis == "LX") {
+            res = x;
+        } else if (axis == "LY") {
+            res = y;
+        }
+
+        res = res / 2.0f + 0.5f;
+#endif
     }
 
     if (diff_mode[devIDX]) {
@@ -141,6 +159,8 @@ auto set_differential_mode(std::string device, bool diff) -> void {
         diff_mode[1] = diff;
     } else if (device == "Vita") {
         diff_mode[2] = diff;
+    } else if (device == "3DS") {
+        diff_mode[3] = diff;
     }
 }
 
