@@ -17,7 +17,8 @@ auto N3DSController::update() -> void {
     hidScanInput();
 
     last = current;
-    current = hidKeysDown();
+    current |= hidKeysDown();
+    current ^= hidKeysUp();
 
     for (const auto &[key, value] : command_map) {
         if (key.flags & KeyFlag::None)
