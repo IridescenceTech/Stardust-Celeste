@@ -397,8 +397,13 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
 
 #if BUILD_PC
         // TODO: Bind Program
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
-                       nullptr);
+        if (p == PRIM_TYPE_TRIANGLE) {
+            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
+                           nullptr);
+        } else {
+            glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_SHORT,
+                           nullptr);
+        }
 #elif BUILD_PLAT == BUILD_PSP
         sceGuShadeModel(GU_SMOOTH);
         sceGumDrawArray(GU_TRIANGLES,

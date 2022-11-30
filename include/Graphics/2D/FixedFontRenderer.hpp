@@ -113,7 +113,7 @@ template <size_t N> class FixedFontRenderer : public FixedTilemap<N> {
         for (auto &s : stringVector) {
             auto pos = s.pos;
             for (int i = 0; i < s.text.length(); i++) {
-                auto c = s.text[i];
+                auto c = static_cast<u32>(s.text[i]);
 
                 if (c < 0) {
                     c = 0;
@@ -147,7 +147,7 @@ template <size_t N> class FixedFontRenderer : public FixedTilemap<N> {
         float x = 0;
 
         for (int i = 0; i < text.length(); i++) {
-            auto c = text[i];
+            auto c = static_cast<u32>(text[i]);
             x += size_map[c] * scale_factor;
         }
 

@@ -25,8 +25,10 @@ class RenderContext final : public Singleton {
 
   public:
     RenderContext()
-        : c{0xFF, 0xFF, 0xFF, 0xFF}, _gfx_proj(&_gfx_ortho), _gfx_persp(1),
-          _gfx_ortho(1), _gfx_view(1), _gfx_model(1){};
+        : _gfx_proj(&_gfx_ortho), _gfx_persp(1), _gfx_ortho(1), _gfx_view(1),
+          _gfx_model(1) {
+        c = Rendering::Color{{0xFF, 0xFF, 0xFF, 0xFF}};
+    };
 
     /**
      * @brief Initialize a rendering context with settings

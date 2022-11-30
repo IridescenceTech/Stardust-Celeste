@@ -116,7 +116,7 @@ template <size_t N> class FixedTilemap {
      *
      * @param dt Delta Time
      */
-    virtual auto update(double dt) -> void {}
+    virtual auto update(double dt) -> void { UNUSED(dt); }
 
     /**
      * @brief Draws the map to the screen

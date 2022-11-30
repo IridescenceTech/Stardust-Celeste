@@ -14,12 +14,12 @@ class Profiler : public Singleton {
   public:
     void begin_session(const std::string &name,
                        const std::string &filepath = "results.json") {
-        m_FsOut.open(filepath);
+        m_FsOut = std::ofstream(filepath);
+        profName = name;
 
         start = true;
         if (m_FsOut.is_open()) {
             m_FsOut << "{\"events\":[\n";
-            m_FsOut.flush();
         }
     }
 
@@ -50,7 +50,6 @@ class Profiler : public Singleton {
         json << R"("file":")" << sfile << "\"";
         json << "}\n";
         m_FsOut << json.str();
-        m_FsOut.flush();
     }
 
     void end_session() {
