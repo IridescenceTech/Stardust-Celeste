@@ -239,6 +239,8 @@ auto to_vec4(Color &c) -> glm::vec4 {
 auto clear_color(Color color) -> void {
 #if BUILD_PLAT == BUILD_PSP
     glClearColor(color.color);
+#elif BUILD_PLAT == BUILD_3DS
+    glClearColor(color.rgba.r, color.rgba.b, color.rgba.g, color.rgba.a);
 #else
     auto c = to_vec4(color);
     glClearColor(c.r, c.g, c.b, c.a);
