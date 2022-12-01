@@ -228,10 +228,10 @@ template <class T> class Mesh : public NonCopy {
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
         glVertexPointer(3, GL_FLOAT, sizeof(T),
-                        reinterpret_cast<void *>(vertices.data()) +
+                        reinterpret_cast<uint8_t *>(vertices.data()) +
                             (sizeof(float) * 3));
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(T),
-                       reinterpret_cast<void *>(vertices.data()) +
+                       reinterpret_cast<uint8_t *>(vertices.data()) +
                            (sizeof(float) * 2));
         glTexCoordPointer(2, GL_FLOAT, sizeof(T), vertices.data());
 
@@ -437,10 +437,10 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
         glVertexPointer(3, GL_FLOAT, sizeof(T),
-                        reinterpret_cast<void *>(vertices.data()) +
+                        reinterpret_cast<uint8_t *>(vertices.data()) +
                             (sizeof(float) * 3));
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(T),
-                       reinterpret_cast<void *>(vertices.data()) +
+                       reinterpret_cast<uint8_t *>(vertices.data()) +
                            (sizeof(float) * 2));
         glTexCoordPointer(2, GL_FLOAT, sizeof(T), vertices.data());
         if (p == PRIM_TYPE_TRIANGLE) {
