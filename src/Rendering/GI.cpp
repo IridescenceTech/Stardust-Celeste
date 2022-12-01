@@ -139,7 +139,7 @@ auto init(const RenderContextSettings app) -> void {
     ShaderManager::get().bind_shader(programID);
     glUseProgram(programID);
 #elif BUILD_PLAT == BUILD_3DS
-    pglInit();
+    pglInitEx(0x040000, 0x1000000);
     pglSelectScreen(GFX_TOP, 0);
 #endif
 }
@@ -222,7 +222,7 @@ auto end_frame(bool vsync, bool dialog) -> void {
 #elif BUILD_PLAT == BUILD_VITA
     vglSwapBuffers(dialog);
 #elif BUILD_PLAT == BUILD_3DS
-    pglSwapBuffers();
+    pglSwapBuffersEx(true, false);
 
     if (vsync)
         gspWaitForVBlank();
