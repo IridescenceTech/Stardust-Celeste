@@ -7,9 +7,8 @@ file(GLOB_RECURSE SRC_FILES src/*.cpp)
 file(GLOB_RECURSE INC_FILES include/*.hpp)
 
 if(NOT PSP AND NOT VITA AND NOT 3DS)
-    find_package(SDL2 REQUIRED)
-    include(FindPkgConfig)
-    pkg_search_module(SDL2mixer REQUIRED SDL2_mixer)
+    find_package(SDL2 CONFIG REQUIRED)
+    find_package(SDL2_mixer CONFIG REQUIRED)
 endif()
 
 if(PSP)
@@ -46,8 +45,8 @@ else()
 endif()
 
 if(NOT PSP AND NOT VITA AND NOT 3DS)
-    target_link_libraries(Stardust-Celeste PUBLIC ${SDL2_LIBRARIES}
-        ${SDL2mixer_LIBRARIES}
+    target_link_libraries(Stardust-Celeste PUBLIC SDL2_mixer::SDL2_mixer ${SDL2_LIBRARIES}
+        ${SDL2_mixer_LIBRARIES}
         ${catkin_LIBRARIES})
 endif()
 
