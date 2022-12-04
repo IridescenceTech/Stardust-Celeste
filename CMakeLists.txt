@@ -6,9 +6,13 @@ set(CMAKE_CXX_STANDARD 17)
 file(GLOB_RECURSE SRC_FILES src/*.cpp)
 file(GLOB_RECURSE INC_FILES include/*.hpp)
 
-if(NOT PSP AND NOT VITA AND NOT 3DS)
+if(WIN32)
     find_package(SDL2 CONFIG REQUIRED)
     find_package(SDL2_mixer CONFIG REQUIRED)
+elseif(NOT VITA AND NOT 3DS AND NOT PSP)
+    find_package(SDL2 REQUIRED)
+    find_package(PkgConfig)
+    pkg_check_modules(SDL2mixer REQUIRED SDL2_mixer)
 endif()
 
 if(PSP)
@@ -44,10 +48,17 @@ else()
     target_link_libraries(Stardust-Celeste PUBLIC glfw)
 endif()
 
-if(NOT PSP AND NOT VITA AND NOT 3DS)
+if(WIN32)
     target_link_libraries(Stardust-Celeste PUBLIC SDL2_mixer::SDL2_mixer ${SDL2_LIBRARIES}
         ${SDL2_mixer_LIBRARIES}
         ${catkin_LIBRARIES})
+elseif(NOT VITA AND NOT 3DS AND NOT PSP)
+    target_link_libraries(Stardust-Celeste PUBLIC ${SDL2_LIBRARIES}
+        ${SDL2mixer_LIBRARIES}
+        ${catkin_LIBRARIES})
+endif()
+
+if(NOT PSP AND NOT VITA AND NOT 3DS)
 endif()
 
 option(USE_EASTL "Use EA Standard Template Library" OFF)
