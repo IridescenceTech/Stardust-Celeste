@@ -6,6 +6,12 @@ set(CMAKE_CXX_STANDARD 17)
 file(GLOB_RECURSE SRC_FILES src/*.cpp)
 file(GLOB_RECURSE INC_FILES include/*.hpp)
 
+option(USE_VULKAN "Use Vulkan Backend" OFF)
+
+if(USE_VULKAN) 
+    find_package(Vulkan REQUIRED FATAL_ERROR)
+endif()
+
 if(WIN32)
     find_package(SDL2 CONFIG REQUIRED)
     find_package(SDL2_mixer CONFIG REQUIRED)
@@ -58,11 +64,7 @@ elseif(NOT VITA AND NOT 3DS AND NOT PSP)
         ${catkin_LIBRARIES})
 endif()
 
-if(NOT PSP AND NOT VITA AND NOT 3DS)
-endif()
-
 option(USE_EASTL "Use EA Standard Template Library" OFF)
-
 if(USE_EASTL)
     include_directories(${EASTL_ROOT_DIR}/include)
     include_directories(${EASTL_ROOT_DIR}/test/packages/EAAssert/include)
@@ -77,10 +79,7 @@ if(USE_EASTL)
     add_compile_definitions(USE_EASTL=1)
 endif()
 
-if(!MSVC)
-    target_compile_options(Stardust-Celeste PUBLIC -fno-rtti)
-endif()
-
+target_compile_options(Stardust-Celeste PUBLIC -fno-rtti)
 target_include_directories(Stardust-Celeste PUBLIC include/ ext/ ext/glm/glm/)
 
 if(NOT VITA)
