@@ -1,15 +1,16 @@
+#ifndef SDC_VULKAN
 #if PSP
 #define GUGL_IMPLEMENTATION
 #endif
-#include <Rendering/GI.hpp>
-#include <Rendering/ShaderManager.hpp>
+#include "Rendering/GI.hpp"
 #include <string>
+#include "Rendering/ShaderManager.hpp"
 
 #if BUILD_PC
 #define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
-#include <glad/glad.hpp>
 #include <string>
+#include "GLFW/glfw3.h"
+#include "glad/glad.hpp"
 #elif BUILD_PLAT == BUILD_PSP
 #define GUGL_IMPLEMENTATION
 #include <gu2gl/gu2gl.h>
@@ -81,9 +82,9 @@ float4 main(float2 vTexcoord : TEXCOORD0, float4 vColor : COLOR0, uniform sample
 
 #endif
 
-#include <Core/Application.hpp>
-#include <Rendering/ShaderManager.hpp>
-#include <Utilities/Assertion.hpp>
+#include "Core/Application.hpp"
+#include "Rendering/ShaderManager.hpp"
+#include "Utilities/Assertion.hpp"
 
 namespace GI {
 
@@ -254,3 +255,4 @@ auto clear(u32 mask) -> void {
 #endif
 }
 } // namespace GI
+#endif

@@ -17,7 +17,12 @@
 #define BUILD_PC (BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX)
 
 #if BUILD_PC
+
+#if SDC_VULKAN
+#include <vulkan/vulkan.h>
+#else
 #include <glad/glad.hpp>
+#endif
 #elif BUILD_PLAT == BUILD_PSP
 #include <pspctrl.h>
 #include <pspdebug.h>
@@ -65,14 +70,20 @@ enum PrimType { PRIM_TYPE_TRIANGLE, PRIM_TYPE_LINE };
 template <class T> class Mesh : public NonCopy {
   private:
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA
+#if SDC_VULKAN
+#else
     GLuint vbo, vao, ebo;
     bool setup;
+#endif
 #endif
 
   public:
     Mesh()
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA
+#if SDC_VULKAN
+#else
         : vbo(0), vao(0), ebo(0), setup(false)
+#endif
 #endif
     {
         vertices.clear();
@@ -86,7 +97,8 @@ template <class T> class Mesh : public NonCopy {
     // TODO: Vert type changes enabled attributes
     auto setup_buffer() -> void {
 #if BUILD_PC
-
+#if SDC_VULKAN
+#else
         if (!setup) {
             glGenVertexArrays(1, &vao);
             glGenBuffers(1, &vbo);
@@ -118,7 +130,7 @@ template <class T> class Mesh : public NonCopy {
 
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-
+#endif
 #elif BUILD_PLAT == BUILD_VITA
         if (indices.size() <= 0 || vertices.size() <= 0)
             return;
@@ -155,10 +167,13 @@ template <class T> class Mesh : public NonCopy {
     auto delete_data() -> void {
 
 #if BUILD_PC
+#if SDC_VULKAN
+#else
         glDeleteVertexArrays(1, &vao);
         glDeleteBuffers(1, &vbo);
         glDeleteBuffers(1, &ebo);
         setup = false;
+#endif
 #elif BUILD_PLAT == BUILD_VITA
         if (indices.size() <= 0)
             return;
@@ -176,6 +191,8 @@ template <class T> class Mesh : public NonCopy {
         Rendering::RenderContext::get().set_matrices();
 
 #if BUILD_PC
+#if SDC_VULKAN
+#else
         // TODO: Bind Program
         if (p == PRIM_TYPE_TRIANGLE) {
             glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
@@ -184,6 +201,7 @@ template <class T> class Mesh : public NonCopy {
             glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_SHORT,
                            nullptr);
         }
+#endif
 #elif BUILD_PLAT == BUILD_PSP
         sceGuShadeModel(GU_SMOOTH);
         if (p == PRIM_TYPE_TRIANGLE) {
@@ -251,7 +269,10 @@ template <class T> class Mesh : public NonCopy {
 
     auto bind() -> void {
 #if BUILD_PC
+#if SDC_VULKAN
+#else
         glBindVertexArray(vao);
+#endif
 #elif BUILD_PLAT == BUILD_VITA
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
@@ -271,14 +292,22 @@ template <class T> class Mesh : public NonCopy {
 template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
   private:
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA
+#if SDC_VULKAN
+
+#else
     GLuint vbo, vao, ebo;
     bool setup;
+#endif
 #endif
 
   public:
     FixedMesh()
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA
+#if SDC_VULKAN
+
+#else
         : vbo(0), vao(0), ebo(0), setup(false)
+#endif
 #endif
     {
         for (int i = 0; i < V; i++) {
@@ -294,6 +323,9 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
     // TODO: Vert type changes enabled attributes
     auto setup_buffer() -> void {
 #if BUILD_PC
+#if SDC_VULKAN
+
+#else
         if (!setup) {
             glGenVertexArrays(1, &vao);
             glGenBuffers(1, &vbo);
@@ -326,6 +358,7 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
 
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+#endif
 
 #elif BUILD_PLAT == BUILD_VITA
         if (indices.size() <= 0 || vertices.size() <= 0)
@@ -366,12 +399,15 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
 
     auto delete_data() -> void {
 #if BUILD_PC
+#if SDC_VULKAN
+#else
         if (!setup)
             return;
         glDeleteVertexArrays(1, &vao);
         glDeleteBuffers(1, &vbo);
         glDeleteBuffers(1, &ebo);
         setup = false;
+#endif
 #elif BUILD_PLAT == BUILD_VITA
         if (!setup)
             return;
@@ -387,8 +423,11 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
     // TODO: Vert type changes enabled attributes
     auto draw(PrimType p = PRIM_TYPE_TRIANGLE) -> void {
 #if BUILD_PLAT != BUILD_PSP && BUILD_PLAT != BUILD_3DS
+#if SDC_VULKAN
+#else
         if (!setup)
             return;
+#endif
 #endif
 
         bind();
@@ -396,6 +435,8 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
         Rendering::RenderContext::get().set_matrices();
 
 #if BUILD_PC
+#if SDC_VULKAN
+#else
         // TODO: Bind Program
         if (p == PRIM_TYPE_TRIANGLE) {
             glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
@@ -404,6 +445,7 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
             glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_SHORT,
                            nullptr);
         }
+#endif
 #elif BUILD_PLAT == BUILD_PSP
         sceGuShadeModel(GU_SMOOTH);
         sceGumDrawArray(GU_TRIANGLES,
@@ -459,7 +501,10 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
 
     auto bind() -> void {
 #if BUILD_PC
+#if SDC_VULKAN
+#else
         glBindVertexArray(vao);
+#endif
 #elif BUILD_PLAT == BUILD_VITA
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
