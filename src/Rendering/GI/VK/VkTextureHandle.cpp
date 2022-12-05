@@ -1,6 +1,7 @@
-#include "VkTextureHandle.hpp"
-#include "VkUtil.hpp"
+#include "Rendering/GI/VK/VkTextureHandle.hpp"
+#include "Rendering/GI/VK/VkUtil.hpp"
 
+#if SDC_VULKAN
 namespace GI::detail {
 
     static int handle_number = 0;
@@ -121,3 +122,4 @@ namespace GI::detail {
     }
 
 }
+#endif

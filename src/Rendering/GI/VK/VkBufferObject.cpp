@@ -1,12 +1,13 @@
-#include "VkBufferObject.hpp"
-#include "VkUtil.hpp"
+#include "Rendering/GI/VK/VkBufferObject.hpp"
+#include "Rendering/GI/VK/VkUtil.hpp"
 
+#if SDC_VULKAN
 namespace GI::detail {
-    VKBufferObject* VKBufferObject::create(const std::vector<Stardust_Celeste::Rendering::Vertex>& vertices, const std::vector<uint16_t>& indices) {
+    VKBufferObject* VKBufferObject::create(const Stardust_Celeste::Rendering::Vertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size) {
         VKBufferObject* vbo = new VKBufferObject();
 
         {
-            VkDeviceSize bufferSize = sizeof(Stardust_Celeste::Rendering::Vertex) * vertices.size();
+            VkDeviceSize bufferSize = sizeof(Stardust_Celeste::Rendering::Vertex) * vert_size;
 
             VkBuffer stagingBuffer;
             VkDeviceMemory stagingBufferMemory;
@@ -14,7 +15,7 @@ namespace GI::detail {
 
             void *data;
             vkMapMemory(VKContext::get().logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-            memcpy(data, vertices.data(), (size_t) bufferSize);
+            memcpy(data, vert_data, (size_t) bufferSize);
             vkUnmapMemory(VKContext::get().logicalDevice, stagingBufferMemory);
 
             createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vbo->vertexBuffer, vbo->vertexBufferMemory);
@@ -25,7 +26,7 @@ namespace GI::detail {
             vkFreeMemory(VKContext::get().logicalDevice, stagingBufferMemory, nullptr);
         }
         {
-            VkDeviceSize bufferSize = sizeof(uint16_t) * indices.size();
+            VkDeviceSize bufferSize = sizeof(uint16_t) * idx_size;
 
             VkBuffer stagingBuffer;
             VkDeviceMemory stagingBufferMemory;
@@ -33,7 +34,7 @@ namespace GI::detail {
 
             void *data;
             vkMapMemory(VKContext::get().logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
-            memcpy(data, indices.data(), (size_t) bufferSize);
+            memcpy(data, indices, (size_t) bufferSize);
             vkUnmapMemory(VKContext::get().logicalDevice, stagingBufferMemory);
 
             createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vbo->indexBuffer, vbo->indexBufferMemory);
@@ -44,11 +45,18 @@ namespace GI::detail {
             vkFreeMemory(VKContext::get().logicalDevice, stagingBufferMemory, nullptr);
         }
 
-        vbo->idx_count = indices.size();
+        vbo->idx_count = idx_size;
         return vbo;
     }
-    void VKBufferObject::update() {
+    void VKBufferObject::update(const Stardust_Celeste::Rendering::Vertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size) {
+        auto vbo = VKBufferObject::create(vert_data, vert_size, indices, idx_size);
+        destroy();
 
+        indexBuffer = vbo->indexBuffer;
+        vertexBuffer = vbo->vertexBuffer;
+        indexBufferMemory = vbo->indexBufferMemory;
+        vertexBufferMemory = vbo->vertexBufferMemory;
+        idx_count = idx_size;
     }
 
     void VKBufferObject::draw() {
@@ -90,3 +98,4 @@ namespace GI::detail {
         }
     }
 }
+#endif

@@ -1,9 +1,10 @@
-#include "VkUtil.hpp"
+#include "Rendering/GI/VK/VkUtil.hpp"
 
 #include <glm.hpp>
 #include <ext/matrix_transform.hpp>
 #include <ext/matrix_clip_space.hpp>
 
+#if SDC_VULKAN
 namespace GI::detail {
 
     void create_render_pass() {
@@ -250,8 +251,8 @@ namespace GI::detail {
         depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
         depthStencil.depthTestEnable = VK_TRUE;
         depthStencil.depthWriteEnable = VK_TRUE;
-        depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
-        depthStencil.depthBoundsTestEnable = VK_FALSE;
+        depthStencil.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+        depthStencil.depthBoundsTestEnable = VK_TRUE;
         depthStencil.minDepthBounds = 0.0f; // Optional
         depthStencil.maxDepthBounds = 1.0f; // Optional
         depthStencil.stencilTestEnable = VK_FALSE;
@@ -428,7 +429,6 @@ namespace GI::detail {
     }
 
 
-        UniformBufferObject ubo{};
     void VKPipeline::init() {
         create_render_pass();
         createDescriptorSetLayout();
@@ -441,10 +441,6 @@ namespace GI::detail {
 
         createDescriptorPool();
         createDescriptorSets();
-
-        ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        ubo.proj = glm::perspective(glm::radians(45.0f), VKContext::get().swapChainExtent.width / (float) VKContext::get().swapChainExtent.height, 0.1f, 10.0f);
-        ubo.proj[1][1] *= -1;
     }
     void VKPipeline::deinit() {
         vkDestroySemaphore(VKContext::get().logicalDevice, renderFinishedSemaphores, nullptr);
@@ -525,24 +521,7 @@ namespace GI::detail {
         ubo.id = id;
     }
 
-
     void VKPipeline::updateUniformBuffer() {
-        static auto startTime = std::chrono::high_resolution_clock::now();
-        static int fps = 0;
-        static int lastTime = 0;
-        fps++;
-
-
-        auto currentTime = std::chrono::high_resolution_clock::now();
-        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
-        if((int)time != lastTime) {
-            lastTime = (int)time;
-            SC_CORE_INFO("FPS {}", fps);
-            fps = 0;
-        }
-        ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
         vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0,sizeof(UniformBufferObject), &ubo);
     }
 
@@ -589,3 +568,4 @@ namespace GI::detail {
     }
 
 }
+#endif

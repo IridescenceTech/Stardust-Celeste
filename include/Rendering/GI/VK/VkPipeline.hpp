@@ -31,6 +31,8 @@ namespace GI::detail{
         void updateDescriptorSet();
         void updateUniformBuffer();
 
+        UniformBufferObject ubo{};
+
         VkRenderPass renderPass;
         VkDescriptorSetLayout descriptorSetLayout;
 

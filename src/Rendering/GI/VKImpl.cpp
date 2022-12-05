@@ -1,20 +1,10 @@
 #ifdef SDC_VULKAN
 #include <Rendering/GI.hpp>
-#include <optional>
-
-#include <vulkan/vulkan.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
-
-
-#include "VK/VkContext.hpp"
-#include "VK/VkPipeline.hpp"
-#include "VK/VkBufferObject.hpp"
-#include "VK/VkTextureHandle.hpp"
-
-#include <set>
+#include "Rendering/GI/VK/VkBufferObject.hpp"
+#include "Rendering/GI/VK/VkContext.hpp"
+#include "Rendering/GI/VK/VkPipeline.hpp"
 #include "Core/Application.hpp"
 #include "Utilities/Assertion.hpp"
 
@@ -26,44 +16,13 @@ namespace GI {
         extern GLFWwindow* window;
     }
 
-    std::vector<Vertex> vertices = {
-            {0.0f, 0.0f, {{0xFF, 0x00, 0x00, 0xFF}}, -0.5f, -0.5f, 0.0f},
-            {1.0f, 0.0f, {{0x00, 0xFF, 0x00, 0xFF}}, 0.5f, -0.5f, 0.0f},
-            {1.0f, 1.0f, {{0x00, 0x00, 0xFF, 0xFF}}, 0.5f, 0.5f, 0.0f},
-            {0.0f, 1.0f, {{0xFF, 0xFF, 0xFF, 0xFF}}, -0.5f, 0.5f, 0.0f},
-    };
-
-    std::vector<Vertex> verts2 = {
-            {0.0f, 0.0f, {{0xFF, 0x00, 0x00, 0xFF}}, -0.5f, -0.5f, -0.5f},
-            {1.0f, 0.0f, {{0x00, 0xFF, 0x00, 0xFF}}, 0.5f, -0.5f, -0.5f},
-            {1.0f, 1.0f, {{0x00, 0x00, 0xFF, 0xFF}}, 0.5f, 0.5f, -0.5f},
-            {0.0f, 1.0f, {{0xFF, 0xFF, 0xFF, 0xFF}}, -0.5f, 0.5f, -0.5f}
-    };
-    std::vector<uint16_t> indices = {
-            0, 1, 2, 2, 3, 0,
-    };
-
-    detail::VKBufferObject* vbo, *vbo2;
-    detail::VKTextureHandle* tex;
-    detail::VKTextureHandle* grass;
-
     auto init(const RenderContextSettings app) -> void {
         detail::VKContext::get().init(app);
         window = detail::window;
         detail::VKPipeline::get().init();
-
-        tex = detail::VKTextureHandle::create("resourcepacks/default/assets/minecraft/textures/dirt.png", VK_FILTER_NEAREST, VK_FILTER_NEAREST, true, false);
-        grass = detail::VKTextureHandle::create("resourcepacks/default/assets/minecraft/textures/grass.png", VK_FILTER_NEAREST, VK_FILTER_NEAREST, true, false);
-        vbo = detail::VKBufferObject::create(vertices, indices);
-        vbo2 = detail::VKBufferObject::create(verts2, indices);
     }
 
     auto terminate() -> void {
-        vbo->destroy();
-        vbo2->destroy();
-        tex->destroy();
-        grass->destroy();
-
         detail::VKPipeline::get().deinit();
         detail::VKContext::get().deinit();
     }
@@ -91,17 +50,19 @@ namespace GI {
 
     auto start_frame(bool dialog) -> void {
         detail::VKPipeline::get().beginFrame();
-
-        grass->bind();
-        vbo->bind();
-        vbo->draw();
-
-        tex->bind();
-        vbo2->bind();
-        vbo2->draw();
     }
+
     auto end_frame(bool vsync, bool dialog) -> void {
-        glfwPollEvents();
+        static auto startTime = std::chrono::high_resolution_clock::now();
+
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+        if(time > 1.0f / 60.0f){
+            glfwPollEvents();
+            startTime = currentTime;
+        }
+
 
         detail::VKPipeline::get().endFrame();
 

@@ -8,18 +8,13 @@
 
 #include "RenderTypes.hpp"
 
-#if BUILD_PLAT == BUILD_PSP
-#define VERT_PACKED __attribute__((__packed__))
-#else
-#define VERT_PACKED
-#endif
-
 #define BUILD_PC (BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX)
 
 #if BUILD_PC
 
 #if SDC_VULKAN
 #include <vulkan/vulkan.h>
+#include <Rendering/GI/VK/VkBufferObject.hpp>
 #else
 #include <glad/glad.hpp>
 #endif
@@ -49,14 +44,6 @@
 #include <Rendering/RenderContext.hpp>
 
 namespace Stardust_Celeste::Rendering {
-/**
- * @brief Packed vertices
- */
-struct VERT_PACKED Vertex {
-    float u, v;
-    Color color;
-    float x, y, z;
-};
 
 // TODO: Optimized Vertex structure - u16 x,y,z - u16 color - u16 u,v
 // TODO: Lit data structure including normals
@@ -71,6 +58,7 @@ template <class T> class Mesh : public NonCopy {
   private:
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA
 #if SDC_VULKAN
+      GI::detail::VKBufferObject* vbo;
 #else
     GLuint vbo, vao, ebo;
     bool setup;
@@ -81,6 +69,7 @@ template <class T> class Mesh : public NonCopy {
     Mesh()
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA
 #if SDC_VULKAN
+              : vbo(nullptr)
 #else
         : vbo(0), vao(0), ebo(0), setup(false)
 #endif
@@ -98,6 +87,10 @@ template <class T> class Mesh : public NonCopy {
     auto setup_buffer() -> void {
 #if BUILD_PC
 #if SDC_VULKAN
+        if(vbo == nullptr)
+            vbo = GI::detail::VKBufferObject::create(vertices.data(), vertices.size(), indices.data(), indices.size());
+        else
+            vbo->update(vertices.data(), vertices.size(), indices.data(), indices.size());
 #else
         if (!setup) {
             glGenVertexArrays(1, &vao);
@@ -168,6 +161,8 @@ template <class T> class Mesh : public NonCopy {
 
 #if BUILD_PC
 #if SDC_VULKAN
+        vbo->destroy();
+        vbo = nullptr;
 #else
         glDeleteVertexArrays(1, &vao);
         glDeleteBuffers(1, &vbo);
@@ -192,6 +187,7 @@ template <class T> class Mesh : public NonCopy {
 
 #if BUILD_PC
 #if SDC_VULKAN
+        vbo->draw();
 #else
         // TODO: Bind Program
         if (p == PRIM_TYPE_TRIANGLE) {
@@ -270,6 +266,7 @@ template <class T> class Mesh : public NonCopy {
     auto bind() -> void {
 #if BUILD_PC
 #if SDC_VULKAN
+        vbo->bind();
 #else
         glBindVertexArray(vao);
 #endif
@@ -293,7 +290,7 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
   private:
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA
 #if SDC_VULKAN
-
+            GI::detail::VKBufferObject* vbo;
 #else
     GLuint vbo, vao, ebo;
     bool setup;
@@ -304,7 +301,7 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
     FixedMesh()
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA
 #if SDC_VULKAN
-
+          : vbo(nullptr)
 #else
         : vbo(0), vao(0), ebo(0), setup(false)
 #endif
@@ -324,7 +321,10 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
     auto setup_buffer() -> void {
 #if BUILD_PC
 #if SDC_VULKAN
-
+                if(vbo == nullptr)
+                    vbo = GI::detail::VKBufferObject::create(vertices.data(), vertices.size(), indices.data(), indices.size());
+                else
+                    vbo->update(vertices.data(), vertices.size(), indices.data(), indices.size());
 #else
         if (!setup) {
             glGenVertexArrays(1, &vao);
@@ -400,6 +400,8 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
     auto delete_data() -> void {
 #if BUILD_PC
 #if SDC_VULKAN
+        vbo->destroy();
+        vbo = nullptr;
 #else
         if (!setup)
             return;
@@ -436,6 +438,7 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
 
 #if BUILD_PC
 #if SDC_VULKAN
+        vbo->draw();
 #else
         // TODO: Bind Program
         if (p == PRIM_TYPE_TRIANGLE) {
@@ -502,6 +505,7 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
     auto bind() -> void {
 #if BUILD_PC
 #if SDC_VULKAN
+        vbo->bind();
 #else
         glBindVertexArray(vao);
 #endif

@@ -1,8 +1,8 @@
 #pragma once
 
 #ifdef SDC_VULKAN
-#include <Rendering/GI.hpp>
 #include <optional>
+#include "Rendering/GI.hpp"
 
 #include <vulkan/vulkan.h>
 

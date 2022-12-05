@@ -1,8 +1,10 @@
 #pragma once
+
+#if SDC_VULKAN
 #include <vulkan/vulkan.h>
-#include "stb_image.hpp"
 #include <string>
-#include <Rendering/RenderTypes.hpp>
+#include "Rendering/RenderTypes.hpp"
+#include "stb_image.hpp"
 
 namespace GI::detail{
     class VKTextureHandle {
@@ -22,3 +24,4 @@ namespace GI::detail{
         VkSampler textureSampler;
     };
 }
+#endif

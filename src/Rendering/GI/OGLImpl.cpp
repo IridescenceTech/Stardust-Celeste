@@ -207,7 +207,15 @@ auto start_frame(bool dialog) -> void {
 
 auto end_frame(bool vsync, bool dialog) -> void {
 #if BUILD_PC
-    glfwPollEvents();
+    static auto startTime = std::chrono::high_resolution_clock::now();
+
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+    if(time > 1.0f / 60.0f){
+        glfwPollEvents();
+        startTime = currentTime;
+    }
 
     if (vsync)
         glfwSwapInterval(1);

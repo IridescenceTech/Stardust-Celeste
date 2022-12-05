@@ -27,6 +27,21 @@ union Color {
     u32 color;
 };
 
+#if PSP
+#define VERT_PACKED __attribute__((__packed__))
+#else
+#define VERT_PACKED
+#endif
+
+/**
+ * @brief Packed vertices
+ */
+struct VERT_PACKED Vertex {
+    float u, v;
+    Color color;
+    float x, y, z;
+};
+
 /**
  * @brief Rectangle Structure
  * position -- Position of rectangle
@@ -44,7 +59,7 @@ struct Rectangle {
 struct Texture {
     u32 width, height;
 
-    u16 *data;
+    void *data;
 
     u32 minFilter, magFilter;
     bool repeating;

@@ -76,6 +76,10 @@ u32 offset = 10 * 512 * 272;
 
 #endif
 
+#ifdef SDC_VULKAN
+#include <Rendering/GI/VK/VkTextureHandle.hpp>
+#endif
+
 namespace Stardust_Celeste::Rendering {
 
 auto pow2(u32 value) -> u32 {
@@ -100,6 +104,7 @@ auto TextureManager::load_texture(std::string filename, u32 magFilter,
                                   u32 minFilter, bool repeat, bool flip,
                                   bool vram) -> u32 {
 
+#ifndef SDC_VULKAN
     int width, height, nrChannels;
     if (flip)
         stbi_set_flip_vertically_on_load(true);
@@ -181,16 +186,53 @@ auto TextureManager::load_texture(std::string filename, u32 magFilter,
     sceKernelDcacheWritebackInvalidateAll();
 #endif
 
+#else
+    int width, height, nrChannels;
+    if (flip)
+        stbi_set_flip_vertically_on_load(true);
+    else
+        stbi_set_flip_vertically_on_load(false);
+    unsigned char *data = stbi_load(filename.c_str(), &width, &height,
+                                    &nrChannels, STBI_rgb_alpha);
+    SC_CORE_ASSERT(data, "Could not load file: " + filename + "!");
+    stbi_image_free(data);
+
+    Texture *tex = new Texture();
+    tex->width = width;
+    tex->height = height;
+
+    tex->pW = pow2(width);
+    tex->pH = pow2(height);
+
+    tex->ramSpace = 0; // TODO: Add option for PSP VRAM
+    tex->swizzle = 1;
+    tex->colorMode = 3; // GU_PSM_8888
+    tex->id = 0;
+
+    tex->repeating = repeat;
+    tex->magFilter = magFilter;
+    tex->minFilter = minFilter;
+
+    tex->name = filename;
+    tex->data = GI::detail::VKTextureHandle::create(filename, magFilter, minFilter, repeat, flip);
+#endif
+
     fullMap.emplace(texCount, tex);
     return texCount++;
 }
 
 auto TextureManager::bind_texture(u32 id) -> void {
     if (fullMap.find(id) != fullMap.end()) {
-        GI::enable(GI_TEXTURE_2D);
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA || BUILD_PLAT == BUILD_3DS
+
+#ifdef SDC_VULKAN
+        ((GI::detail::VKTextureHandle*)fullMap[id]->data)->bind();
+#else
+        GI::enable(GI_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, fullMap[id]->id);
+#endif
 #elif BUILD_PLAT == BUILD_PSP
+        GI::enable(GI_TEXTURE_2D);
         Texture *tex = fullMap[id];
 
         sceGuTexMode(tex->colorMode, 0, 0, tex->swizzle);
@@ -209,11 +251,19 @@ auto TextureManager::delete_texture(u32 id) -> void {
     if (fullMap.find(id) != fullMap.end()) {
 
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA || BUILD_PLAT == BUILD_3DS
+#if SDC_VULKAN
+        auto vkt = (GI::detail::VKTextureHandle*)fullMap[id]->data;
+        delete vkt;
+#else
         glDeleteTextures(1, (GLuint *)&fullMap[id]->id);
+#endif
 #endif
 
         if (fullMap[id]->data)
+#ifndef SDC_VULKAN
             free(fullMap[id]->data);
+#endif
+
 
         delete fullMap[id];
         fullMap.erase(id);

@@ -1,4 +1,6 @@
 #pragma once
+
+#if SDC_VULKAN
 #include <vulkan/vulkan.h>
 #include <stdexcept>
 #include "VkContext.hpp"
@@ -279,6 +281,8 @@ inline void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size
 
     VkBufferCopy copyRegion{};
     copyRegion.size = size;
+    copyRegion.srcOffset = 0;
+    copyRegion.dstOffset = 0;
     vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
     endSingleTimeCommands(commandBuffer);
@@ -314,3 +318,4 @@ inline void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, ui
     );
     endSingleTimeCommands(commandBuffer);
 }
+#endif

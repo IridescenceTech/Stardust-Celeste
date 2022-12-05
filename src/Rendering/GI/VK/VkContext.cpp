@@ -1,5 +1,5 @@
 #ifdef SDC_VULKAN
-#include "VkContext.hpp"
+#include "Rendering/GI/VK/VkContext.hpp"
 #include <Rendering/GI.hpp>
 #include <optional>
 #include <set>
@@ -11,8 +11,9 @@
 #include <GLFW/glfw3native.h>
 
 #include "Core/Application.hpp"
+#include "Rendering/GI/VK/VkUtil.hpp"
 #include "Utilities/Assertion.hpp"
-#include "VkUtil.hpp"
+#include <algorithm>
 
 namespace GI::detail {
 
@@ -295,6 +296,7 @@ namespace GI::detail {
         window = glfwCreateWindow(app.width, app.height, app.title, NULL, NULL);
         glfwSwapInterval(0);
 
+        #ifndef NDEBUG
         const std::vector<const char*> validationLayers = {
                 "VK_LAYER_KHRONOS_validation"
         };
@@ -302,6 +304,7 @@ namespace GI::detail {
         if(!checkValidationLayerSupport(validationLayers)) {
             throw std::runtime_error("Validation Layers Request But Not Found!");
         }
+        #endif
 
         VkApplicationInfo appInfo{};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -320,16 +323,21 @@ namespace GI::detail {
         createInfo.ppEnabledExtensionNames = extensions.data();
 
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+#ifndef NDEBUG
         createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
         createInfo.ppEnabledLayerNames = validationLayers.data();
+
         populateDebugMessengerCreateInfo(debugCreateInfo);
         createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
+#endif
 
         if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
             throw std::runtime_error("Vulkan Failed To Create Instance!");
         }
 
+#ifndef NDEBUG
         setupDebugMessenger(instance);
+#endif
 
         create_surface(instance, surface);
 
@@ -388,8 +396,10 @@ namespace GI::detail {
         logicDeviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
         logicDeviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
         logicDeviceCreateInfo.ppEnabledExtensionNames = deviceExtensions.data();
+#ifndef NDEBUG
         logicDeviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
         logicDeviceCreateInfo.ppEnabledLayerNames = validationLayers.data();
+#endif
         logicDeviceCreateInfo.pEnabledFeatures = NULL;
         logicDeviceCreateInfo.pNext = &device_features;
 
