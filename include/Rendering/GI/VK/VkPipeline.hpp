@@ -9,9 +9,7 @@ namespace GI::detail{
 
     struct UniformBufferObject {
         glm::mat4 model;
-        glm::mat4 view;
-        glm::mat4 proj;
-        int id;
+        glm::mat4 projview;
     };
 
     class VKPipeline : public Singleton{

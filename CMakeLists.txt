@@ -69,11 +69,6 @@ elseif(NOT VITA AND NOT 3DS AND NOT PSP)
         ${catkin_LIBRARIES})
 endif()
 
-if(USE_VULKAN)
-    target_include_directories(Stardust-Celeste PUBLIC ${Vulkan_INCLUDE_DIRS})
-    target_link_libraries(Stardust-Celeste PUBLIC ${Vulkan_LIBRARIES})
-endif()
-
 option(USE_EASTL "Use EA Standard Template Library" OFF)
 if(USE_EASTL)
     include_directories(${EASTL_ROOT_DIR}/include)
@@ -99,6 +94,13 @@ endif()
 
 add_library(SC-Entry STATIC src/Core/Entry.cpp)
 target_include_directories(SC-Entry PUBLIC include/ ext/glm/glm/)
+
+
+if(USE_VULKAN)
+    target_include_directories(Stardust-Celeste PUBLIC ${Vulkan_INCLUDE_DIRS})
+    target_include_directories(SC-Entry PUBLIC ${Vulkan_INCLUDE_DIRS})
+    target_link_libraries(Stardust-Celeste PUBLIC ${Vulkan_LIBRARIES})
+endif()
 
 if(3DS)
     target_include_directories(SC-Entry PUBLIC "$ENV{DEVKITPRO}/picaGL/include")

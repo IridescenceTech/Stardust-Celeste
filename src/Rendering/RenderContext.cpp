@@ -239,7 +239,7 @@ auto RenderContext::matrix_view(glm::mat4 mat) -> void {
                     glm::value_ptr(_gfx_view));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 #else
-    GI::detail::VKPipeline::get().ubo.view = _gfx_view;
+    GI::detail::VKPipeline::get().ubo.projview = *_gfx_proj * _gfx_view;
 #endif
 
 #elif BUILD_PLAT == BUILD_PSP
@@ -265,12 +265,11 @@ auto RenderContext::set_mode_2D() -> void {
     _gfx_proj = &_gfx_ortho;
 #if BUILD_PC
 #if SDC_VULKAN
-    GI::detail::VKPipeline::get().ubo.proj = *_gfx_proj;
-    GI::detail::VKPipeline::get().ubo.view = glm::mat4(1.0f);
-    GI::detail::VKPipeline::get().ubo.model = glm::mat4(1.0f);
-
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
+
+    GI::detail::VKPipeline::get().ubo.projview = *_gfx_proj * _gfx_view;
+    GI::detail::VKPipeline::get().ubo.model = _gfx_model;
 #else
     glBindBuffer(GL_UNIFORM_BUFFER,
                  ShaderManager::get().get_current_shader().ubo);
@@ -305,12 +304,11 @@ auto RenderContext::set_mode_3D() -> void {
     _gfx_proj = &_gfx_persp;
 #if BUILD_PC
 #if SDC_VULKAN
-    GI::detail::VKPipeline::get().ubo.proj = *_gfx_proj;
-    GI::detail::VKPipeline::get().ubo.view = glm::mat4(1.0f);
-    GI::detail::VKPipeline::get().ubo.model = glm::mat4(1.0f);
-
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
+
+    GI::detail::VKPipeline::get().ubo.projview = *_gfx_proj * _gfx_view;
+    GI::detail::VKPipeline::get().ubo.model = _gfx_model;
 #else
     glBindBuffer(GL_UNIFORM_BUFFER,
                  ShaderManager::get().get_current_shader().ubo);
