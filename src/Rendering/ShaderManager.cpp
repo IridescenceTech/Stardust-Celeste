@@ -3,12 +3,15 @@
 #include <Utilities/Logger.hpp>
 #include <stdexcept>
 #if BUILD_PLAT != BUILD_PSP && BUILD_PLAT != BUILD_3DS
+#ifndef SDC_VULKAN
 namespace GI {
 extern GLuint programID;
 }
 #endif
+#endif
 namespace Stardust_Celeste::Rendering {
 #if BUILD_PLAT != BUILD_PSP && BUILD_PLAT != BUILD_3DS
+#ifndef SDC_VULKAN
 
 ShaderManager::~ShaderManager() {
     for (auto &[key, val] : fullMap) {
@@ -118,5 +121,6 @@ auto ShaderManager::bind_shader(u32 id) -> void {
 #endif
     }
 }
+#endif
 #endif
 } // namespace Stardust_Celeste::Rendering

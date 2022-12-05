@@ -61,15 +61,15 @@ template <class T> class Mesh : public NonCopy {
       GI::detail::VKBufferObject* vbo;
 #else
     GLuint vbo, vao, ebo;
-    bool setup;
 #endif
+    bool setup;
 #endif
 
   public:
     Mesh()
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA
 #if SDC_VULKAN
-              : vbo(nullptr)
+              : vbo(nullptr), setup(false)
 #else
         : vbo(0), vao(0), ebo(0), setup(false)
 #endif
@@ -91,6 +91,9 @@ template <class T> class Mesh : public NonCopy {
             vbo = GI::detail::VKBufferObject::create(vertices.data(), vertices.size(), indices.data(), indices.size());
         else
             vbo->update(vertices.data(), vertices.size(), indices.data(), indices.size());
+        
+        if(!setup)
+            setup = true;
 #else
         if (!setup) {
             glGenVertexArrays(1, &vao);
@@ -161,8 +164,11 @@ template <class T> class Mesh : public NonCopy {
 
 #if BUILD_PC
 #if SDC_VULKAN
-        vbo->destroy();
-        vbo = nullptr;
+        if(setup){
+            vbo->destroy();
+            vbo = nullptr;
+        }
+        setup = false;
 #else
         glDeleteVertexArrays(1, &vao);
         glDeleteBuffers(1, &vbo);
@@ -187,7 +193,8 @@ template <class T> class Mesh : public NonCopy {
 
 #if BUILD_PC
 #if SDC_VULKAN
-        vbo->draw();
+        if(setup)
+            vbo->draw();
 #else
         // TODO: Bind Program
         if (p == PRIM_TYPE_TRIANGLE) {
@@ -266,7 +273,8 @@ template <class T> class Mesh : public NonCopy {
     auto bind() -> void {
 #if BUILD_PC
 #if SDC_VULKAN
-        vbo->bind();
+        if(setup)
+            vbo->bind();
 #else
         glBindVertexArray(vao);
 #endif
@@ -293,15 +301,15 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
             GI::detail::VKBufferObject* vbo;
 #else
     GLuint vbo, vao, ebo;
-    bool setup;
 #endif
+    bool setup;
 #endif
 
   public:
     FixedMesh()
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA
 #if SDC_VULKAN
-          : vbo(nullptr)
+          : vbo(nullptr), setup(false)
 #else
         : vbo(0), vao(0), ebo(0), setup(false)
 #endif
@@ -325,6 +333,8 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
                     vbo = GI::detail::VKBufferObject::create(vertices.data(), vertices.size(), indices.data(), indices.size());
                 else
                     vbo->update(vertices.data(), vertices.size(), indices.data(), indices.size());
+
+                setup = true;
 #else
         if (!setup) {
             glGenVertexArrays(1, &vao);
@@ -400,8 +410,10 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
     auto delete_data() -> void {
 #if BUILD_PC
 #if SDC_VULKAN
+    if(setup){
         vbo->destroy();
         vbo = nullptr;
+    }
 #else
         if (!setup)
             return;
@@ -425,11 +437,8 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
     // TODO: Vert type changes enabled attributes
     auto draw(PrimType p = PRIM_TYPE_TRIANGLE) -> void {
 #if BUILD_PLAT != BUILD_PSP && BUILD_PLAT != BUILD_3DS
-#if SDC_VULKAN
-#else
         if (!setup)
             return;
-#endif
 #endif
 
         bind();
@@ -504,7 +513,8 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
 
     auto bind() -> void {
 #if BUILD_PC
-#if SDC_VULKAN
+#if SDC_VULKAN 
+    if(setup)
         vbo->bind();
 #else
         glBindVertexArray(vao);

@@ -21,7 +21,6 @@ void Rectangle::draw() {
 }
 
 void Rectangle::build_mesh() {
-
     if (mesh == nullptr) {
         mesh = create_scopeptr<Rendering::FixedMesh<Rendering::Vertex, 4, 6>>();
     }
@@ -54,7 +53,6 @@ void Rectangle::build_mesh() {
     mesh->indices[4] = (3);
     mesh->indices[5] = (0);
 
-    mesh->delete_data();
     mesh->setup_buffer();
 }
 

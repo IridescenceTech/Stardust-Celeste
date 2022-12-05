@@ -15,6 +15,7 @@ namespace Stardust_Celeste::Rendering {
 
 #if BUILD_PLAT != BUILD_PSP && BUILD_PLAT != BUILD_3DS
 
+#ifndef SDC_VULKAN
 /**
  * @brief Shader data structure
  *
@@ -85,5 +86,7 @@ class ShaderManager final : public Singleton {
     u32 shadCount = 0;
     int current_shader = 0;
 };
+
+#endif
 #endif
 } // namespace Stardust_Celeste::Rendering
