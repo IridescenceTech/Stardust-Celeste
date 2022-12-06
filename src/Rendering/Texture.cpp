@@ -135,8 +135,14 @@ auto TextureManager::load_texture(std::string filename, u32 magFilter,
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA || BUILD_PLAT == BUILD_3DS
     glGenTextures(1, (GLuint *)&tex->id);
     glBindTexture(GL_TEXTURE_2D, tex->id);
+
+    #if BUILD_PC
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, width, height, 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, data);
+    #else
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
                  GL_UNSIGNED_BYTE, data);
+    #endif
 
 #if BUILD_PLAT != BUILD_3DS
     glGenerateMipmap(GL_TEXTURE_2D);

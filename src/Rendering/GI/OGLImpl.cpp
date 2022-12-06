@@ -36,8 +36,7 @@ const std::string frag_source =
     "uniform sampler2D tex;\n" + "in vec2 uv;\n" + "in vec4 color;\n" +
     "void main() {\n" + "    vec4 mc = texture(tex, uv);\n" +
     "    mc *= vec4(1.0f / 255.0f) * color;\n" + "    FragColor = mc;\n" +
-    //"    FragColor.rgb = pow(mc.rgb, vec3(1.0 / 2.2));\n" +
-    //"    FragColor.rgb = ((FragColor.rgb - 0.5f) * 1.5f) + 0.22f;\n" +
+//    "    FragColor.rgb = pow(mc.rgb, vec3(1.0 / 2.2));\n" +
     "    if(FragColor.a < 0.1f)\n" + "        discard;\n" + "}\n";
 const std::string frag_source2 =
     std::string("#version 400\n") + "out vec4 FragColor;\n" +
@@ -107,6 +106,7 @@ auto init(const RenderContextSettings app) -> void {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
 
     window = glfwCreateWindow(app.width, app.height, app.title, NULL, NULL);
     glfwMakeContextCurrent(window);
@@ -115,6 +115,8 @@ auto init(const RenderContextSettings app) -> void {
 
     SC_CORE_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
                    "OpenGL Init Failed!");
+
+    glEnable(GL_FRAMEBUFFER_SRGB);
 
     programID = Stardust_Celeste::Rendering::ShaderManager::get().load_shader(
         vert_source, frag_source);
@@ -264,7 +266,7 @@ auto clear(u32 mask) -> void {
 }
 
 auto clearDepth() -> void {
-    glClear(GL_DEPTH_BUFFER_BIT)
-
+    glClear(GL_DEPTH_BUFFER_BIT);
+}
 } // namespace GI
 #endif
