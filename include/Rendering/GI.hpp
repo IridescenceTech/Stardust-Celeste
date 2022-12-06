@@ -147,5 +147,5 @@ auto end_frame(bool vsync, bool dialog = false) -> void;
 
 auto clear_color(Color color) -> void;
 auto clear(u32 mask) -> void;
-
+auto clearDepth() -> void;
 } // namespace GI

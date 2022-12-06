@@ -262,5 +262,9 @@ auto clear(u32 mask) -> void {
     glClear(mask);
 #endif
 }
+
+auto clearDepth() -> void {
+    glClear(GL_DEPTH_BUFFER_BIT)
+
 } // namespace GI
 #endif

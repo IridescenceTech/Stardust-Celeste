@@ -35,7 +35,18 @@ namespace GI {
     }
 
     auto set_culling_mode(bool enabled, bool ccw) -> void {
+        VkCullModeFlags cullMode;
+        if(enabled) {
+            if(!ccw) {
+                cullMode = VK_CULL_MODE_FRONT_BIT;
+            } else {
+                cullMode = VK_CULL_MODE_BACK_BIT;
+            }
+        } else {
+            cullMode = VK_CULL_MODE_NONE;
+        }
 
+        vkCmdSetCullMode(detail::VKPipeline::get().commandBuffer, cullMode);
     }
 
     auto depth_func(u32 mode) -> void {
@@ -90,6 +101,21 @@ namespace GI {
 
     auto clear(u32 mask) -> void {
         //This does nothing here -- it's part of the render pass
+    }
+
+    auto clearDepth() -> void {
+        VkClearDepthStencilValue depthStencilValue{};
+        depthStencilValue.depth = 1.0f;
+        depthStencilValue.stencil = 0;
+
+        VkImageSubresourceRange subresourceRange = {};
+        subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+        subresourceRange.baseMipLevel = 0;
+        subresourceRange.levelCount = 1;
+        subresourceRange.baseArrayLayer = 0;
+        subresourceRange.layerCount = 1;
+
+        vkCmdClearDepthStencilImage(detail::VKPipeline::get().commandBuffer, detail::VKPipeline::get().depthImage, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, &depthStencilValue, 1, &subresourceRange);
     }
 }
 
