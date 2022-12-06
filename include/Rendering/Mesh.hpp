@@ -91,8 +91,8 @@ template <class T> class Mesh : public NonCopy {
             vbo = GI::detail::VKBufferObject::create(vertices.data(), vertices.size(), indices.data(), indices.size());
         else
             vbo->update(vertices.data(), vertices.size(), indices.data(), indices.size());
-        
-        if(!setup)
+
+        if(vbo != nullptr)
             setup = true;
 #else
         if (!setup) {
@@ -334,7 +334,8 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
                 else
                     vbo->update(vertices.data(), vertices.size(), indices.data(), indices.size());
 
-                setup = true;
+                if(vbo != nullptr)
+                    setup = true;
 #else
         if (!setup) {
             glGenVertexArrays(1, &vao);

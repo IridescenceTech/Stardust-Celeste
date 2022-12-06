@@ -4,6 +4,9 @@
 #if SDC_VULKAN
 namespace GI::detail {
     VKBufferObject* VKBufferObject::create(const Stardust_Celeste::Rendering::Vertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size) {
+        if(idx_size == 0 || vert_size == 0)
+            return nullptr;
+
         VKBufferObject* vbo = new VKBufferObject();
 
         {

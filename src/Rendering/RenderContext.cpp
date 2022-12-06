@@ -118,7 +118,12 @@ auto RenderContext::matrix_scale(glm::vec3 v) -> void {
 
 auto RenderContext::matrix_perspective(float fovy, float aspect, float zn,
                                        float zf) -> void {
+#if SDC_VULKAN
     _gfx_persp = glm::perspective(deg2rad(fovy), aspect, zn, zf);
+    _gfx_persp[1][1] *= -1;
+#else
+    _gfx_persp = glm::perspective(deg2rad(fovy), aspect, zn, zf);
+#endif
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
 #if BUILD_PLAT == BUILD_PSP
