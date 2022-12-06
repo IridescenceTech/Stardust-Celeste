@@ -490,7 +490,7 @@ namespace GI::detail {
         renderPassInfo.renderArea.extent = VKContext::get().swapChainExtent;
 
         std::array<VkClearValue, 2> clearValues{};
-        clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
+        clearValues[0].color = {{clearColor.r, clearColor.g, clearColor.b, clearColor.a}};
         clearValues[1].depthStencil = {1.0f, 0};
 
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());

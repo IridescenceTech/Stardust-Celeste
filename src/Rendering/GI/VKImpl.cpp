@@ -77,12 +77,19 @@ namespace GI {
         glfwSwapBuffers(window);
     }
 
-    auto clear_color(Color color) -> void {
+    auto to_vec4(Color &c) -> glm::vec4 {
+        return {static_cast<float>(c.rgba.r) / 255.0f,
+                static_cast<float>(c.rgba.g) / 255.0f,
+                static_cast<float>(c.rgba.b) / 255.0f,
+                static_cast<float>(c.rgba.a) / 255.0f};
+    }
 
+    auto clear_color(Color color) -> void {
+        detail::VKPipeline::get().clearColor = to_vec4(color);
     }
 
     auto clear(u32 mask) -> void {
-
+        //This does nothing here -- it's part of the render pass
     }
 }
 

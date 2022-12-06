@@ -56,6 +56,8 @@ namespace GI::detail{
         VkSemaphore imageAvailableSemaphores;
         VkSemaphore renderFinishedSemaphores;
         VkFence inFlightFence;
+
+        glm::vec4 clearColor;
     private:
 
     };
