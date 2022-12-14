@@ -175,6 +175,7 @@ namespace GI::detail {
         std::vector<VkDynamicState> dynamicStates = {
                 VK_DYNAMIC_STATE_VIEWPORT,
                 VK_DYNAMIC_STATE_SCISSOR,
+                VK_DYNAMIC_STATE_CULL_MODE,
         };
 
         VkPipelineDynamicStateCreateInfo dynamicState{};
