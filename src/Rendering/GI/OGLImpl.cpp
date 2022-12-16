@@ -4,11 +4,9 @@
 #endif
 #include "Rendering/GI.hpp"
 #include <string>
-#include "Rendering/ShaderManager.hpp"
 
 #if BUILD_PC
 #define GLFW_INCLUDE_NONE
-#include <string>
 #include "GLFW/glfw3.h"
 #include "glad/glad.hpp"
 #elif BUILD_PLAT == BUILD_PSP
@@ -51,6 +49,7 @@ const std::string frag_source = R"(
     uniform sampler2D tex;
     uniform int noTex;
     uniform float scroll;
+    uniform int fog;
 
     const vec3 fogColor = vec3(0.6f, 0.8f, 0.9f);
 
@@ -66,26 +65,30 @@ const std::string frag_source = R"(
                 : pow ((thesRGBValue + 0.055f) / 1.055f, 2.4f);
     }
 
-
     void main() {
         vec4 texColor = texture(tex, vec2(uv.x + scroll, uv.y));
         vec4 color1 = color * vec4(1.0f / 255.0f);
         vec4 color2 = vec4(Convert_sRGB_ToLinear(color1.r), Convert_sRGB_ToLinear(color1.g), Convert_sRGB_ToLinear(color1.b), color1.a);
-        if(noTex == 0)
+        if(noTex == 0) {
             texColor *= color2;
-        else if(noTex == 1)
+        } else if(noTex == 1) {
             texColor = color2;
+        }
 
-        float dist = abs(position.z);
-        const float fogMax = (256.0f * 0.8);
-        const float fogMin = (256.0f * 0.2);
-        float fogFactor = (fogMax - dist) / (fogMax - fogMin);
-        fogFactor = clamp(fogFactor, 0.0f, 1.0f);
+        if(fog == 1) {
+            float dist = abs(position.z);
+            const float fogMax = (256.0f * 0.8);
+            const float fogMin = (256.0f * 0.2);
+            float fogFactor = (fogMax - dist) / (fogMax - fogMin);
+            fogFactor = clamp(fogFactor, 0.0f, 1.0f);
+            texColor = vec4(mix(fogColor.rgb, texColor.rgb, fogFactor), texColor.a);
+        }
 
-        FragColor = vec4(mix(fogColor.rgb, texColor.rgb, fogFactor), texColor.a);
+        FragColor = texColor;
 
         if(FragColor.a < 0.1f)
             discard;
+
    }
 )";
 
@@ -124,19 +127,84 @@ float4 main(float2 vTexcoord : TEXCOORD0, float4 vColor : COLOR0, uniform sample
 #endif
 
 #include "Core/Application.hpp"
-#include "Rendering/ShaderManager.hpp"
 #include "Utilities/Assertion.hpp"
 
 namespace GI {
-
 #if BUILD_PC
     GLFWwindow *window;
     GLuint programID;
+    GLuint ubo;
+    u32 projLoc, viewLoc, modLoc;
+    u32 noTex, scroll;
 #elif BUILD_PLAT == BUILD_PSP
     unsigned int __attribute__((aligned(16))) list[0x10000];
 #elif BUILD_PLAT == BUILD_VITA
 #include <vitaGL.h>
     GLuint programID;
+#endif
+
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
+
+    auto compileShader(const char *source, GLenum shaderType) -> GLuint {
+        auto shader = glCreateShader(shaderType);
+
+        glShaderSource(shader, 1, &source, nullptr);
+        glCompileShader(shader);
+
+        GLint status = 0;
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
+
+        if (!status) {
+            char log[512];
+            glGetShaderInfoLog(shader, 512, nullptr, log);
+            std::string err = "Shader compile failed: " + std::string(log);
+            SC_CORE_ERROR("SHADER COMPILE FAILED: {}", err);
+            throw std::runtime_error(err);
+        }
+
+        return shader;
+    }
+
+    auto linkShaders(GLuint vshader, GLuint fshader) -> GLuint {
+        auto prog = glCreateProgram();
+        glAttachShader(prog, vshader);
+        glAttachShader(prog, fshader);
+
+#if BUILD_PLAT == BUILD_VITA
+        glBindAttribLocation(prog, 0, "position");
+    glBindAttribLocation(prog, 1, "color");
+    glBindAttribLocation(prog, 2, "uv");
+#endif
+
+        glLinkProgram(prog);
+
+        GLint status = 0;
+        glGetProgramiv(prog, GL_LINK_STATUS, &status);
+
+        if (!status) {
+            char log[512];
+            glGetProgramInfoLog(prog, 512, nullptr, log);
+            throw std::runtime_error("Shader linking failed: " + std::string(log));
+        }
+
+        return prog;
+    }
+
+    auto loadShaders(std::string vs, std::string fs) -> GLuint {
+        GLuint vertShader, fragShader;
+
+        vertShader = compileShader(vs.c_str(), GL_VERTEX_SHADER);
+        fragShader = compileShader(fs.c_str(), GL_FRAGMENT_SHADER);
+
+        auto pID = linkShaders(vertShader, fragShader);
+
+        glDeleteShader(vertShader);
+        glDeleteShader(fragShader);
+
+        glUseProgram(pID);
+
+        return pID;
+    }
 #endif
 
     auto init(const RenderContextSettings app) -> void {
@@ -159,10 +227,6 @@ namespace GI {
                        "OpenGL Init Failed!");
 
         glEnable(GL_FRAMEBUFFER_SRGB);
-
-        programID = Stardust_Celeste::Rendering::ShaderManager::get().load_shader(
-                vert_source, frag_source);
-        Stardust_Celeste::Rendering::ShaderManager::get().bind_shader(programID);
 #elif BUILD_PLAT == BUILD_PSP
         guglInit(list);
 
@@ -179,13 +243,33 @@ namespace GI {
 #elif BUILD_PLAT == BUILD_VITA
         vglInit(0x800000);
         vglWaitVblankStart(GL_TRUE);
-
-        programID = ShaderManager::get().load_shader(vert_source, frag_source);
-        ShaderManager::get().bind_shader(programID);
-        glUseProgram(programID);
 #elif BUILD_PLAT == BUILD_3DS
         pglInitEx(0x040000, 0x1000000);
         pglSelectScreen(GFX_TOP, 0);
+#endif
+
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA
+        GI::programID = loadShaders(vert_source, frag_source);
+        glUseProgram(GI::programID);
+
+        noTex = glGetUniformLocation(GI::programID, "noTex");
+        scroll = glGetUniformLocation(GI::programID, "scroll");
+
+#if BUILD_PLAT != BUILD_VITA
+        GLuint ubi = glGetUniformBlockIndex(GI::programID, "Matrices");
+        glUniformBlockBinding(GI::programID, ubi, 0);
+        glGenBuffers(1, &ubo);
+        glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+        glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4), NULL,
+                     GL_STATIC_DRAW);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+        glBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo, 0, 3 * sizeof(glm::mat4));
+        glBindBuffer(GL_UNIFORM_BUFFER, GI::programID);
+#else
+        projLoc = glGetUniformLocation(GI::programID, "proj");
+        viewLoc = glGetUniformLocation(GI::programID, "view");
+        modLoc = glGetUniformLocation(GI::programID, "model");
+#endif
 #endif
     }
 
@@ -309,6 +393,16 @@ namespace GI {
 
     auto clearDepth() -> void {
         glClear(GL_DEPTH_BUFFER_BIT);
+    }
+
+    auto enable_textures() -> void {
+        glUniform1i(noTex, 0);
+    }
+    auto disable_textures() -> void {
+        glUniform1i(noTex, 1);
+    }
+    auto set_tex_scroll(float v) -> void {
+        glUniform1f(scroll, v);
     }
 } // namespace GI
 #endif

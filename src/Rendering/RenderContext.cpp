@@ -31,7 +31,6 @@
 #include <stdarg.h>
 
 #endif
-#include <Rendering/ShaderManager.hpp>
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
@@ -39,6 +38,14 @@
 
 #ifdef SDC_VULKAN
 #include <Rendering/GI/VK/VkPipeline.hpp>
+#endif
+
+#if BUILD_PC && !SDC_VULKAN
+namespace GI {
+    extern GLuint programID;
+    extern GLuint ubo;
+    extern u32 projLoc, viewLoc, modLoc;
+}
 #endif
 
 namespace Stardust_Celeste::Rendering {
@@ -183,8 +190,7 @@ auto RenderContext::set_matrices() -> void {
     newModel *= _gfx_model;
 
 #ifndef SDC_VULKAN
-    glBindBuffer(GL_UNIFORM_BUFFER,
-                 ShaderManager::get().get_current_shader().ubo);
+    glBindBuffer(GL_UNIFORM_BUFFER, GI::ubo);
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4),
                     glm::value_ptr(newModel));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
@@ -199,11 +205,11 @@ auto RenderContext::set_matrices() -> void {
     }
     newModel *= _gfx_model;
 
-    glUniformMatrix4fv(ShaderManager::get().get_current_shader().projLoc, 1,
+    glUniformMatrix4fv(GI::projLoc, 1,
                        GL_FALSE, glm::value_ptr(*_gfx_proj));
-    glUniformMatrix4fv(ShaderManager::get().get_current_shader().viewLoc, 1,
+    glUniformMatrix4fv(GI::viewLoc, 1,
                        GL_FALSE, glm::value_ptr(_gfx_view));
-    glUniformMatrix4fv(ShaderManager::get().get_current_shader().modLoc, 1,
+    glUniformMatrix4fv(GI::modLoc, 1,
                        GL_FALSE, glm::value_ptr(newModel));
 
 #elif BUILD_PLAT == BUILD_PSP
@@ -238,8 +244,7 @@ auto RenderContext::matrix_view(glm::mat4 mat) -> void {
     _gfx_view = mat;
 
 #ifndef SDC_VULKAN
-    glBindBuffer(GL_UNIFORM_BUFFER,
-                 ShaderManager::get().get_current_shader().ubo);
+    glBindBuffer(GL_UNIFORM_BUFFER, GI::ubo);
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4),
                     glm::value_ptr(_gfx_view));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
@@ -276,21 +281,15 @@ auto RenderContext::set_mode_2D() -> void {
     GI::detail::VKPipeline::get().ubo.projview = *_gfx_proj * _gfx_view;
     GI::detail::VKPipeline::get().ubo.model = _gfx_model;
 #else
-    glBindBuffer(GL_UNIFORM_BUFFER,
-                 ShaderManager::get().get_current_shader().ubo);
+    _gfx_view = glm::mat4(1.0f);
+    _gfx_model = glm::mat4(1.0f);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, GI::ubo);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4),
                     glm::value_ptr(*_gfx_proj));
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    _gfx_view = glm::mat4(1.0f);
-
-    glBindBuffer(GL_UNIFORM_BUFFER,
-                 ShaderManager::get().get_current_shader().ubo);
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4),
                     glm::value_ptr(_gfx_view));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    _gfx_model = glm::mat4(1.0f);
 #endif
 #elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_PROJECTION);
@@ -315,21 +314,15 @@ auto RenderContext::set_mode_3D() -> void {
     GI::detail::VKPipeline::get().ubo.projview = *_gfx_proj * _gfx_view;
     GI::detail::VKPipeline::get().ubo.model = _gfx_model;
 #else
-    glBindBuffer(GL_UNIFORM_BUFFER,
-                 ShaderManager::get().get_current_shader().ubo);
+    _gfx_view = glm::mat4(1.0f);
+    _gfx_model = glm::mat4(1.0f);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, GI::ubo);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4),
                     glm::value_ptr(*_gfx_proj));
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    _gfx_view = glm::mat4(1.0f);
-
-    glBindBuffer(GL_UNIFORM_BUFFER,
-                 ShaderManager::get().get_current_shader().ubo);
     glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4),
                     glm::value_ptr(_gfx_view));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-    _gfx_model = glm::mat4(1.0f);
 #endif
 #elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_PROJECTION);
