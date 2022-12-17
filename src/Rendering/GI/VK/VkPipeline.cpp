@@ -176,6 +176,8 @@ namespace GI::detail {
                 VK_DYNAMIC_STATE_VIEWPORT,
                 VK_DYNAMIC_STATE_SCISSOR,
                 VK_DYNAMIC_STATE_CULL_MODE,
+                VK_DYNAMIC_STATE_DEPTH_TEST_ENABLE,
+                VK_DYNAMIC_STATE_COLOR_BLEND_EQUATION_EXT,
         };
 
         VkPipelineDynamicStateCreateInfo dynamicState{};
@@ -515,6 +517,16 @@ namespace GI::detail {
         scissor.extent = VKContext::get().swapChainExtent;
         vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 
+        VkColorBlendEquationEXT blendEquationExt;
+        blendEquationExt.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+        blendEquationExt.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        blendEquationExt.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+        blendEquationExt.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+        blendEquationExt.colorBlendOp = VK_BLEND_OP_ADD;
+        blendEquationExt.alphaBlendOp = VK_BLEND_OP_ADD;
+
+        auto fn = reinterpret_cast<PFN_vkCmdSetColorBlendEquationEXT>(vkGetDeviceProcAddr(detail::VKContext::get().logicalDevice, "vkCmdSetColorBlendEquationEXT"));
+        fn(detail::VKPipeline::get().commandBuffer, 0, 1, &blendEquationExt);
     }
 
 int tid = 0;

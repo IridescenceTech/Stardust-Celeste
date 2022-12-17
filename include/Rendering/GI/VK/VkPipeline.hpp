@@ -1,8 +1,5 @@
 #pragma once
-
 #include <vulkan/vulkan.h>
-
-#include "Core/Application.hpp"
 #include "Utilities/Assertion.hpp"
 
 namespace GI::detail{

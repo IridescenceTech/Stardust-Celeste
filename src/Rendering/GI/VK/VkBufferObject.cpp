@@ -52,13 +52,42 @@ namespace GI::detail {
         return vbo;
     }
     void VKBufferObject::update(const Stardust_Celeste::Rendering::Vertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size) {
-        auto vbo = VKBufferObject::create(vert_data, vert_size, indices, idx_size);
-        destroy();
+        {
+            VkDeviceSize bufferSize = sizeof(Stardust_Celeste::Rendering::Vertex) * vert_size;
 
-        indexBuffer = vbo->indexBuffer;
-        vertexBuffer = vbo->vertexBuffer;
-        indexBufferMemory = vbo->indexBufferMemory;
-        vertexBufferMemory = vbo->vertexBufferMemory;
+            VkBuffer stagingBuffer;
+            VkDeviceMemory stagingBufferMemory;
+            createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+            void *data;
+            vkMapMemory(VKContext::get().logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
+            memcpy(data, vert_data, (size_t) bufferSize);
+            vkUnmapMemory(VKContext::get().logicalDevice, stagingBufferMemory);
+
+            copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+
+            vkDestroyBuffer(VKContext::get().logicalDevice, stagingBuffer, nullptr);
+            vkFreeMemory(VKContext::get().logicalDevice, stagingBufferMemory, nullptr);
+        }
+        {
+            VkDeviceSize bufferSize = sizeof(uint16_t) * idx_size;
+
+            VkBuffer stagingBuffer;
+            VkDeviceMemory stagingBufferMemory;
+            createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+
+            void *data;
+            vkMapMemory(VKContext::get().logicalDevice, stagingBufferMemory, 0, bufferSize, 0, &data);
+            memcpy(data, indices, (size_t) bufferSize);
+            vkUnmapMemory(VKContext::get().logicalDevice, stagingBufferMemory);
+
+            copyBuffer(stagingBuffer, indexBuffer, bufferSize);
+
+            vkDestroyBuffer(VKContext::get().logicalDevice, stagingBuffer, nullptr);
+            vkFreeMemory(VKContext::get().logicalDevice, stagingBufferMemory, nullptr);
+        }
+
+
         idx_count = idx_size;
     }
 

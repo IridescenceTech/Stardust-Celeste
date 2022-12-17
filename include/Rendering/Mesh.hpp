@@ -14,6 +14,8 @@
 
 #if SDC_VULKAN
 #include <vulkan/vulkan.h>
+#include <Rendering/GI/VK/VkContext.hpp>
+#include <Rendering/GI/VK/VkPipeline.hpp>
 #include <Rendering/GI/VK/VkBufferObject.hpp>
 #else
 #include <glad/glad.hpp>
@@ -165,6 +167,7 @@ template <class T> class Mesh : public NonCopy {
 #if BUILD_PC
 #if SDC_VULKAN
         if(setup){
+            vkWaitForFences(GI::detail::VKContext::get().logicalDevice, 1, &GI::detail::VKPipeline::get().inFlightFence, VK_TRUE, UINT64_MAX);
             vbo->destroy();
             vbo = nullptr;
         }
@@ -412,7 +415,7 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
 #if BUILD_PC
 #if SDC_VULKAN
     if(setup){
-        vbo->destroy();
+        delete vbo;
         vbo = nullptr;
     }
 #else

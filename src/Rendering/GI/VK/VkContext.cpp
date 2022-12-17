@@ -92,7 +92,8 @@ namespace GI::detail {
     }
 
     const std::vector<const char*> deviceExtensions = {
-            VK_KHR_SWAPCHAIN_EXTENSION_NAME
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+            VK_EXT_EXTENDED_DYNAMIC_STATE_3_EXTENSION_NAME
     };
 
     void setupDebugMessenger(VkInstance& instance) {
@@ -378,14 +379,20 @@ namespace GI::detail {
         deviceFeatures.samplerAnisotropy = VK_TRUE;
         deviceFeatures.shaderSampledImageArrayDynamicIndexing = VK_TRUE;
 
-        VkPhysicalDeviceDescriptorIndexingFeatures indexing_features{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT, nullptr };
+        VkPhysicalDeviceExtendedDynamicState3FeaturesEXT physicalDeviceExtendedDynamicState3FeaturesExt {VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT, nullptr};
+
+        VkPhysicalDeviceDescriptorIndexingFeatures indexing_features{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT, &physicalDeviceExtendedDynamicState3FeaturesExt};
         VkPhysicalDeviceFeatures2 device_features{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2, &indexing_features, deviceFeatures };
 
         vkGetPhysicalDeviceFeatures2( physicalDevice, &device_features );
         bool bindless_supported = indexing_features.descriptorBindingPartiallyBound && indexing_features.runtimeDescriptorArray;
+        bool extended_supported = physicalDeviceExtendedDynamicState3FeaturesExt.extendedDynamicState3ColorBlendEquation;
 
         if(!bindless_supported)
-            throw std::runtime_error("BINDLESS NOT SUPPORTED!");
+            throw std::runtime_error("Bindless Textures not supported!");
+
+        if(!extended_supported)
+            throw std::runtime_error("Extended Dynamic State not supported!");
 
         VkDeviceCreateInfo logicDeviceCreateInfo{};
         logicDeviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;

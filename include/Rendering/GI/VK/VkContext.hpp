@@ -2,11 +2,11 @@
 
 #ifdef SDC_VULKAN
 #include <optional>
+#include <vector>
 #include "Rendering/GI.hpp"
 
 #include <vulkan/vulkan.h>
 
-#include "Core/Application.hpp"
 #include "Utilities/Assertion.hpp"
 
 namespace GI::detail {

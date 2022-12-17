@@ -28,10 +28,14 @@ namespace GI {
     }
 
     auto enable(u32 state) -> void {
-
+        if(state == GI_DEPTH_TEST) {
+            vkCmdSetDepthTestEnable(detail::VKPipeline::get().commandBuffer, true);
+        }
     }
     auto disable(u32 state) -> void {
-
+        if(state == GI_DEPTH_TEST) {
+            vkCmdSetDepthTestEnable(detail::VKPipeline::get().commandBuffer, false);
+        }
     }
 
     auto set_culling_mode(bool enabled, bool ccw) -> void {
@@ -50,10 +54,18 @@ namespace GI {
     }
 
     auto depth_func(u32 mode) -> void {
-
     }
     auto blend_func(u32 src, u32 dest) -> void {
+        VkColorBlendEquationEXT blendEquationExt;
+        blendEquationExt.srcColorBlendFactor = static_cast<VkBlendFactor>(src);
+        blendEquationExt.dstColorBlendFactor = static_cast<VkBlendFactor>(dest);
+        blendEquationExt.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+        blendEquationExt.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+        blendEquationExt.colorBlendOp = VK_BLEND_OP_ADD;
+        blendEquationExt.alphaBlendOp = VK_BLEND_OP_ADD;
 
+        auto fn = reinterpret_cast<PFN_vkCmdSetColorBlendEquationEXT>(vkGetDeviceProcAddr(detail::VKContext::get().logicalDevice, "vkCmdSetColorBlendEquationEXT"));
+        fn(detail::VKPipeline::get().commandBuffer, 0, 1, &blendEquationExt);
     }
     auto alpha_func(u32 func, u32 value, u32 mask) -> void {
 
@@ -104,18 +116,7 @@ namespace GI {
     }
 
     auto clearDepth() -> void {
-        VkClearDepthStencilValue depthStencilValue{};
-        depthStencilValue.depth = 1.0f;
-        depthStencilValue.stencil = 0;
 
-        VkImageSubresourceRange subresourceRange = {};
-        subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-        subresourceRange.baseMipLevel = 0;
-        subresourceRange.levelCount = 1;
-        subresourceRange.baseArrayLayer = 0;
-        subresourceRange.layerCount = 1;
-
-        vkCmdClearDepthStencilImage(detail::VKPipeline::get().commandBuffer, detail::VKPipeline::get().depthImage, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL, &depthStencilValue, 1, &subresourceRange);
     }
 }
 
