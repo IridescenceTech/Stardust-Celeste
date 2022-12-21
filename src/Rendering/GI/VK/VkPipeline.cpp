@@ -1,4 +1,5 @@
 #include "Rendering/GI/VK/VkUtil.hpp"
+#include <Rendering/GI/VK/VkThreadPool.hpp>
 
 #include <glm.hpp>
 #include <ext/matrix_transform.hpp>
@@ -287,19 +288,6 @@ namespace GI::detail {
         vkDestroyShaderModule(VKContext::get().logicalDevice, vertShaderModule, nullptr);
     }
 
-    void createCommandPool() {
-        QueueFamilyIndices queueFamilyIndices = findQueueFamilies(VKContext::get().physicalDevice);
-
-        VkCommandPoolCreateInfo poolInfo{};
-        poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-        poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-        poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
-
-        if (vkCreateCommandPool(VKContext::get().logicalDevice, &poolInfo, nullptr, &VKPipeline::get().commandPool) != VK_SUCCESS) {
-            throw std::runtime_error("Failed to create command pool!");
-        }
-    }
-
     void createDepthResources() {
         VkFormat depthFormat = findDepthFormat();
 
@@ -348,18 +336,6 @@ namespace GI::detail {
             throw std::runtime_error("Failed to create synchronization objects for a frame!");
         }
 
-    }
-
-    void createCommandBuffer() {
-        VkCommandBufferAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandPool = VKPipeline::get().commandPool;
-        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        allocInfo.commandBufferCount = 1;
-
-        if (vkAllocateCommandBuffers(VKContext::get().logicalDevice, &allocInfo, &VKPipeline::get().commandBuffer) != VK_SUCCESS) {
-            throw std::runtime_error("Failed to allocate command buffers!");
-        }
     }
 
 
@@ -435,11 +411,10 @@ namespace GI::detail {
         create_render_pass();
         createDescriptorSetLayout();
         create_graphics_pipeline();
-        createCommandPool();
+        VKThreadPool::get().init();
         createDepthResources();
         createFramebuffers();
         createSyncObjects();
-        createCommandBuffer();
 
         createDescriptorPool();
         createDescriptorSets();
@@ -452,8 +427,7 @@ namespace GI::detail {
         vkFreeMemory(VKContext::get().logicalDevice, uniformBufferMemory, nullptr);
 
         vkDestroyDescriptorPool(VKContext::get().logicalDevice, descriptorPool, nullptr);
-        vkDestroyCommandPool(VKContext::get().logicalDevice, commandPool, nullptr);
-
+        VKThreadPool::get().deinit();
         for (auto framebuffer : swapChainFramebuffers) {
             vkDestroyFramebuffer(VKContext::get().logicalDevice, framebuffer, nullptr);
         }
@@ -465,68 +439,13 @@ namespace GI::detail {
     }
 
 
-    uint32_t imageIndex;
 
     void VKPipeline::beginFrame() {
         vkWaitForFences(VKContext::get().logicalDevice, 1, &inFlightFence, VK_TRUE, UINT64_MAX);
         vkResetFences(VKContext::get().logicalDevice, 1, &inFlightFence);
-
         vkAcquireNextImageKHR(VKContext::get().logicalDevice, VKContext::get().swapChain, UINT64_MAX, imageAvailableSemaphores, VK_NULL_HANDLE, &imageIndex);
 
-        vkResetCommandBuffer(commandBuffer, 0);
-
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = 0; // Optional
-        beginInfo.pInheritanceInfo = nullptr; // Optional
-
-        if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS) {
-            throw std::runtime_error("Failed to begin recording command buffer!");
-        }
-
-        VkRenderPassBeginInfo renderPassInfo{};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = renderPass;
-        renderPassInfo.framebuffer = swapChainFramebuffers[imageIndex];
-
-        renderPassInfo.renderArea.offset = {0, 0};
-        renderPassInfo.renderArea.extent = VKContext::get().swapChainExtent;
-
-        std::array<VkClearValue, 2> clearValues{};
-        clearValues[0].color = {{clearColor.r, clearColor.g, clearColor.b, clearColor.a}};
-        clearValues[1].depthStencil = {1.0f, 0};
-
-        renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-        renderPassInfo.pClearValues = clearValues.data();
-
-        vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-
-        VkViewport viewport{};
-        viewport.x = 0.0f;
-        viewport.y = 0.0f;
-        viewport.width = static_cast<float>(VKContext::get().swapChainExtent.width);
-        viewport.height = static_cast<float>(VKContext::get().swapChainExtent.height);
-        viewport.minDepth = 0.0f;
-        viewport.maxDepth = 1.0f;
-        vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
-
-        VkRect2D scissor{};
-        scissor.offset = {0, 0};
-        scissor.extent = VKContext::get().swapChainExtent;
-        vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
-
-        VkColorBlendEquationEXT blendEquationExt;
-        blendEquationExt.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-        blendEquationExt.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-        blendEquationExt.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-        blendEquationExt.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-        blendEquationExt.colorBlendOp = VK_BLEND_OP_ADD;
-        blendEquationExt.alphaBlendOp = VK_BLEND_OP_ADD;
-
-        auto fn = reinterpret_cast<PFN_vkCmdSetColorBlendEquationEXT>(vkGetDeviceProcAddr(detail::VKContext::get().logicalDevice, "vkCmdSetColorBlendEquationEXT"));
-        fn(detail::VKPipeline::get().commandBuffer, 0, 1, &blendEquationExt);
+        VKThreadPool::get().beginCommandBuffers();
     }
 
 int tid = 0;
@@ -539,46 +458,8 @@ int tid = 0;
         vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UniformBufferObject), &ubo);
     }
 
-
     void VKPipeline::endFrame() {
-
-        vkCmdEndRenderPass(commandBuffer);
-        if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
-            throw std::runtime_error("Failed to record command buffer!");
-        }
-
-        VkSubmitInfo submitInfo{};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-        VkSemaphore waitSemaphores[] = {imageAvailableSemaphores};
-        VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-        submitInfo.waitSemaphoreCount = 1;
-        submitInfo.pWaitSemaphores = waitSemaphores;
-        submitInfo.pWaitDstStageMask = waitStages;
-
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &commandBuffer;
-
-        VkSemaphore signalSemaphores[] = {renderFinishedSemaphores};
-        submitInfo.signalSemaphoreCount = 1;
-        submitInfo.pSignalSemaphores = signalSemaphores;
-
-        if (vkQueueSubmit(VKContext::get().graphicsQueue, 1, &submitInfo, inFlightFence) != VK_SUCCESS) {
-            throw std::runtime_error("Failed to submit draw command buffer!");
-        }
-
-        VkPresentInfoKHR presentInfo{};
-        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
-        presentInfo.waitSemaphoreCount = 1;
-        presentInfo.pWaitSemaphores = signalSemaphores;
-
-        VkSwapchainKHR swapChains[] = {VKContext::get().swapChain};
-        presentInfo.swapchainCount = 1;
-        presentInfo.pSwapchains = swapChains;
-        presentInfo.pImageIndices = &imageIndex;
-        presentInfo.pResults = nullptr; // Optional
-        vkQueuePresentKHR(VKContext::get().presentQueue, &presentInfo);
+        VKThreadPool::get().endCommandBuffers();
     }
 
 }

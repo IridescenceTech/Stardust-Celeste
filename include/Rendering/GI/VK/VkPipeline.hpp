@@ -34,7 +34,6 @@ namespace GI::detail{
         VkPipelineLayout pipelineLayout;
         VkPipeline graphicsPipeline;
 
-        VkCommandPool commandPool;
 
         VkImage depthImage;
         VkDeviceMemory depthImageMemory;
@@ -49,12 +48,13 @@ namespace GI::detail{
 
         std::vector<VkFramebuffer> swapChainFramebuffers;
 
-        VkCommandBuffer commandBuffer;
         VkSemaphore imageAvailableSemaphores;
         VkSemaphore renderFinishedSemaphores;
         VkFence inFlightFence;
 
         glm::vec4 clearColor;
+
+        uint32_t imageIndex;
     private:
 
     };
