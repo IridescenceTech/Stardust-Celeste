@@ -106,6 +106,11 @@ if(3DS)
     target_include_directories(SC-Entry PUBLIC "$ENV{DEVKITPRO}/picaGL/include")
 endif()
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    include_directories(/usr/local/include)
+    target_link_libraries(Stardust-Celeste PUBLIC z)
+endif()
+
 if(WIN32)
     add_compile_definitions(BUILD_PLAT=0)
 elseif(PSP)
