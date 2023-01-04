@@ -36,11 +36,9 @@
 #include <gtc/type_ptr.hpp>
 #include <gtx/string_cast.hpp>
 
-#ifdef SDC_VULKAN
 #include <Rendering/GI/VK/VkPipeline.hpp>
-#endif
 
-#if BUILD_PC && !SDC_VULKAN
+#if BUILD_PC
 namespace GI {
     extern GLuint programID;
     extern GLuint ubo;
@@ -50,7 +48,10 @@ namespace GI {
 
 namespace Stardust_Celeste::Rendering {
 
+    RenderContextSettings rctxSettings;
+
 auto RenderContext::initialize(const RenderContextSettings app) -> void {
+    rctxSettings = app;
     GI::init(app);
 
     GI::start_frame();
@@ -125,12 +126,10 @@ auto RenderContext::matrix_scale(glm::vec3 v) -> void {
 
 auto RenderContext::matrix_perspective(float fovy, float aspect, float zn,
                                        float zf) -> void {
-#if SDC_VULKAN
     _gfx_persp = glm::perspective(deg2rad(fovy), aspect, zn, zf);
-    _gfx_persp[1][1] *= -1;
-#else
-    _gfx_persp = glm::perspective(deg2rad(fovy), aspect, zn, zf);
-#endif
+    if(rctxSettings.renderingApi == Vulkan) {
+        _gfx_persp[1][1] *= -1;
+    }
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
 #if BUILD_PLAT == BUILD_PSP
@@ -153,15 +152,14 @@ auto RenderContext::matrix_perspective(float fovy, float aspect, float zn,
 
 auto RenderContext::matrix_ortho(float l, float r, float b, float t, float zn,
                                  float zf) -> void {
+    if(rctxSettings.renderingApi == Vulkan) {
+        _gfx_ortho = glm::ortho(l, r, t, b, zn, zf);
+    } else {
+        _gfx_ortho = glm::ortho(l, r, b, t, zn, zf);
+    }
 
-#if SDC_VULKAN
-    _gfx_ortho = glm::ortho(l, r, t, b, zn, zf);
-#else
-    _gfx_ortho = glm::ortho(l, r, b, t, zn, zf);
-#endif
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
-
 #if BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_PROJECTION);
     ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(*_gfx_proj));
@@ -182,21 +180,20 @@ auto RenderContext::matrix_ortho(float l, float r, float b, float t, float zn,
 
 auto RenderContext::set_matrices() -> void {
 #if BUILD_PC
-
     glm::mat4 newModel = glm::mat4(1.0f);
     for (int i = 0; i < _matrixStack.size(); i++) {
         newModel *= _matrixStack[i];
     }
     newModel *= _gfx_model;
 
-#ifndef SDC_VULKAN
-    glBindBuffer(GL_UNIFORM_BUFFER, GI::ubo);
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4),
-                    glm::value_ptr(newModel));
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-#else
+    if(rctxSettings.renderingApi == Vulkan) {
         GI::detail::VKPipeline::get().ubo.model = newModel;
-#endif
+    } else {
+        glBindBuffer(GL_UNIFORM_BUFFER, GI::ubo);
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4),
+                        glm::value_ptr(newModel));
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
 #elif BUILD_PLAT == BUILD_VITA
 
     glm::mat4 newModel = glm::mat4(1.0f);
@@ -243,15 +240,14 @@ auto RenderContext::matrix_view(glm::mat4 mat) -> void {
 #if BUILD_PC
     _gfx_view = mat;
 
-#ifndef SDC_VULKAN
-    glBindBuffer(GL_UNIFORM_BUFFER, GI::ubo);
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4),
-                    glm::value_ptr(_gfx_view));
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-#else
-    GI::detail::VKPipeline::get().ubo.projview = *_gfx_proj * _gfx_view;
-#endif
-
+    if(rctxSettings.renderingApi == Vulkan) {
+        GI::detail::VKPipeline::get().ubo.projview = *_gfx_proj * _gfx_view;
+    } else {
+        glBindBuffer(GL_UNIFORM_BUFFER, GI::ubo);
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4),
+                        glm::value_ptr(_gfx_view));
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
 #elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_VIEW);
     ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(mat));
@@ -274,23 +270,24 @@ auto RenderContext::matrix_model(glm::mat4 mat) -> void {
 auto RenderContext::set_mode_2D() -> void {
     _gfx_proj = &_gfx_ortho;
 #if BUILD_PC
-#if SDC_VULKAN
-    _gfx_view = glm::mat4(1.0f);
-    _gfx_model = glm::mat4(1.0f);
 
-    GI::detail::VKPipeline::get().ubo.projview = *_gfx_proj * _gfx_view;
-    GI::detail::VKPipeline::get().ubo.model = _gfx_model;
-#else
-    _gfx_view = glm::mat4(1.0f);
-    _gfx_model = glm::mat4(1.0f);
+    if(rctxSettings.renderingApi == Vulkan) {
+        _gfx_view = glm::mat4(1.0f);
+        _gfx_model = glm::mat4(1.0f);
 
-    glBindBuffer(GL_UNIFORM_BUFFER, GI::ubo);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4),
-                    glm::value_ptr(*_gfx_proj));
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4),
-                    glm::value_ptr(_gfx_view));
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-#endif
+        GI::detail::VKPipeline::get().ubo.projview = *_gfx_proj * _gfx_view;
+        GI::detail::VKPipeline::get().ubo.model = _gfx_model;
+    } else {
+        _gfx_view = glm::mat4(1.0f);
+        _gfx_model = glm::mat4(1.0f);
+
+        glBindBuffer(GL_UNIFORM_BUFFER, GI::ubo);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4),
+                        glm::value_ptr(*_gfx_proj));
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4),
+                        glm::value_ptr(_gfx_view));
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
 #elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_PROJECTION);
     ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(*_gfx_proj));
@@ -307,23 +304,20 @@ auto RenderContext::set_mode_2D() -> void {
 auto RenderContext::set_mode_3D() -> void {
     _gfx_proj = &_gfx_persp;
 #if BUILD_PC
-#if SDC_VULKAN
     _gfx_view = glm::mat4(1.0f);
     _gfx_model = glm::mat4(1.0f);
 
-    GI::detail::VKPipeline::get().ubo.projview = *_gfx_proj * _gfx_view;
-    GI::detail::VKPipeline::get().ubo.model = _gfx_model;
-#else
-    _gfx_view = glm::mat4(1.0f);
-    _gfx_model = glm::mat4(1.0f);
-
-    glBindBuffer(GL_UNIFORM_BUFFER, GI::ubo);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4),
-                    glm::value_ptr(*_gfx_proj));
-    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4),
-                    glm::value_ptr(_gfx_view));
-    glBindBuffer(GL_UNIFORM_BUFFER, 0);
-#endif
+    if(rctxSettings.renderingApi == Vulkan) {
+        GI::detail::VKPipeline::get().ubo.projview = *_gfx_proj * _gfx_view;
+        GI::detail::VKPipeline::get().ubo.model = _gfx_model;
+    } else {
+        glBindBuffer(GL_UNIFORM_BUFFER, GI::ubo);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4),
+                        glm::value_ptr(*_gfx_proj));
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4),
+                        glm::value_ptr(_gfx_view));
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
 #elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_PROJECTION);
     ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(*_gfx_proj));

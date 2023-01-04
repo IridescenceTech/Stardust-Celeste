@@ -8,13 +8,12 @@ file(GLOB_RECURSE INC_FILES include/*.hpp)
 
 option(USE_VULKAN "Use Vulkan Backend" OFF)
 
-if(USE_VULKAN)
+if(NOT PSP AND NOT 3DS AND NOT VITA)
     if(WIN32)
         set(ENV{VULKAN_SDK} "C:\\VulkanSDK\\1.3.231.1")
     endif()
 
     find_package(Vulkan REQUIRED)
-    add_compile_definitions(SDC_VULKAN=1)
 endif()
 
 if(WIN32)
@@ -96,7 +95,7 @@ add_library(SC-Entry STATIC src/Core/Entry.cpp)
 target_include_directories(SC-Entry PUBLIC include/ ext/glm/glm/)
 
 
-if(USE_VULKAN)
+if(NOT PSP AND NOT 3DS AND NOT VITA)
     target_include_directories(Stardust-Celeste PUBLIC ${Vulkan_INCLUDE_DIRS})
     target_include_directories(SC-Entry PUBLIC ${Vulkan_INCLUDE_DIRS})
     target_link_libraries(Stardust-Celeste PUBLIC ${Vulkan_LIBRARIES})

@@ -1,9 +1,8 @@
-#include "Rendering/GI/VK/VkTextureHandle.hpp"
-#include "Rendering/GI/VK/VkUtil.hpp"
+#include <Rendering/GI/VK/VkTextureHandle.hpp>
+#include <Rendering/GI/VK/VkUtil.hpp>
+#include <Rendering/Texture.hpp>
 
-#if SDC_VULKAN
 namespace GI::detail {
-
     static int handle_number = 0;
 
     VKTextureHandle* VKTextureHandle::create(std::string filename, u32 magFilter, u32 minFilter, bool repeat, bool flip) {
@@ -42,8 +41,23 @@ namespace GI::detail {
 
         VkSamplerCreateInfo samplerInfo{};
         samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-        samplerInfo.magFilter = (VkFilter)magFilter;
-        samplerInfo.minFilter = (VkFilter)minFilter;
+
+        VkFilter magf = VK_FILTER_NEAREST;
+        VkFilter minf = VK_FILTER_NEAREST;
+        if(magFilter == SC_TEX_FILTER_NEAREST) {
+            magf = VK_FILTER_NEAREST;
+        } else {
+            magf = VK_FILTER_LINEAR;
+        }
+        if(minFilter == SC_TEX_FILTER_NEAREST) {
+            minf = VK_FILTER_NEAREST;
+        } else {
+            minf = VK_FILTER_LINEAR;
+        }
+
+
+        samplerInfo.magFilter = magf;
+        samplerInfo.minFilter = minf;
 
         if(repeat){
             samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
@@ -122,4 +136,3 @@ namespace GI::detail {
     }
 
 }
-#endif

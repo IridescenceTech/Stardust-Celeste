@@ -6,6 +6,8 @@
 
 namespace Stardust_Celeste::Rendering {
 
+    enum PrimType { PRIM_TYPE_TRIANGLE, PRIM_TYPE_LINE };
+
 /**
  * @brief Color union object
  *

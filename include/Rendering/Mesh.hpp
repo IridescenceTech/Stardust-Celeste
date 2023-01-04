@@ -12,14 +12,12 @@
 
 #if BUILD_PC
 
-#if SDC_VULKAN
 #include <vulkan/vulkan.h>
 #include <Rendering/GI/VK/VkContext.hpp>
 #include <Rendering/GI/VK/VkPipeline.hpp>
 #include <Rendering/GI/VK/VkBufferObject.hpp>
-#else
 #include <glad/glad.hpp>
-#endif
+
 #elif BUILD_PLAT == BUILD_PSP
 #include <pspctrl.h>
 #include <pspdebug.h>
@@ -49,34 +47,16 @@ namespace Stardust_Celeste::Rendering {
 
 // TODO: Optimized Vertex structure - u16 x,y,z - u16 color - u16 u,v
 // TODO: Lit data structure including normals
-// TODO: Look at this class again with FixedMesh
-
-enum PrimType { PRIM_TYPE_TRIANGLE, PRIM_TYPE_LINE };
 
 /**
  * @brief Mesh takes ownership of vertices and indices
  */
 template <class T> class Mesh : public NonCopy {
   private:
-#if BUILD_PC || BUILD_PLAT == BUILD_VITA
-#if SDC_VULKAN
-      GI::detail::VKBufferObject* vbo;
-#else
-    GLuint vbo, vao, ebo;
-#endif
-    bool setup;
-#endif
+      GI::BufferObject* vbo;
 
   public:
-    Mesh()
-#if BUILD_PC || BUILD_PLAT == BUILD_VITA
-#if SDC_VULKAN
-              : vbo(nullptr), setup(false)
-#else
-        : vbo(0), vao(0), ebo(0), setup(false)
-#endif
-#endif
-    {
+    Mesh() : vbo(nullptr) {
         vertices.clear();
         vertices.shrink_to_fit();
         indices.clear();
@@ -87,72 +67,10 @@ template <class T> class Mesh : public NonCopy {
 
     // TODO: Vert type changes enabled attributes
     auto setup_buffer() -> void {
-#if BUILD_PC
-#if SDC_VULKAN
         if(vbo == nullptr)
-            vbo = GI::detail::VKBufferObject::create(vertices.data(), vertices.size(), indices.data(), indices.size());
+            vbo = GI::create_vertexbuffer(vertices.data(), vertices.size(), indices.data(), indices.size());
         else
             vbo->update(vertices.data(), vertices.size(), indices.data(), indices.size());
-
-        if(vbo != nullptr)
-            setup = true;
-#else
-        if (!setup) {
-            glGenVertexArrays(1, &vao);
-            glGenBuffers(1, &vbo);
-        }
-        bind();
-
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(T) * vertices.size(),
-                     vertices.data(), GL_STATIC_DRAW);
-
-        const auto stride = sizeof(T);
-
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride,
-                              reinterpret_cast<void *>(sizeof(float) * 3));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, stride,
-                              reinterpret_cast<void *>(sizeof(float) * 2));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
-
-        if (!setup) {
-            glGenBuffers(1, &ebo);
-            setup = true;
-        }
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * indices.size(),
-                     indices.data(), GL_STATIC_DRAW);
-
-        glBindVertexArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-#endif
-#elif BUILD_PLAT == BUILD_VITA
-        if (indices.size() <= 0 || vertices.size() <= 0)
-            return;
-
-        if (!setup) {
-            glGenBuffers(1, &vbo);
-        }
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(T) * vertices.size(),
-                     vertices.data(), GL_STATIC_DRAW);
-
-        if (!setup) {
-            glGenBuffers(1, &ebo);
-            setup = true;
-        }
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * indices.size(),
-                     indices.data(), GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-#elif BUILD_PLAT == BUILD_PSP
-        sceKernelDcacheWritebackInvalidateAll();
-#endif
     }
 
     auto clear_data() -> void {
@@ -163,128 +81,26 @@ template <class T> class Mesh : public NonCopy {
     }
 
     auto delete_data() -> void {
-
-#if BUILD_PC
-#if SDC_VULKAN
-        if(setup){
-            vkWaitForFences(GI::detail::VKContext::get().logicalDevice, 1, &GI::detail::VKPipeline::get().inFlightFence, VK_TRUE, UINT64_MAX);
-            vbo->destroy();
+        if(vbo != nullptr) {
+            delete vbo;
             vbo = nullptr;
         }
-        setup = false;
-#else
-        glDeleteVertexArrays(1, &vao);
-        glDeleteBuffers(1, &vbo);
-        glDeleteBuffers(1, &ebo);
-        setup = false;
-#endif
-#elif BUILD_PLAT == BUILD_VITA
-        if (indices.size() <= 0)
-            return;
-
-        glDeleteBuffers(1, &vbo);
-        glDeleteBuffers(1, &ebo);
-        setup = false;
-#endif
     }
 
     // TODO: Vert type changes enabled attributes
     auto draw(PrimType p = PRIM_TYPE_TRIANGLE) -> void {
-        bind();
+        if(vbo != nullptr) {
+            vbo->bind();
+            Rendering::RenderContext::get().set_matrices();
 
-        Rendering::RenderContext::get().set_matrices();
-
-#if BUILD_PC
-#if SDC_VULKAN
-        if(setup)
-            vbo->draw();
-#else
-        // TODO: Bind Program
-        if (p == PRIM_TYPE_TRIANGLE) {
-            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
-                           nullptr);
-        } else {
-            glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_SHORT,
-                           nullptr);
+            vbo->draw(p);
         }
-#endif
-#elif BUILD_PLAT == BUILD_PSP
-        sceGuShadeModel(GU_SMOOTH);
-        if (p == PRIM_TYPE_TRIANGLE) {
-            sceGumDrawArray(GU_TRIANGLES,
-                            GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
-                                GU_VERTEX_32BITF | GU_TRANSFORM_3D,
-                            indices.size(), indices.data(), vertices.data());
-        } else {
-            sceGumDrawArray(GU_LINE_STRIP,
-                            GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
-                                GU_VERTEX_32BITF | GU_TRANSFORM_3D,
-                            indices.size(), indices.data(), vertices.data());
-        }
-#elif BUILD_PLAT == BUILD_VITA
-        if (vertices.size() == 0 || indices.size() == 0)
-            return;
-
-        const auto stride = sizeof(T);
-
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride,
-                              reinterpret_cast<void *>(sizeof(float) * 3));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, stride,
-                              reinterpret_cast<void *>(sizeof(float) * 2));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
-
-        if (p == PRIM_TYPE_TRIANGLE) {
-            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
-                           nullptr);
-        } else {
-            glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_SHORT,
-                           nullptr);
-        }
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-#elif BUILD_PLAT == BUILD_3DS
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_COLOR_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-        glVertexPointer(3, GL_FLOAT, sizeof(T),
-                        reinterpret_cast<uint8_t *>(vertices.data()) +
-                            (sizeof(float) * 3));
-        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(T),
-                       reinterpret_cast<uint8_t *>(vertices.data()) +
-                           (sizeof(float) * 2));
-        glTexCoordPointer(2, GL_FLOAT, sizeof(T), vertices.data());
-
-        if (p == PRIM_TYPE_TRIANGLE) {
-            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
-                           indices.data());
-        } else {
-            glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_SHORT,
-                           indices.data());
-        }
-
-        glDisableClientState(GL_VERTEX_ARRAY);
-        glDisableClientState(GL_COLOR_ARRAY);
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-#endif
     }
 
     auto bind() -> void {
-#if BUILD_PC
-#if SDC_VULKAN
-        if(setup)
+        if(vbo != nullptr) {
             vbo->bind();
-#else
-        glBindVertexArray(vao);
-#endif
-#elif BUILD_PLAT == BUILD_VITA
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-#endif
+        }
     }
 
     inline auto get_index_count() -> s32 { return indices.size(); }
@@ -299,25 +115,10 @@ template <class T> class Mesh : public NonCopy {
 
 template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
   private:
-#if BUILD_PC || BUILD_PLAT == BUILD_VITA
-#if SDC_VULKAN
-            GI::detail::VKBufferObject* vbo;
-#else
-    GLuint vbo, vao, ebo;
-#endif
-    bool setup;
-#endif
+      GI::BufferObject* vbo;
 
   public:
-    FixedMesh()
-#if BUILD_PC || BUILD_PLAT == BUILD_VITA
-#if SDC_VULKAN
-          : vbo(nullptr), setup(false)
-#else
-        : vbo(0), vao(0), ebo(0), setup(false)
-#endif
-#endif
-    {
+    FixedMesh() : vbo(nullptr) {
         for (int i = 0; i < V; i++) {
             vertices[i] = {0};
         }
@@ -330,76 +131,10 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
 
     // TODO: Vert type changes enabled attributes
     auto setup_buffer() -> void {
-#if BUILD_PC
-#if SDC_VULKAN
-                if(vbo == nullptr)
-                    vbo = GI::detail::VKBufferObject::create(vertices.data(), vertices.size(), indices.data(), indices.size());
-                else
-                    vbo->update(vertices.data(), vertices.size(), indices.data(), indices.size());
-
-                if(vbo != nullptr)
-                    setup = true;
-#else
-        if (!setup) {
-            glGenVertexArrays(1, &vao);
-            glGenBuffers(1, &vbo);
-        }
-        bind();
-
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(T) * vertices.size(),
-                     vertices.data(), GL_STATIC_DRAW);
-
-        const auto stride = sizeof(T);
-
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride,
-                              reinterpret_cast<void *>(sizeof(float) * 3));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, stride,
-                              reinterpret_cast<void *>(sizeof(float) * 2));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
-
-        if (!setup) {
-            glGenBuffers(1, &ebo);
-            setup = true;
-        }
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * indices.size(),
-                     indices.data(), GL_STATIC_DRAW);
-
-        glBindVertexArray(0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-#endif
-
-#elif BUILD_PLAT == BUILD_VITA
-        if (indices.size() <= 0 || vertices.size() <= 0)
-            return;
-
-        if (!setup) {
-            glGenBuffers(1, &vbo);
-        }
-
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(T) * vertices.size(),
-                     vertices.data(), GL_STATIC_DRAW);
-
-        if (!setup) {
-            glGenBuffers(1, &ebo);
-            setup = true;
-        }
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * indices.size(),
-                     indices.data(), GL_STATIC_DRAW);
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-#elif BUILD_PLAT == BUILD_PSP
-        sceKernelDcacheWritebackInvalidateAll();
-#endif
+        if(vbo == nullptr)
+            vbo = GI::create_vertexbuffer(vertices.data(), vertices.size(), indices.data(), indices.size());
+        else
+            vbo->update(vertices.data(), vertices.size(), indices.data(), indices.size());
     }
 
     auto clear_data() -> void {
@@ -412,121 +147,27 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
     }
 
     auto delete_data() -> void {
-#if BUILD_PC
-#if SDC_VULKAN
-    if(setup){
-        delete vbo;
-        vbo = nullptr;
-    }
-#else
-        if (!setup)
-            return;
-        glDeleteVertexArrays(1, &vao);
-        glDeleteBuffers(1, &vbo);
-        glDeleteBuffers(1, &ebo);
-        setup = false;
-#endif
-#elif BUILD_PLAT == BUILD_VITA
-        if (!setup)
-            return;
-        if (indices.size() <= 0)
-            return;
-
-        glDeleteBuffers(1, &vbo);
-        glDeleteBuffers(1, &ebo);
-        setup = false;
-#endif
+        if(vbo != nullptr) {
+            delete vbo;
+            vbo = nullptr;
+        }
     }
 
     // TODO: Vert type changes enabled attributes
     auto draw(PrimType p = PRIM_TYPE_TRIANGLE) -> void {
-#if BUILD_PLAT != BUILD_PSP && BUILD_PLAT != BUILD_3DS
-        if (!setup)
-            return;
-#endif
+        if(vbo != nullptr) {
+            vbo->bind();
 
-        bind();
+            Rendering::RenderContext::get().set_matrices();
 
-        Rendering::RenderContext::get().set_matrices();
-
-#if BUILD_PC
-#if SDC_VULKAN
-        vbo->draw();
-#else
-        // TODO: Bind Program
-        if (p == PRIM_TYPE_TRIANGLE) {
-            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
-                           nullptr);
-        } else {
-            glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_SHORT,
-                           nullptr);
+            vbo->draw(p);
         }
-#endif
-#elif BUILD_PLAT == BUILD_PSP
-        sceGuShadeModel(GU_SMOOTH);
-        sceGumDrawArray(GU_TRIANGLES,
-                        GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
-                            GU_VERTEX_32BITF | GU_TRANSFORM_3D,
-                        indices.size(), indices.data(), vertices.data());
-#elif BUILD_PLAT == BUILD_VITA
-        if (vertices.size() == 0 || indices.size() == 0)
-            return;
-
-        const auto stride = sizeof(T);
-
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride,
-                              reinterpret_cast<void *>(sizeof(float) * 3));
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, stride,
-                              reinterpret_cast<void *>(sizeof(float) * 2));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
-
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
-                       nullptr);
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-#elif BUILD_PLAT == BUILD_3DS
-
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_COLOR_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-        glVertexPointer(3, GL_FLOAT, sizeof(T),
-                        reinterpret_cast<uint8_t *>(vertices.data()) +
-                            (sizeof(float) * 3));
-        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(T),
-                       reinterpret_cast<uint8_t *>(vertices.data()) +
-                           (sizeof(float) * 2));
-        glTexCoordPointer(2, GL_FLOAT, sizeof(T), vertices.data());
-        if (p == PRIM_TYPE_TRIANGLE) {
-            glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT,
-                           indices.data());
-        } else {
-            glDrawElements(GL_LINE_STRIP, indices.size(), GL_UNSIGNED_SHORT,
-                           indices.data());
-        }
-
-        glDisableClientState(GL_VERTEX_ARRAY);
-        glDisableClientState(GL_COLOR_ARRAY);
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-#endif
     }
 
     auto bind() -> void {
-#if BUILD_PC
-#if SDC_VULKAN 
-    if(setup)
-        vbo->bind();
-#else
-        glBindVertexArray(vao);
-#endif
-#elif BUILD_PLAT == BUILD_VITA
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-#endif
+        if(vbo != nullptr) {
+            vbo->bind();
+        }
     }
 
     inline auto get_index_count() -> s32 { return indices.size(); }

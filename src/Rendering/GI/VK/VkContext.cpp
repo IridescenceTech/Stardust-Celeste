@@ -1,4 +1,3 @@
-#ifdef SDC_VULKAN
 #include "Rendering/GI/VK/VkContext.hpp"
 #include <Rendering/GI.hpp>
 #include <optional>
@@ -437,5 +436,3 @@ namespace GI::detail {
     }
 
 }
-
-#endif

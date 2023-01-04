@@ -1,6 +1,4 @@
 #pragma once
-
-#ifdef SDC_VULKAN
 #include <optional>
 #include <vector>
 #include "Rendering/GI.hpp"
@@ -36,5 +34,3 @@ namespace GI::detail {
 
     };
 }
-
-#endif

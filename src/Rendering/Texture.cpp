@@ -76,9 +76,8 @@ u32 offset = 10 * 512 * 272;
 
 #endif
 
-#ifdef SDC_VULKAN
+#include <Rendering/GI/GL/GLTextureHandle.hpp>
 #include <Rendering/GI/VK/VkTextureHandle.hpp>
-#endif
 
 namespace Stardust_Celeste::Rendering {
 
@@ -104,7 +103,6 @@ auto TextureManager::load_texture(std::string filename, u32 magFilter,
                                   u32 minFilter, bool repeat, bool flip,
                                   bool vram) -> u32 {
 
-#ifndef SDC_VULKAN
     int width, height, nrChannels;
     if (flip)
         stbi_set_flip_vertically_on_load(true);
@@ -133,34 +131,9 @@ auto TextureManager::load_texture(std::string filename, u32 magFilter,
     tex->name = filename;
 
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA || BUILD_PLAT == BUILD_3DS
-    glGenTextures(1, (GLuint *)&tex->id);
-    glBindTexture(GL_TEXTURE_2D, tex->id);
-
-    #if BUILD_PC
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, width, height, 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, data);
-    #else
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, data);
-    #endif
-
-#if BUILD_PLAT != BUILD_3DS
-    glGenerateMipmap(GL_TEXTURE_2D);
-#endif
     stbi_image_free(data);
-
-    tex->data = nullptr;
-
-    if (repeat) {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    } else {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    }
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+    tex->data = GI::create_texturehandle(filename, magFilter, minFilter, repeat, flip);
+    tex->id = ((GI::TextureHandle*)tex->data)->id;
 #elif BUILD_PLAT == BUILD_PSP
     unsigned int *dataBuffer =
         (unsigned int *)memalign(16, tex->pH * tex->pW * 4);
@@ -192,37 +165,6 @@ auto TextureManager::load_texture(std::string filename, u32 magFilter,
     sceKernelDcacheWritebackInvalidateAll();
 #endif
 
-#else
-    int width, height, nrChannels;
-    if (flip)
-        stbi_set_flip_vertically_on_load(true);
-    else
-        stbi_set_flip_vertically_on_load(false);
-    unsigned char *data = stbi_load(filename.c_str(), &width, &height,
-                                    &nrChannels, STBI_rgb_alpha);
-    SC_CORE_ASSERT(data, "Could not load file: " + filename + "!");
-    stbi_image_free(data);
-
-    Texture *tex = new Texture();
-    tex->width = width;
-    tex->height = height;
-
-    tex->pW = pow2(width);
-    tex->pH = pow2(height);
-
-    tex->ramSpace = 0; // TODO: Add option for PSP VRAM
-    tex->swizzle = 1;
-    tex->colorMode = 3; // GU_PSM_8888
-    tex->id = 0;
-
-    tex->repeating = repeat;
-    tex->magFilter = magFilter;
-    tex->minFilter = minFilter;
-
-    tex->name = filename;
-    tex->data = GI::detail::VKTextureHandle::create(filename, magFilter, minFilter, repeat, flip);
-#endif
-
     fullMap.emplace(texCount, tex);
     return texCount++;
 }
@@ -230,13 +172,8 @@ auto TextureManager::load_texture(std::string filename, u32 magFilter,
 auto TextureManager::bind_texture(u32 id) -> void {
     if (fullMap.find(id) != fullMap.end()) {
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA || BUILD_PLAT == BUILD_3DS
-
-#ifdef SDC_VULKAN
+        ((GI::TextureHandle*)fullMap[id]->data)->bind();
         ((GI::detail::VKTextureHandle*)fullMap[id]->data)->bind();
-#else
-        GI::enable(GI_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, fullMap[id]->id);
-#endif
 #elif BUILD_PLAT == BUILD_PSP
         GI::enable(GI_TEXTURE_2D);
         Texture *tex = fullMap[id];
@@ -257,19 +194,14 @@ auto TextureManager::delete_texture(u32 id) -> void {
     if (fullMap.find(id) != fullMap.end()) {
 
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA || BUILD_PLAT == BUILD_3DS
-#if SDC_VULKAN
-        auto vkt = (GI::detail::VKTextureHandle*)fullMap[id]->data;
-        delete vkt;
-#else
-        glDeleteTextures(1, (GLuint *)&fullMap[id]->id);
-#endif
+        auto tex = (GI::TextureHandle*)fullMap[id]->data;
+        delete tex;
 #endif
 
         if (fullMap[id]->data)
-#ifndef SDC_VULKAN
+#if PSP
             free(fullMap[id]->data);
 #endif
-
 
         delete fullMap[id];
         fullMap.erase(id);

@@ -4,7 +4,6 @@
 #include <ext/matrix_transform.hpp>
 #include <ext/matrix_clip_space.hpp>
 
-#if SDC_VULKAN
 namespace GI::detail {
 
     void create_render_pass() {
@@ -582,4 +581,3 @@ int tid = 0;
     }
 
 }
-#endif
