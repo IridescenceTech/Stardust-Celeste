@@ -23,6 +23,8 @@ Current Modules Until Intial V0.6 Release:
 - [x] Audio Core
 - [ ] Scripting System
 - [ ] Mathematics Library
+- [ ] DX 9 / DX 12 Support
+- [ ] Model loading
 
 v0.7 Release: 
 - [ ] Scene Manager
