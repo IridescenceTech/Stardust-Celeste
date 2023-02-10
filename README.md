@@ -1,6 +1,6 @@
 <div align=center><img src=branding/transparent_logo.svg width=75%></div>
 
-<div align=center style="display:inline-block"><img src="https://img.shields.io/github/workflow/status/Iridescence-Technologies/Stardust-Celeste/Stardust?style=for-the-badge&logo=github&label=Stardust" height=36px> <img src="https://forthebadge.com/images/badges/made-with-c-plus-plus.svg"> <img src="https://forthebadge.com/images/badges/open-source.svg"></div>
+<div align=center style="display:inline-block"><img src="https://img.shields.io/github/actions/workflow/status/Iridescence-Technologies/Stardust-Celeste/stardust.yml?style=for-the-badge&branch=main&logo=github&label=Stardust" height=35px> <img src="https://forthebadge.com/images/badges/made-with-c-plus-plus.svg"> <img src="https://forthebadge.com/images/badges/open-source.svg"></div>
 
 ---
 
