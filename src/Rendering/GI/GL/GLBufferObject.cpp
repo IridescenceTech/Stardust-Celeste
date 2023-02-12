@@ -105,6 +105,7 @@ namespace GI::detail{
         }
         bind();
 
+        glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(Stardust_Celeste::Rendering::Vertex) * vert_size,
                      vert_data, GL_STATIC_DRAW);

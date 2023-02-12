@@ -10,10 +10,10 @@ option(USE_VULKAN "Use Vulkan Backend" OFF)
 
 if(NOT PSP AND NOT 3DS AND NOT VITA)
     if(WIN32)
-        set(ENV{VULKAN_SDK} "C:\\VulkanSDK\\1.3.231.1")
+        set(Vulkan_LIBRARY "C:\\VulkanSDK\\1.3.231.1\\Lib\\vulkan-1.lib")
     endif()
-
     find_package(Vulkan REQUIRED)
+
 endif()
 
 if(WIN32)
@@ -98,7 +98,7 @@ target_include_directories(SC-Entry PUBLIC include/ ext/glm/glm/)
 if(NOT PSP AND NOT 3DS AND NOT VITA)
     target_include_directories(Stardust-Celeste PUBLIC ${Vulkan_INCLUDE_DIRS})
     target_include_directories(SC-Entry PUBLIC ${Vulkan_INCLUDE_DIRS})
-    target_link_libraries(Stardust-Celeste PUBLIC ${Vulkan_LIBRARIES})
+    target_link_libraries(Stardust-Celeste PUBLIC Vulkan::Vulkan)
 endif()
 
 if(3DS)
