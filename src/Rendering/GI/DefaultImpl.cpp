@@ -229,7 +229,7 @@ namespace GI {
             detail::VKContext::get().init(app);
             window = detail::window;
             detail::VKPipeline::get().init();
-        } else {
+        } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
             SC_CORE_ASSERT(glfwInit(), "GLFW Init Failed!");
 
             glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -245,6 +245,14 @@ namespace GI {
 
             SC_CORE_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
                            "OpenGL Init Failed!");
+        } else if (rctxSettings.renderingApi == DX11) {
+            SC_CORE_ASSERT(glfwInit(), "GLFW Init Failed!");
+
+            glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+            glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
+            window = glfwCreateWindow(app.width, app.height, app.title, nullptr, nullptr);
+            glfwSwapInterval(0);
         }
 
 #elif BUILD_PLAT == BUILD_PSP
@@ -270,7 +278,7 @@ namespace GI {
 
         // Extended setup: Vita / Desktop Shaders
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA
-        if(rctxSettings.renderingApi != Vulkan) {
+        if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
             GI::programID = loadShaders(vert_source, frag_source);
             glUseProgram(GI::programID);
 
@@ -318,7 +326,7 @@ namespace GI {
             if(state == GI_DEPTH_TEST) {
                 vkCmdSetDepthTestEnable(detail::VKPipeline::get().commandBuffer, true);
             }
-        } else {
+        } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
             glEnable(state);
         }
     }
@@ -327,7 +335,7 @@ namespace GI {
             if(state == GI_DEPTH_TEST) {
                 vkCmdSetDepthTestEnable(detail::VKPipeline::get().commandBuffer, false);
             }
-        } else {
+        } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
 #ifndef PSP
             if (state == GI_TEXTURE_2D)
                 glBindTexture(GL_TEXTURE_2D, 0);
@@ -350,7 +358,7 @@ namespace GI {
             }
 
             vkCmdSetCullMode(detail::VKPipeline::get().commandBuffer, cullMode);
-        }else {
+        } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
             if (enabled) {
                 glEnable(GL_CULL_FACE);
             } else {
@@ -364,7 +372,7 @@ namespace GI {
     }
 
     auto depth_func(u32 mode) -> void {
-        if (rctxSettings.renderingApi != Vulkan) {
+        if (rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
             glDepthFunc(mode);
         }
     }
@@ -425,7 +433,7 @@ namespace GI {
 
             auto fn = reinterpret_cast<PFN_vkCmdSetColorBlendEquationEXT>(vkGetDeviceProcAddr(detail::VKContext::get().logicalDevice, "vkCmdSetColorBlendEquationEXT"));
             fn(detail::VKPipeline::get().commandBuffer, 0, 1, &blendEquationExt);
-        }  else {
+        } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
 #ifndef PSP
             glBlendFunc(src, dest);
 #else
@@ -435,7 +443,7 @@ namespace GI {
     }
 
     auto alpha_func(u32 func, u32 value, u32 mask) -> void {
-        if(rctxSettings.renderingApi != Vulkan) {
+        if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
 #ifdef PSP
             glAlphaFunc(func, value, mask);
 #elif BUILD_PLAT == BUILD_3DS
@@ -501,7 +509,7 @@ namespace GI {
     auto clear_color(Color color) -> void {
         if(rctxSettings.renderingApi == Vulkan) {
             detail::VKPipeline::get().clearColor = to_vec4(color);
-        } else {
+        } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
 #if BUILD_PLAT == BUILD_PSP
             glClearColor(color.color);
 #elif BUILD_PLAT == BUILD_3DS
@@ -513,7 +521,7 @@ namespace GI {
         }
     }
     auto clear(u32 mask) -> void {
-        if(rctxSettings.renderingApi != Vulkan) {
+        if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
 #if BUILD_PLAT == BUILD_PSP
             glClear(mask | GL_FAST_CLEAR_BIT);
 #else
@@ -523,13 +531,13 @@ namespace GI {
     }
 
     auto clearDepth() -> void {
-        if(rctxSettings.renderingApi != Vulkan) {
+        if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
             glClear(GL_DEPTH_BUFFER_BIT);
         }
     }
 
     auto enable_textures() -> void {
-        if(rctxSettings.renderingApi != Vulkan) {
+        if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
 #if BUILD_PLAT == BUILD_VITA || BUILD_PC
             glUniform1i(noTex, 0);
 #endif
@@ -537,7 +545,7 @@ namespace GI {
     }
 
     auto disable_textures() -> void {
-        if(rctxSettings.renderingApi != Vulkan) {
+        if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
 #if BUILD_PLAT == BUILD_VITA || BUILD_PC
             glUniform1i(noTex, 1);
 #endif
@@ -545,7 +553,7 @@ namespace GI {
     }
 
     auto set_tex_scroll(float v) -> void {
-        if(rctxSettings.renderingApi != Vulkan) {
+        if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
 #if BUILD_PLAT == BUILD_VITA || BUILD_PC
             glUniform1f(scroll, v);
 #endif
@@ -555,16 +563,20 @@ namespace GI {
     auto create_texturehandle(std::string filename, u32 magFilter, u32 minFilter, bool repeat, bool flip) -> TextureHandle* {
         if(rctxSettings.renderingApi == Vulkan) {
             return detail::VKTextureHandle::create(filename, magFilter, minFilter, repeat, flip);
-        } else {
+        } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
             return detail::GLTextureHandle::create(filename, magFilter, minFilter, repeat, flip);
         }
+
+        return nullptr;
     }
 
     auto create_vertexbuffer(const Stardust_Celeste::Rendering::Vertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size) -> BufferObject* {
         if (rctxSettings.renderingApi == Vulkan) {
             return detail::VKBufferObject::create(vert_data, vert_size, indices, idx_size);
-        } else {
+        } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
             return detail::GLBufferObject::create(vert_data, vert_size, indices, idx_size);
         }
+
+        return nullptr;
     }
 }

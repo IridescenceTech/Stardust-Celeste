@@ -286,7 +286,6 @@ namespace GI::detail {
     void VKContext::init(const RenderContextSettings app) {
         SC_CORE_ASSERT(glfwInit(), "GLFW Init Failed!");
 
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 

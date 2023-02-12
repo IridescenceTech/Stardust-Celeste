@@ -70,6 +70,8 @@ enum RenderingAPI{
     DefaultAPI,
     OpenGL,
     Vulkan,
+    DX11,
+    DX12
 };
 
 /**

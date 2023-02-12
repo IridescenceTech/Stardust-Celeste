@@ -6,8 +6,6 @@ set(CMAKE_CXX_STANDARD 17)
 file(GLOB_RECURSE SRC_FILES src/*.cpp)
 file(GLOB_RECURSE INC_FILES include/*.hpp)
 
-option(USE_VULKAN "Use Vulkan Backend" OFF)
-
 if(NOT PSP AND NOT 3DS AND NOT VITA)
     if(WIN32)
         set(Vulkan_LIBRARY "C:\\VulkanSDK\\1.3.231.1\\Lib\\vulkan-1.lib")
