@@ -95,25 +95,25 @@ auto Sprite::update_mesh() -> void {
         mesh = create_scopeptr<Rendering::FixedMesh<Rendering::Vertex, 4, 6>>();
 
     mesh->vertices[0] = Rendering::Vertex{
-        selection.position.x, selection.position.y, color,
+        selection.position.x, selection.position.y + selection.extent.y, color,
         bounds.position.x,    bounds.position.y,    (float)layer};
     mesh->vertices[1] =
         Rendering::Vertex{selection.position.x + selection.extent.x,
-                          selection.position.y,
+                          selection.position.y + selection.extent.y,
                           color,
                           bounds.position.x + bounds.extent.x,
                           bounds.position.y,
                           (float)layer};
     mesh->vertices[2] =
         Rendering::Vertex{selection.position.x + selection.extent.x,
-                          selection.position.y + selection.extent.y,
+                          selection.position.y ,
                           color,
                           bounds.position.x + bounds.extent.x,
                           bounds.position.y + bounds.extent.y,
                           (float)layer};
     mesh->vertices[3] =
-        Rendering::Vertex{selection.position.x,
-                          selection.position.y + selection.extent.y,
+        Rendering::Vertex{selection.position.x ,
+                          selection.position.y ,
                           color,
                           bounds.position.x,
                           bounds.position.y + bounds.extent.y,
