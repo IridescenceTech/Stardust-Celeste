@@ -13,11 +13,14 @@
 
 #include <Rendering/GI/GL/GLTextureHandle.hpp>
 #include <Rendering/GI/VK/VkTextureHandle.hpp>
+#include <d3dx9math.h>
 #include "Core/Application.hpp"
 #include "Rendering/GI/GL/GLBufferObject.hpp"
 #include "Rendering/GI/VK/VkBufferObject.hpp"
 #include "Rendering/GI/VK/VkContext.hpp"
 #include "Rendering/GI/VK/VkPipeline.hpp"
+
+#include "Rendering/GI/DX11/DXContext.hpp"
 #elif BUILD_PLAT == BUILD_PSP
 #define GUGL_IMPLEMENTATION
 #include <gu2gl/gu2gl.h>
@@ -150,6 +153,8 @@ namespace GI {
         extern GLFWwindow* window;
     }
 
+    D3DXCOLOR clearColor;
+
 #elif BUILD_PLAT == BUILD_PSP
     unsigned int __attribute__((aligned(16))) list[0x10000];
 #elif BUILD_PLAT == BUILD_VITA
@@ -253,6 +258,8 @@ namespace GI {
 
             window = glfwCreateWindow(app.width, app.height, app.title, nullptr, nullptr);
             glfwSwapInterval(0);
+
+            detail::DXContext::get().init(window);
         }
 
 #elif BUILD_PLAT == BUILD_PSP
@@ -309,6 +316,8 @@ namespace GI {
         if(rctxSettings.renderingApi == Vulkan) {
             detail::VKPipeline::get().deinit();
             detail::VKContext::get().deinit();
+        } else if (rctxSettings.renderingApi == DX11) {
+            detail::DXContext::get().deinit();
         }
         glfwDestroyWindow(window);
         glfwTerminate();
@@ -476,6 +485,8 @@ namespace GI {
 
         if(rctxSettings.renderingApi == Vulkan) {
             detail::VKPipeline::get().endFrame();
+        } else if (rctxSettings.renderingApi == DX11) {
+            detail::DXContext::get().swapChain->Present(0, 0);
         }
 
         if (vsync)
@@ -518,6 +529,9 @@ namespace GI {
             auto c = to_vec4(color);
             glClearColor(c.r, c.g, c.b, c.a);
 #endif
+        } else if (rctxSettings.renderingApi == DX11) {
+            auto c = to_vec4(color);
+            clearColor = D3DXCOLOR(c.r, c.g, c.b, c.a);
         }
     }
     auto clear(u32 mask) -> void {
@@ -527,6 +541,8 @@ namespace GI {
 #else
             glClear(mask);
 #endif
+        } else if(rctxSettings.renderingApi == DX11) {
+            detail::DXContext::get().clear(clearColor);
         }
     }
 
