@@ -7,6 +7,15 @@
 
 namespace GI::detail {
 
+    struct XVertex {
+        XVertex(float x, float y, float z,
+               float cr, float cg, float cb)
+                : pos(x,y,z), color(cr, cg, cb){}
+
+        DirectX::XMFLOAT3 pos;
+        DirectX::XMFLOAT3 color;
+    };
+
     HRESULT CompileShader(const WCHAR* fileName, LPCSTR entryPoint, LPCSTR shaderModel, ID3DBlob** ppBlobOut) {
         HRESULT hr = S_OK;
 
@@ -24,6 +33,7 @@ namespace GI::detail {
         {
             if( pErrorBlob )
             {
+                std::cout << (const char*)pErrorBlob->GetBufferPointer() << std::endl;
                 OutputDebugStringA( reinterpret_cast<const char*>( pErrorBlob->GetBufferPointer() ) );
                 pErrorBlob->Release();
             }
@@ -33,6 +43,16 @@ namespace GI::detail {
 
         return S_OK;
     }
+
+    D3D11_INPUT_ELEMENT_DESC layout[] =
+            {
+                    { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+                    { "COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+            };
+    UINT numElements = ARRAYSIZE(layout);
+
+    ID3D11Buffer* triangleVertBuffer;
+
 
     void DXContext::init(void* window) {
         DXGI_MODE_DESC bufferDescription;
@@ -88,13 +108,13 @@ namespace GI::detail {
         /// Initialize Shaders
         ID3DBlob* VS_Buffer = nullptr;
         ID3DBlob* PS_Buffer = nullptr;
-        auto hr = CompileShader(L"shaders/shader.fx", "VS", "vs_5_0", &VS_Buffer);
+        auto hr = CompileShader(L"shaders/shader.fx", "VS", "vs_4_0", &VS_Buffer);
 
         if(FAILED(hr)) {
             throw std::runtime_error("Failed to compile Vertex Shader!");
         }
 
-        hr = CompileShader(L"shaders/shader.fx", "PS", "ps_5_0", &PS_Buffer);
+        hr = CompileShader(L"shaders/shader.fx", "PS", "ps_4_0", &PS_Buffer);
 
         if(FAILED(hr)) {
             throw std::runtime_error("Failed to compile Fragment Shader!");
@@ -105,6 +125,54 @@ namespace GI::detail {
 
         deviceContext->VSSetShader(VS, 0, 0);
         deviceContext->PSSetShader(PS, 0, 0);
+
+        /// Vertex Buffers
+        XVertex v[] = {
+            XVertex( 0.0f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f ),
+            XVertex( 0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f ),
+            XVertex( -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f ),
+        };
+
+        D3D11_BUFFER_DESC vertexBufferDesc;
+        ZeroMemory( &vertexBufferDesc, sizeof(vertexBufferDesc) );
+
+        vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+        vertexBufferDesc.ByteWidth = sizeof( Vertex ) * 3;
+        vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+        vertexBufferDesc.CPUAccessFlags = 0;
+        vertexBufferDesc.MiscFlags = 0;
+
+        D3D11_SUBRESOURCE_DATA vertexBufferData;
+
+        ZeroMemory( &vertexBufferData, sizeof(vertexBufferData) );
+        vertexBufferData.pSysMem = v;
+        device->CreateBuffer( &vertexBufferDesc, &vertexBufferData, &triangleVertBuffer);
+
+        //Create the Input Layout
+        device->CreateInputLayout( layout, numElements, VS_Buffer->GetBufferPointer(),
+                                        VS_Buffer->GetBufferSize(), &vertLayout );
+
+        //Set the Input Layout
+        deviceContext->IASetInputLayout( vertLayout );
+
+        //Set the vertex buffer
+        UINT stride = sizeof( XVertex );
+        UINT offset = 0;
+        deviceContext->IASetVertexBuffers( 0, 1, &triangleVertBuffer, &stride, &offset );
+
+        //Set Primitive Topology
+        deviceContext->IASetPrimitiveTopology( D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+
+        D3D11_VIEWPORT viewport;
+        ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
+
+        viewport.TopLeftX = 0;
+        viewport.TopLeftY = 0;
+        viewport.Width = width;
+        viewport.Height = height;
+
+        //Set the Viewport
+        deviceContext->RSSetViewports(1, &viewport);
     }
 
     void DXContext::deinit() {
@@ -119,6 +187,8 @@ namespace GI::detail {
     void DXContext::clear(D3DXCOLOR color) {
         deviceContext->ClearRenderTargetView(renderTargetView, color);
         deviceContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
+
+        deviceContext->Draw( 3, 0 );
     }
 
 }
