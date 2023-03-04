@@ -1,4 +1,6 @@
 #pragma once
+#ifndef NO_EXPERIMENTAL_GRAPHICS
+
 #include <vulkan/vulkan.h>
 #include "Utilities/Assertion.hpp"
 
@@ -59,3 +61,4 @@ namespace GI::detail{
 
     };
 }
+#endif

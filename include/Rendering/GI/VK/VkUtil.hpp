@@ -1,4 +1,5 @@
 #pragma once
+#ifndef NO_EXPERIMENTAL_GRAPHICS
 
 #include <vulkan/vulkan.h>
 #include <stdexcept>
@@ -317,3 +318,4 @@ inline void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, ui
     );
     endSingleTimeCommands(commandBuffer);
 }
+#endif

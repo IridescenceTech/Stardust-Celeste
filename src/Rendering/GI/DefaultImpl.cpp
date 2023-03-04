@@ -231,9 +231,11 @@ namespace GI {
 
 #if BUILD_PC
         if(rctxSettings.renderingApi == Vulkan) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
             detail::VKContext::get().init(app);
             window = detail::window;
             detail::VKPipeline::get().init();
+#endif
         } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
             SC_CORE_ASSERT(glfwInit(), "GLFW Init Failed!");
 
@@ -251,6 +253,7 @@ namespace GI {
             SC_CORE_ASSERT(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
                            "OpenGL Init Failed!");
         } else if (rctxSettings.renderingApi == DX11) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
             SC_CORE_ASSERT(glfwInit(), "GLFW Init Failed!");
 
             glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -260,6 +263,7 @@ namespace GI {
             glfwSwapInterval(0);
 
             detail::DXContext::get().init(window);
+#endif
         }
 
 #elif BUILD_PLAT == BUILD_PSP
@@ -314,10 +318,14 @@ namespace GI {
     auto terminate() -> void {
 #if BUILD_PC
         if(rctxSettings.renderingApi == Vulkan) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
             detail::VKPipeline::get().deinit();
             detail::VKContext::get().deinit();
+#endif
         } else if (rctxSettings.renderingApi == DX11) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
             detail::DXContext::get().deinit();
+#endif
         }
         glfwDestroyWindow(window);
         glfwTerminate();
@@ -333,7 +341,9 @@ namespace GI {
     auto enable(u32 state) -> void {
         if (rctxSettings.renderingApi == Vulkan) {
             if(state == GI_DEPTH_TEST) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
                 vkCmdSetDepthTestEnable(detail::VKPipeline::get().commandBuffer, true);
+#endif
             }
         } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
             glEnable(state);
@@ -342,7 +352,9 @@ namespace GI {
     auto disable(u32 state) -> void {
         if(rctxSettings.renderingApi == Vulkan) {
             if(state == GI_DEPTH_TEST) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
                 vkCmdSetDepthTestEnable(detail::VKPipeline::get().commandBuffer, false);
+#endif
             }
         } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
 #ifndef PSP
@@ -355,6 +367,7 @@ namespace GI {
 
     auto set_culling_mode(bool enabled, bool ccw) -> void {
         if(rctxSettings.renderingApi == Vulkan) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
             VkCullModeFlags cullMode;
             if(enabled) {
                 if(!ccw) {
@@ -367,6 +380,7 @@ namespace GI {
             }
 
             vkCmdSetCullMode(detail::VKPipeline::get().commandBuffer, cullMode);
+#endif
         } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
             if (enabled) {
                 glEnable(GL_CULL_FACE);
@@ -388,6 +402,7 @@ namespace GI {
 
     auto blend_func(u32 src, u32 dest) -> void {
         if (rctxSettings.renderingApi == Vulkan) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
             VkColorBlendEquationEXT blendEquationExt;
 
 
@@ -442,6 +457,7 @@ namespace GI {
 
             auto fn = reinterpret_cast<PFN_vkCmdSetColorBlendEquationEXT>(vkGetDeviceProcAddr(detail::VKContext::get().logicalDevice, "vkCmdSetColorBlendEquationEXT"));
             fn(detail::VKPipeline::get().commandBuffer, 0, 1, &blendEquationExt);
+#endif
         } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
 #ifndef PSP
             glBlendFunc(src, dest);
@@ -463,7 +479,9 @@ namespace GI {
 
     auto start_frame(bool dialog) -> void {
         if(rctxSettings.renderingApi == Vulkan) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
             detail::VKPipeline::get().beginFrame();
+#endif
         } else {
 #if BUILD_PLAT == BUILD_PSP
             guglStartFrame(list, dialog);
@@ -484,9 +502,13 @@ namespace GI {
         }
 
         if(rctxSettings.renderingApi == Vulkan) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
             detail::VKPipeline::get().endFrame();
+#endif
         } else if (rctxSettings.renderingApi == DX11) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
             detail::DXContext::get().swapChain->Present(0, 0);
+#endif
         }
 
         if (vsync)
@@ -519,7 +541,9 @@ namespace GI {
 
     auto clear_color(Color color) -> void {
         if(rctxSettings.renderingApi == Vulkan) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
             detail::VKPipeline::get().clearColor = to_vec4(color);
+#endif
         } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
 #if BUILD_PLAT == BUILD_PSP
             glClearColor(color.color);
@@ -530,8 +554,10 @@ namespace GI {
             glClearColor(c.r, c.g, c.b, c.a);
 #endif
         } else if (rctxSettings.renderingApi == DX11) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
             auto c = to_vec4(color);
             clearColor = D3DXCOLOR(c.r, c.g, c.b, c.a);
+#endif
         }
     }
     auto clear(u32 mask) -> void {
@@ -542,7 +568,9 @@ namespace GI {
             glClear(mask);
 #endif
         } else if(rctxSettings.renderingApi == DX11) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
             detail::DXContext::get().clear(clearColor);
+#endif
         }
     }
 
@@ -578,7 +606,9 @@ namespace GI {
 
     auto create_texturehandle(std::string filename, u32 magFilter, u32 minFilter, bool repeat, bool flip) -> TextureHandle* {
         if(rctxSettings.renderingApi == Vulkan) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
             return detail::VKTextureHandle::create(filename, magFilter, minFilter, repeat, flip);
+#endif
         } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
             return detail::GLTextureHandle::create(filename, magFilter, minFilter, repeat, flip);
         }
@@ -588,7 +618,9 @@ namespace GI {
 
     auto create_vertexbuffer(const Stardust_Celeste::Rendering::Vertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size) -> BufferObject* {
         if (rctxSettings.renderingApi == Vulkan) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
             return detail::VKBufferObject::create(vert_data, vert_size, indices, idx_size);
+#endif
         } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
             return detail::GLBufferObject::create(vert_data, vert_size, indices, idx_size);
         }

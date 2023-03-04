@@ -6,14 +6,25 @@ set(CMAKE_CXX_STANDARD 17)
 file(GLOB_RECURSE SRC_FILES src/*.cpp)
 file(GLOB_RECURSE INC_FILES include/*.hpp)
 
-if(NOT PSP AND NOT 3DS AND NOT VITA)
-    if(WIN32)
-        set(Vulkan_LIBRARY "C:\\VulkanSDK\\1.3.231.1\\Lib\\vulkan-1.lib")
-    endif()
-    find_package(Vulkan REQUIRED)
+# Whether or not to use Vulkan / Direct X Mode
+option(EXPERIMENTAL_GRAPHICS "Use Vulkan and DirectX Mode" OFF)
 
+# No experimental graphics define
+if(NOT EXPERIMENTAL_GRAPHICS)
+    add_compile_definitions(NO_EXPERIMENTAL_GRAPHICS)
 endif()
 
+# Vulkan Include
+if(NOT PSP AND NOT 3DS AND NOT VITA)
+    if(EXPERIMENTAL_GRAPHICS)
+        if(WIN32)
+            set(Vulkan_LIBRARY "C:\\VulkanSDK\\1.3.231.1\\Lib\\vulkan-1.lib")
+        endif()
+        find_package(Vulkan REQUIRED)
+    endif()
+endif()
+
+# SDL 2 Requirement
 if(WIN32)
     find_package(SDL2 CONFIG REQUIRED)
     find_package(SDL2_mixer CONFIG REQUIRED)
@@ -56,6 +67,7 @@ else()
     target_link_libraries(Stardust-Celeste PUBLIC glfw)
 endif()
 
+# SDL2 for WIN32/POSIX
 if(WIN32)
     target_link_libraries(Stardust-Celeste PUBLIC SDL2_mixer::SDL2_mixer ${SDL2_LIBRARIES}
         ${SDL2_mixer_LIBRARIES}
@@ -66,6 +78,7 @@ elseif(NOT VITA AND NOT 3DS AND NOT PSP)
         ${catkin_LIBRARIES})
 endif()
 
+# Use EASTL
 option(USE_EASTL "Use EA Standard Template Library" OFF)
 if(USE_EASTL)
     include_directories(${EASTL_ROOT_DIR}/include)
@@ -81,7 +94,11 @@ if(USE_EASTL)
     add_compile_definitions(USE_EASTL=1)
 endif()
 
-target_compile_options(Stardust-Celeste PUBLIC -fno-rtti)
+if(PSP)
+    target_compile_options(Stardust-Celeste PUBLIC -fno-rtti)
+endif()
+
+# GLM TODO: DEPRECATED
 target_include_directories(Stardust-Celeste PUBLIC include/ ext/ ext/glm/glm/)
 
 if(NOT VITA)
@@ -89,14 +106,17 @@ if(NOT VITA)
     set_property(TARGET yaml-cpp PROPERTY POSITION_INDEPENDENT_CODE OFF)
 endif()
 
+# SC-Entry Library ARtifact
 add_library(SC-Entry STATIC src/Core/Entry.cpp)
 target_include_directories(SC-Entry PUBLIC include/ ext/glm/glm/)
 
-
-if(NOT PSP AND NOT 3DS AND NOT VITA)
-    target_include_directories(Stardust-Celeste PUBLIC ${Vulkan_INCLUDE_DIRS})
-    target_include_directories(SC-Entry PUBLIC ${Vulkan_INCLUDE_DIRS})
-    target_link_libraries(Stardust-Celeste PUBLIC Vulkan::Vulkan)
+# Vulkan
+if(EXPERIMENTAL_GRAPHICS)
+    if(NOT PSP AND NOT 3DS AND NOT VITA)
+        target_include_directories(Stardust-Celeste PUBLIC ${Vulkan_INCLUDE_DIRS})
+        target_include_directories(SC-Entry PUBLIC ${Vulkan_INCLUDE_DIRS})
+        target_link_libraries(Stardust-Celeste PUBLIC Vulkan::Vulkan)
+    endif()
 endif()
 
 if(3DS)
@@ -108,6 +128,8 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     target_link_libraries(Stardust-Celeste PUBLIC z)
 endif()
 
+# Define Platform Build
+# TODO: Make into CMake Include
 if(WIN32)
     add_compile_definitions(BUILD_PLAT=0)
 elseif(PSP)

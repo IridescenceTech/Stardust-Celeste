@@ -1,3 +1,4 @@
+#ifndef NO_EXPERIMENTAL_GRAPHICS
 #include <Rendering/GI/VK/VkTextureHandle.hpp>
 #include <Rendering/GI/VK/VkUtil.hpp>
 #include <Rendering/Texture.hpp>
@@ -136,3 +137,4 @@ namespace GI::detail {
     }
 
 }
+#endif

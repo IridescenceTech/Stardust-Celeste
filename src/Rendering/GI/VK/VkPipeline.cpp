@@ -1,3 +1,5 @@
+#ifndef NO_EXPERIMENTAL_GRAPHICS
+
 #include "Rendering/GI/VK/VkUtil.hpp"
 
 #include <glm.hpp>
@@ -579,5 +581,6 @@ int tid = 0;
         presentInfo.pResults = nullptr; // Optional
         vkQueuePresentKHR(VKContext::get().presentQueue, &presentInfo);
     }
-
 }
+
+#endif

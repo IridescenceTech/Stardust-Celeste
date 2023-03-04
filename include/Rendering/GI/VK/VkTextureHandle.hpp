@@ -1,5 +1,6 @@
 #pragma once
 
+#ifndef NO_EXPERIMENTAL_GRAPHICS
 #include <vulkan/vulkan.h>
 #include <string>
 #include <Rendering/GI/TextureHandle.hpp>
@@ -22,3 +23,4 @@ namespace GI::detail{
         VkSampler textureSampler;
     };
 }
+#endif

@@ -1,4 +1,5 @@
 #pragma once
+#ifndef NO_EXPERIMENTAL_GRAPHICS
 #include <vulkan/vulkan.h>
 #include <Rendering/GI/BufferObject.hpp>
 #include "Rendering/RenderTypes.hpp"
@@ -25,3 +26,4 @@ namespace GI::detail {
         bool setup;
     };
 }
+#endif

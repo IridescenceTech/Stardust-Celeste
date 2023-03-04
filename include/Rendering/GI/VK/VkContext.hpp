@@ -1,4 +1,6 @@
 #pragma once
+#ifndef NO_EXPERIMENTAL_GRAPHICS
+
 #include <optional>
 #include <vector>
 #include "Rendering/GI.hpp"
@@ -34,3 +36,4 @@ namespace GI::detail {
 
     };
 }
+#endif

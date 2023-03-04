@@ -1,3 +1,4 @@
+#ifndef NO_EXPERIMENTAL_GRAPHICS
 #include "Rendering/GI/VK/VkBufferObject.hpp"
 #include "Rendering/GI/VK/VkUtil.hpp"
 
@@ -139,3 +140,4 @@ namespace GI::detail {
         }
     }
 }
+#endif

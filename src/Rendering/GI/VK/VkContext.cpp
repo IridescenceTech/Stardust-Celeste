@@ -1,3 +1,5 @@
+#ifndef NO_EXPERIMENTAL_GRAPHICS
+
 #include "Rendering/GI/VK/VkContext.hpp"
 #include <Rendering/GI.hpp>
 #include <optional>
@@ -435,3 +437,4 @@ namespace GI::detail {
     }
 
 }
+#endif

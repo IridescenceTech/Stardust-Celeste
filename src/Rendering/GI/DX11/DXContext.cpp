@@ -1,3 +1,4 @@
+#ifndef NO_EXPERIMENTAL_GRAPHICS
 #include <Rendering/GI/DX11/DXContext.hpp>
 
 #define GLFW_INCLUDE_NONE
@@ -192,3 +193,4 @@ namespace GI::detail {
     }
 
 }
+#endif

@@ -173,7 +173,6 @@ auto TextureManager::bind_texture(u32 id) -> void {
     if (fullMap.find(id) != fullMap.end()) {
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA || BUILD_PLAT == BUILD_3DS
         ((GI::TextureHandle*)fullMap[id]->data)->bind();
-        ((GI::detail::VKTextureHandle*)fullMap[id]->data)->bind();
 #elif BUILD_PLAT == BUILD_PSP
         GI::enable(GI_TEXTURE_2D);
         Texture *tex = fullMap[id];

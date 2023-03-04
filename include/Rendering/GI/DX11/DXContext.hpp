@@ -1,5 +1,6 @@
 #pragma once
 
+#ifndef NO_EXPERIMENTAL_GRAPHICS
 #include <d3d11_1.h>
 #include <d3dcompiler.h>
 #include <directxmath.h>
@@ -41,3 +42,4 @@ namespace GI::detail {
         ID3D11InputLayout* vertLayout;
     };
 }
+#endif

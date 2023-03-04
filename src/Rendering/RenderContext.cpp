@@ -187,7 +187,9 @@ auto RenderContext::set_matrices() -> void {
     newModel *= _gfx_model;
 
     if(rctxSettings.renderingApi == Vulkan) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
         GI::detail::VKPipeline::get().ubo.model = newModel;
+#endif
     } else {
         glBindBuffer(GL_UNIFORM_BUFFER, GI::ubo);
         glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, sizeof(glm::mat4),
@@ -241,7 +243,9 @@ auto RenderContext::matrix_view(glm::mat4 mat) -> void {
     _gfx_view = mat;
 
     if(rctxSettings.renderingApi == Vulkan) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
         GI::detail::VKPipeline::get().ubo.projview = *_gfx_proj * _gfx_view;
+#endif
     } else {
         glBindBuffer(GL_UNIFORM_BUFFER, GI::ubo);
         glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4),
@@ -274,9 +278,11 @@ auto RenderContext::set_mode_2D() -> void {
     if(rctxSettings.renderingApi == Vulkan) {
         _gfx_view = glm::mat4(1.0f);
         _gfx_model = glm::mat4(1.0f);
+#ifndef NO_EXPERIMENTAL_GRAPHICS
 
         GI::detail::VKPipeline::get().ubo.projview = *_gfx_proj * _gfx_view;
         GI::detail::VKPipeline::get().ubo.model = _gfx_model;
+#endif
     } else {
         _gfx_view = glm::mat4(1.0f);
         _gfx_model = glm::mat4(1.0f);
@@ -308,8 +314,11 @@ auto RenderContext::set_mode_3D() -> void {
     _gfx_model = glm::mat4(1.0f);
 
     if(rctxSettings.renderingApi == Vulkan) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
+
         GI::detail::VKPipeline::get().ubo.projview = *_gfx_proj * _gfx_view;
         GI::detail::VKPipeline::get().ubo.model = _gfx_model;
+#endif
     } else {
         glBindBuffer(GL_UNIFORM_BUFFER, GI::ubo);
         glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4),

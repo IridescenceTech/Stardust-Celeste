@@ -12,10 +12,12 @@
 
 #if BUILD_PC
 
+#ifndef NO_EXPERIMENTAL_GRAPHICS
 #include <vulkan/vulkan.h>
 #include <Rendering/GI/VK/VkContext.hpp>
 #include <Rendering/GI/VK/VkPipeline.hpp>
 #include <Rendering/GI/VK/VkBufferObject.hpp>
+#endif
 #include <glad/glad.hpp>
 
 #elif BUILD_PLAT == BUILD_PSP
