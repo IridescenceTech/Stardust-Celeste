@@ -3,6 +3,8 @@
 
 namespace Stardust_Celeste::Math {
 
+    struct Matrix;
+
     template <typename T>
     struct Vector2 {
         T x, y;
@@ -417,6 +419,7 @@ namespace Stardust_Celeste::Math {
         {
             return Vector3(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x);
         }
+
     };
 
 
@@ -641,5 +644,8 @@ namespace Stardust_Celeste::Math {
             return Vector4(x / length, y / length, z / length, w / length);
         }
     };
+
+    Vector3<float> multMatrix(Vector3<float> v, Matrix m);
+    Vector4<float> multMatrix(Vector4<float> v, Matrix m);
 
 }
