@@ -23,7 +23,7 @@ Current Modules Until Intial V0.6 Release:
 - [x] Audio Core
 - [ ] Scripting System
 - [ ] Mathematics Library
-- [ ] DX 9 / DX 12 Support
+- [ ] DX 11
 - [ ] Model loading
 
 v0.7 Release: 
@@ -32,7 +32,9 @@ v0.7 Release:
 
 ## Projects Using Stardust-Celeste
 
-Add Projects Here
+- [CrossCraft](https://github.com/CrossCraft)
+- [Founder of Nations](https://github.com/IridescentRose/Founder-Of-Nations)
+- [Medieval Tactics](https://psjuan97.itch.io/medieval-tactics)
 
 ## License
 
