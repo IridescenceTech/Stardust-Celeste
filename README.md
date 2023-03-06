@@ -21,14 +21,15 @@ Current Modules Until Intial V0.6 Release:
 - [x] Graphics 2D
 - [x] Graphics Intermediate Layer
 - [x] Audio Core
+- [x] Mathematics Library
+- [x] Vulkan
 - [ ] Scripting System
-- [ ] Mathematics Library
-- [ ] DX 11
 - [ ] Model loading
 
 v0.7 Release: 
 - [ ] Scene Manager
 - [ ] Graphics 3D
+- [ ] DX 11
 
 ## Projects Using Stardust-Celeste
 
