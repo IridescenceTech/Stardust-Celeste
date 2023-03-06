@@ -13,7 +13,6 @@
 
 #include <Rendering/GI/GL/GLTextureHandle.hpp>
 #include <Rendering/GI/VK/VkTextureHandle.hpp>
-#include <d3dx9math.h>
 #include "Core/Application.hpp"
 #include "Rendering/GI/GL/GLBufferObject.hpp"
 #include "Rendering/GI/VK/VkBufferObject.hpp"
