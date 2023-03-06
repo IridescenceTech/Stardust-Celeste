@@ -152,7 +152,9 @@ namespace GI {
         extern GLFWwindow* window;
     }
 
+#ifndef NO_EXPERIMENTAL_GRAPHICS
     D3DXCOLOR clearColor;
+#endif
 
 #elif BUILD_PLAT == BUILD_PSP
     unsigned int __attribute__((aligned(16))) list[0x10000];
