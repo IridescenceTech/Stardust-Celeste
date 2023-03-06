@@ -1,10 +1,9 @@
 #include <Rendering/Camera.hpp>
 #include <Rendering/RenderContext.hpp>
-#include <gtc/matrix_transform.hpp>
 
 namespace Stardust_Celeste::Rendering {
 
-Camera::Camera(glm::vec3 pos, glm::vec3 rot, float fov, float aspect, float zN,
+Camera::Camera(Math::Vector3<float> pos, Math::Vector3<float> rot, float fov, float aspect, float zN,
                float zF) {
     this->pos = pos;
     this->rot = rot;
@@ -23,13 +22,13 @@ auto Camera::set_proj(float fov, float aspect, float zn, float zf) -> void {
 }
 
 auto Camera::update() -> void {
-    glm::mat4 matrix(1.f);
+    Math::Matrix matrix(1.f);
 
-    matrix = glm::rotate(matrix, rot.x, {1, 0, 0});
-    matrix = glm::rotate(matrix, rot.y, {0, 1, 0});
-    matrix = glm::rotate(matrix, rot.z, {0, 0, 1});
+    matrix *= Math::Matrix::Rotate(rot.x, {1, 0, 0});
+    matrix *= Math::Matrix::Rotate(rot.y, {0, 1, 0});
+    matrix *= Math::Matrix::Rotate(rot.z, {0, 0, 1});
 
-    matrix = glm::translate(matrix, -pos);
+    matrix *= Math::Matrix::Translate({-pos.x, -pos.y, -pos.z});
 
     RenderContext::get().matrix_perspective(fov, aspect, zNear, zFar);
     RenderContext::get().matrix_view(matrix);

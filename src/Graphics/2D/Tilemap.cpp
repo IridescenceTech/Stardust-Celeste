@@ -4,7 +4,7 @@
 
 namespace Stardust_Celeste::Graphics::G2D {
 
-Tilemap::Tilemap(u32 tex, glm::vec2 atlasSize) {
+Tilemap::Tilemap(u32 tex, Math::Vector2<float> atlasSize) {
     SC_CORE_ASSERT(tex != 0, "Tilemap construction: Texture ID is 0!");
     SC_CORE_ASSERT(atlasSize.x * atlasSize.y > 0,
                    "Tilemap construction: Atlas Size is <= 0!");

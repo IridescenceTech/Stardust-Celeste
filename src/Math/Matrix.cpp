@@ -37,7 +37,7 @@ namespace Stardust_Celeste::Math {
 
     Matrix Matrix::LookAt(const Vector3<float>& camera, const Vector3<float>& object, const Vector3<float>& up) {
 
-        Matrix result = identity();
+        Matrix result = Identity();
         Vector3<float> f = (object - camera).normalize();
         Vector3<float> s = f.cross(up.normalize());
         Vector3<float> u = s.cross(f);

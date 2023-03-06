@@ -26,7 +26,6 @@
 
 #include <Utilities/Assertion.hpp>
 
-#include <glm.hpp>
 #include <stb_image.hpp>
 #include <string>
 

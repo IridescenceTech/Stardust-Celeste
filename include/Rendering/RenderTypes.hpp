@@ -1,7 +1,7 @@
 #pragma once
 #include <Utilities/Types.hpp>
 #include <array>
-#include <glm.hpp>
+#include <Math/Math.hpp>
 #include <string>
 
 namespace Stardust_Celeste::Rendering {
@@ -50,8 +50,8 @@ struct VERT_PACKED Vertex {
  * extent -- Size of rectangle
  */
 struct Rectangle {
-    glm::vec2 position;
-    glm::vec2 extent;
+    Math::Vector2<float> position;
+    Math::Vector2<float> extent;
 };
 
 /**
@@ -82,7 +82,7 @@ struct Texture {
      * @param idx - The index to search for. Derived from x + y * width
      * @return Returns the 4 indices in counter-clockwise winding
      */
-    inline static std::array<float, 8> get_tile_uvs(glm::vec2 dimensions,
+    inline static std::array<float, 8> get_tile_uvs(Math::Vector2<float> dimensions,
                                                     int idx) {
         int row = idx / (int)dimensions.x;
         int column = idx % (int)dimensions.x;

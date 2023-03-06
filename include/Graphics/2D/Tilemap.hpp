@@ -28,7 +28,7 @@ struct Tile {
  */
 class Tilemap {
   public:
-    Tilemap(u32 texture, glm::vec2 atlasSize);
+    Tilemap(u32 texture, Math::Vector2<float> atlasSize);
     virtual ~Tilemap();
 
     /**
@@ -88,7 +88,7 @@ class Tilemap {
     std::vector<Tile> tileMap;
 #endif
     ScopePtr<Rendering::Mesh<Rendering::Vertex>> mesh;
-    glm::vec2 atlasDimensions;
+    Math::Vector2<float> atlasDimensions;
 };
 
 } // namespace Stardust_Celeste::Graphics::G2D

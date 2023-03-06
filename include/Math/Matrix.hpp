@@ -36,7 +36,7 @@ namespace Stardust_Celeste::Math {
             rows[3] = row3;
         }
 
-        static Matrix identity() {
+        static Matrix Identity() {
             return Matrix(1.0f);
         }
 

@@ -4,7 +4,7 @@
 #include "Utilities/Logger.hpp"
 #include "Utilities/Singleton.hpp"
 #include "Utilities/Types.hpp"
-#include <glm.hpp>
+#include <Math/Math.hpp>
 #include <vector>
 
 #include "GI.hpp"
@@ -19,9 +19,9 @@ class RenderContext final : public Singleton {
     bool is_init = false;
     Color c;
 
-    glm::mat4 *_gfx_proj;
-    glm::mat4 _gfx_persp, _gfx_ortho, _gfx_view, _gfx_model;
-    std::vector<glm::mat4> _matrixStack;
+    Math::Matrix *_gfx_proj;
+    Math::Matrix _gfx_persp, _gfx_ortho, _gfx_view, _gfx_model;
+    std::vector<Math::Matrix> _matrixStack;
 
   public:
     RenderContext()
@@ -109,21 +109,21 @@ class RenderContext final : public Singleton {
      *
      * @param v Translation
      */
-    auto matrix_translate(glm::vec3 v) -> void;
+    auto matrix_translate(Math::Vector3<float> v) -> void;
 
     /**
      * @brief Rotate model matrix by V (angle X, angle Y, angle Z)
      *
      * @param v Rotation
      */
-    auto matrix_rotate(glm::vec3 v) -> void;
+    auto matrix_rotate(Math::Vector3<float> v) -> void;
 
     /**
      * @brief Scale mode matrix by V
      *
      * @param v Scale
      */
-    auto matrix_scale(glm::vec3 v) -> void;
+    auto matrix_scale(Math::Vector3<float> v) -> void;
 
     /**
      * @brief Crerate perspective matrix
@@ -154,14 +154,14 @@ class RenderContext final : public Singleton {
      *
      * @param mat Matrix
      */
-    auto matrix_view(glm::mat4 mat) -> void;
+    auto matrix_view(Math::Matrix mat) -> void;
 
     /**
      * @brief Set View Matrix
      *
      * @param mat Matrix
      */
-    auto matrix_model(glm::mat4 mat) -> void;
+    auto matrix_model(Math::Matrix mat) -> void;
 
     /**
      * @brief Set the mode to 2D

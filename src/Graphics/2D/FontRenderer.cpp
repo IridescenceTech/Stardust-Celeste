@@ -5,7 +5,7 @@
 
 namespace Stardust_Celeste::Graphics::G2D {
 
-FontRenderer::FontRenderer(u32 texture, glm::vec2 atlasSize)
+FontRenderer::FontRenderer(u32 texture, Math::Vector2<float> atlasSize)
     : Tilemap(texture, atlasSize) {
 
     SC_CORE_ASSERT(texture != 0, "Tilemap construction: Texture ID is 0!");
@@ -52,7 +52,7 @@ FontRenderer::FontRenderer(u32 texture, glm::vec2 atlasSize)
 
 FontRenderer::~FontRenderer() { free(size_map); }
 
-auto FontRenderer::add_text(std::string text, glm::vec2 position,
+auto FontRenderer::add_text(std::string text, Math::Vector2<float> position,
                             Rendering::Color color, float layer) -> void {
     stringVector.push_back({text, position, color, layer});
 }
@@ -79,7 +79,7 @@ auto FontRenderer::generate_map() -> void {
                 c = 127;
             }
 
-            add_tile({{pos, glm::vec2(8 * scale_factor, 8 * scale_factor)},
+            add_tile({{pos, Math::Vector2<float>(8 * scale_factor, 8 * scale_factor)},
                       s.color,
                       static_cast<u16>(c),
                       s.layer});

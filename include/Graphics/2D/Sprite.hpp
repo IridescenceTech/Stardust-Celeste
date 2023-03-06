@@ -72,14 +72,14 @@ class Sprite {
      *
      * @param position Sprite Position XY
      */
-    virtual auto set_position(glm::vec2 position) -> void;
+    virtual auto set_position(Math::Vector2<float> position) -> void;
 
     /**
      * @brief Set the size of the sprite
      *
      * @param size Sprite Size WH
      */
-    virtual auto set_size(glm::vec2 size) -> void;
+    virtual auto set_size(Math::Vector2<float> size) -> void;
 
     /**
      * @brief Set the rectangle boundaries

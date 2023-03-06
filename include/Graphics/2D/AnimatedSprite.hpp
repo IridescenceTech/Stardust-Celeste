@@ -17,7 +17,7 @@ class AnimatedSprite : public Sprite {
      * @param atlasSize Atlas Size
      */
     AnimatedSprite(u32 texture, Rendering::Rectangle bounds,
-                   glm::vec2 atlasSize);
+                   Math::Vector2<float> atlasSize);
     virtual ~AnimatedSprite();
 
     /**
@@ -52,7 +52,7 @@ class AnimatedSprite : public Sprite {
 
   protected:
     float tickTimer;
-    glm::vec2 atlas;
+    Math::Vector2<float> atlas;
     u32 startIDX, endIDX, currentIDX;
 };
 

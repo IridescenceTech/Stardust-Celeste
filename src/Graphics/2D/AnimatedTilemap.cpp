@@ -3,7 +3,7 @@
 
 namespace Stardust_Celeste::Graphics::G2D {
 
-AnimatedTilemap::AnimatedTilemap(u32 tex, glm::vec2 atlasSize)
+AnimatedTilemap::AnimatedTilemap(u32 tex, Math::Vector2<float> atlasSize)
     : Tilemap(tex, atlasSize) {
     atileMap.clear();
     atime = 0.0f;

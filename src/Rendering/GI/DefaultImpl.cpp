@@ -302,10 +302,10 @@ namespace GI {
             glUniformBlockBinding(GI::programID, ubi, 0);
             glGenBuffers(1, &ubo);
             glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-            glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(glm::mat4), NULL,
+            glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(Math::Matrix), NULL,
                          GL_STATIC_DRAW);
             glBindBuffer(GL_UNIFORM_BUFFER, 0);
-            glBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo, 0, 3 * sizeof(glm::mat4));
+            glBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo, 0, 3 * sizeof(Math::Matrix));
             glBindBuffer(GL_UNIFORM_BUFFER, GI::programID);
             glEnable(GL_FRAMEBUFFER_SRGB);
 #else
@@ -533,7 +533,7 @@ namespace GI {
 #endif
     }
 
-    auto to_vec4(Color &c) -> glm::vec4 {
+    auto to_vec4(Color &c) -> Math::Vector4<float> {
         return {static_cast<float>(c.rgba.r) / 255.0f,
                 static_cast<float>(c.rgba.g) / 255.0f,
                 static_cast<float>(c.rgba.b) / 255.0f,
@@ -552,7 +552,7 @@ namespace GI {
             glClearColor(color.rgba.r, color.rgba.b, color.rgba.g, color.rgba.a);
 #else
             auto c = to_vec4(color);
-            glClearColor(c.r, c.g, c.b, c.a);
+            glClearColor(c.x, c.y, c.z, c.w);
 #endif
         } else if (rctxSettings.renderingApi == DX11) {
 #ifndef NO_EXPERIMENTAL_GRAPHICS

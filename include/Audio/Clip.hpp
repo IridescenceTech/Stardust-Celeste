@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Utilities/Types.hpp>
-#include <glm.hpp>
 #include <string>
 
 namespace Stardust_Celeste::Audio {

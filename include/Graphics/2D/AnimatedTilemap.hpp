@@ -24,7 +24,7 @@ class AnimatedTilemap : public Tilemap {
      * @param texture Texture ID
      * @param atlasSize Texture Atlas Size
      */
-    AnimatedTilemap(u32 texture, glm::vec2 atlasSize);
+    AnimatedTilemap(u32 texture, Math::Vector2<float> atlasSize);
     virtual ~AnimatedTilemap();
 
     /**

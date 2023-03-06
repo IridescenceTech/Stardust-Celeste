@@ -98,17 +98,18 @@ if(PSP)
     target_compile_options(Stardust-Celeste PUBLIC -fno-rtti)
 endif()
 
-# GLM TODO: DEPRECATED
-target_include_directories(Stardust-Celeste PUBLIC include/ ext/ ext/glm/glm/)
+# Includes
+target_include_directories(Stardust-Celeste PUBLIC include/ ext/)
 
 if(NOT VITA)
     add_subdirectory(ext/yaml)
     set_property(TARGET yaml-cpp PROPERTY POSITION_INDEPENDENT_CODE OFF)
 endif()
 
-# SC-Entry Library ARtifact
+# SC-Entry Library Artifact
 add_library(SC-Entry STATIC src/Core/Entry.cpp)
-target_include_directories(SC-Entry PUBLIC include/ ext/glm/glm/)
+# SC-Entry Include
+target_include_directories(SC-Entry PUBLIC include/)
 
 # Vulkan
 if(EXPERIMENTAL_GRAPHICS)

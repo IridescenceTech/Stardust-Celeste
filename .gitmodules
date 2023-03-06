@@ -1,9 +1,6 @@
 [submodule "ext/glfw"]
 	path = ext/glfw
 	url = https://github.com/glfw/glfw
-[submodule "ext/glm"]
-	path = ext/glm
-	url = https://github.com/g-truc/glm.git
 [submodule "ext/yaml"]
 	path = ext/yaml
 	url = https://github.com/jbeder/yaml-cpp/
