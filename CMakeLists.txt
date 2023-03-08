@@ -99,12 +99,16 @@ if(PSP)
 endif()
 
 # Includes
-target_include_directories(Stardust-Celeste PUBLIC include/ ext/)
+target_include_directories(Stardust-Celeste PUBLIC include/ ext/ ext/assimp/include)
 
 if(NOT VITA)
     add_subdirectory(ext/yaml)
     set_property(TARGET yaml-cpp PROPERTY POSITION_INDEPENDENT_CODE OFF)
 endif()
+
+# Assimp
+set(BUILD_SHARED_LIBS OFF)
+add_subdirectory(ext/assimp)
 
 # SC-Entry Library Artifact
 add_library(SC-Entry STATIC src/Core/Entry.cpp)
