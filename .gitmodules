@@ -7,3 +7,6 @@
 [submodule "ext/gu2gl"]
 	path = ext/gu2gl
 	url = https://github.com/IridescentRose/gu2gl
+[submodule "ext/assimp"]
+	path = ext/assimp
+	url = https://github.com/assimp/assimp.git
