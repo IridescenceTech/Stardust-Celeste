@@ -23,8 +23,8 @@ Current Modules Until Intial V0.6 Release:
 - [x] Audio Core
 - [x] Mathematics Library
 - [x] Vulkan
+- [x] Model loading
 - [ ] Scripting System
-- [ ] Model loading
 
 v0.7 Release: 
 - [ ] Scene Manager
