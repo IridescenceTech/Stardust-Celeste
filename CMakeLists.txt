@@ -102,7 +102,7 @@ if(PSP)
 endif()
 
 # Includes
-target_include_directories(Stardust-Celeste PUBLIC include/ ext/ ext/assimp/include)
+target_include_directories(Stardust-Celeste PUBLIC include/ ext/ ext/assimp/include ext/lua)
 
 if(NOT VITA)
     add_subdirectory(ext/yaml)
