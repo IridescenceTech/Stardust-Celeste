@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD 17)
 file(GLOB_RECURSE SRC_FILES src/*.cpp)
 file(GLOB_RECURSE INC_FILES include/*.hpp)
 
+add_compile_definitions(MAKE_LIB)
+set(LUA_LIBRARY_SRC ext/lua/onelua.c)
+
 # Whether or not to use Vulkan / Direct X Mode
 option(EXPERIMENTAL_GRAPHICS "Use Vulkan and DirectX Mode" OFF)
 
@@ -36,7 +39,7 @@ endif()
 
 if(PSP)
     list(REMOVE_ITEM SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/glad.cpp")
-    add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES})
+    add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES} ${LUA_LIBRARY_SRC})
     target_link_libraries(Stardust-Celeste PUBLIC pspgum pspgu pspge psputility pspdisplay pspctrl pspnet pspnet_apctl psppower pspaudio SDL2_mixer SDL2 pspvram xmp ogg vorbisfile vorbis psphprm GL GLU glut pspvfpu)
     target_include_directories(Stardust-Celeste PUBLIC ext/ ext/gu2gl)
 elseif(VITA)
@@ -46,12 +49,12 @@ elseif(VITA)
     setup_vita()
     file(GLOB_RECURSE YAML_FILES ext/yaml/src/*.cpp)
 
-    add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES} ${YAML_FILES})
+    add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES} ${YAML_FILES} ${LUA_LIBRARY_SRC})
     target_link_libraries(Stardust-Celeste PUBLIC SDL2_mixer SDL2 SceTouch_stub SceHid_stub vitaGL SceCtrl_stub vitashark mathneon SceShaccCg_stub SceShaccCgExt SceIme_stub SceAppMgr_stub SceGxm_stub SceCommonDialog_stub SceProcessmgr_stub SceDisplay_stub SceKernelDmacMgr_stub ScePower_stub taihen_stub SceAudioIn_stub SceAudio_stub SceMotion_stub vorbisfile vorbis ogg FLAC mikmod pthread mpg123 modplug)
 elseif(3DS)
     list(REMOVE_ITEM SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/glad.cpp")
 
-    add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES} ${YAML_FILES})
+    add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES} ${YAML_FILES} ${LUA_LIBRARY_SRC})
     target_include_directories(Stardust-Celeste PUBLIC "$ENV{DEVKITPRO}/portlibs/3ds/include" "$ENV{DEVKITPRO}/picaGL/include")
     target_link_directories(Stardust-Celeste PUBLIC "$ENV{DEVKITPRO}/picaGL/lib")
     target_link_libraries(Stardust-Celeste SDL_mixer SDL mad png vorbisidec ogg mikmod picaGL citro3d ctru)
@@ -61,7 +64,7 @@ else()
     set(GLFW_BUILD_DOCS OFF CACHE BOOL "Build GLFW without docs")
     add_subdirectory(ext/glfw)
 
-    add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES})
+    add_library(Stardust-Celeste STATIC ${SRC_FILES} ${INC_FILES} ${LUA_LIBRARY_SRC})
 
     target_include_directories(Stardust-Celeste PUBLIC ext/glfw/include/)
     target_link_libraries(Stardust-Celeste PUBLIC glfw)

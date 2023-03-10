@@ -10,3 +10,6 @@
 [submodule "ext/assimp"]
 	path = ext/assimp
 	url = https://github.com/assimp/assimp.git
+[submodule "ext/lua"]
+	path = ext/lua
+	url = https://github.com/lua/lua.git
