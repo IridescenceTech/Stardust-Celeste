@@ -41,3 +41,5 @@ build-example-vita
 psp_output
 ppsspp_headless
 ppsspp_headless.*
+cmake-*
+*.idea

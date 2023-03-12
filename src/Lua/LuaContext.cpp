@@ -1,7 +1,10 @@
 #include <Lua/LuaContext.hpp>
+
+extern "C" {
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
+}
 
 namespace Stardust_Celeste::Scripting {
     LuaContext::~LuaContext() {
