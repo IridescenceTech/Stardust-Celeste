@@ -1,5 +1,6 @@
 #include <Lua/LuaContext.hpp>
 #include <Rendering/RenderContext.hpp>
+#include <Rendering/Texture.hpp>
 
 extern "C" {
 #include <lua.h>
@@ -236,6 +237,55 @@ namespace Modules::Rendering {
         registerLibrary("RenderContext", rctxLib);
     }
 
+    SDC_LAPI _texmbind(_L) {
+        int argc = lua_gettop(L);
+        if(argc != 1) {
+            return luaL_error(L, "Error: TextureManager.bind() takes 1 argument.");
+        }
+
+        auto x = luaL_checkinteger(L, 1);
+
+        Stardust_Celeste::Rendering::TextureManager::get().bind_texture(x);
+        return 0;
+    }
+
+    SDC_LAPI _texmload(_L) {
+        int argc = lua_gettop(L);
+        if(argc != 1) {
+            return luaL_error(L, "Error: TextureManager.load() takes 1 argument.");
+        }
+
+        auto file = luaL_checkstring(L, 256);
+
+        auto x = Stardust_Celeste::Rendering::TextureManager::get().load_texture(file, SC_TEX_FILTER_NEAREST, SC_TEX_FILTER_NEAREST, true);
+
+        lua_pushinteger(L, x);
+        return 1;
+    }
+
+    SDC_LAPI _texmdelete(_L) {
+        int argc = lua_gettop(L);
+        if(argc != 1) {
+            return luaL_error(L, "Error: TextureManager.delete() takes 1 argument.");
+        }
+
+        auto x = luaL_checkinteger(L, 1);
+
+        Stardust_Celeste::Rendering::TextureManager::get().delete_texture(x);
+        return 0;
+    }
+
+
+    static const luaL_Reg texLib [] = {
+            {"load", _texmload},
+            {"bind", _texmbind},
+            {"delete", _texmdelete},
+            {0, 0}
+    };
+
+    void initialize_texture() {
+        registerLibrary("TextureManager", texLib);
+    }
 }
 
 namespace Stardust_Celeste::Scripting {
@@ -249,6 +299,7 @@ namespace Stardust_Celeste::Scripting {
 
         // Load Modules
         Modules::Rendering::initialize_rendering();
+        Modules::Rendering::initialize_texture();
     }
 
     auto LuaContext::cleanup() -> void {

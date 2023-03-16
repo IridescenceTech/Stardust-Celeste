@@ -7,7 +7,7 @@
 
 ### Rendering
 - [x] Render Context Global
-- [ ] Texture Loader Global
+- [x] Texture Loader Global
 - [ ] Mesh Object
 - [ ] Rectangle Object
 - [ ] Camera Object
