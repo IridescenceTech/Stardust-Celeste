@@ -6,7 +6,7 @@
 - [ ] Audio Clip
 
 ### Rendering
-- [ ] Render Context Global
+- [x] Render Context Global
 - [ ] Texture Loader Global
 - [ ] Mesh Object
 - [ ] Rectangle Object
@@ -20,7 +20,6 @@
 - [ ] Font Renderer
 
 ### Math
-- [ ] Matrix Object
 - [ ] Vector Object
 - [ ] Math Utils Global
 
