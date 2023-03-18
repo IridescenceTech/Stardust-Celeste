@@ -3,7 +3,7 @@
 ## Modules
 
 ### Audio
-- [ ] Audio Clip
+- [x] Audio Clip
 
 ### Rendering
 - [x] Render Context Global

@@ -2,6 +2,7 @@
 #include <Rendering/RenderContext.hpp>
 #include <Rendering/Texture.hpp>
 #include <Utilities/Utilities.hpp>
+#include <Audio/Clip.hpp>
 
 extern "C" {
 #include <lua.h>
@@ -98,6 +99,156 @@ namespace Modules::Utilities {
 
     void initialize_utils() {
         registerLibrary("Logger", logLib);
+    }
+}
+
+namespace Modules::Audio {
+
+    SDC_LAPI _audioload(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 2)
+            return luaL_error(L, "Error: AudioClip.load() takes 2 arguments.");
+
+
+        const char* filename = luaL_checkstring(L, 1);
+        bool streaming = luaL_checkinteger(L, 2);
+
+        void* pptr_location = lua_newuserdata(L, sizeof(Stardust_Celeste::Audio::Clip*));
+        Stardust_Celeste::Audio::Clip** pptr = static_cast<Stardust_Celeste::Audio::Clip **>(pptr_location);
+        *pptr = new Stardust_Celeste::Audio::Clip(filename, streaming);
+
+        luaL_getmetatable(L, "AudioClip");
+        lua_setmetatable(L, -2);
+
+        return 1;
+    }
+
+    Stardust_Celeste::Audio::Clip** getClip(lua_State* L){
+        return (Stardust_Celeste::Audio::Clip**)luaL_checkudata(L, 1, "AudioClip");
+    }
+
+    SDC_LAPI _audiodestroy(_L) {
+        auto clip = getClip(L);
+        delete (*clip);
+
+        return 0;
+    }
+
+    SDC_LAPI _audioloop(_L) {
+        auto clip = *getClip(L);
+
+        int argc = lua_gettop(L);
+
+        if(argc != 1) {
+            return luaL_error(L, "Error: AudioClip.set_loop() takes 1 argument.");
+        }
+
+        bool b = luaL_checkinteger(L, 1);
+        clip->set_looping(b);
+
+        return 0;
+    }
+
+    SDC_LAPI _audiovolume(_L) {
+        auto clip = *getClip(L);
+
+        int argc = lua_gettop(L);
+
+        if(argc != 1) {
+            return luaL_error(L, "Error: AudioClip.set_volume() takes 1 argument.");
+        }
+
+        float b = luaL_checknumber(L, 1);
+        clip->set_volume(b);
+
+        return 0;
+    }
+
+    SDC_LAPI _audioplay(_L) {
+        auto clip = *getClip(L);
+
+        int argc = lua_gettop(L);
+
+        if(argc != 0) {
+            return luaL_error(L, "Error: AudioClip.play() takes 0 arguments.");
+        }
+
+        clip->play();
+
+        return 0;
+    }
+
+    SDC_LAPI _audiopause(_L) {
+        auto clip = *getClip(L);
+
+        int argc = lua_gettop(L);
+
+        if(argc != 0) {
+            return luaL_error(L, "Error: AudioClip.pause() takes 0 arguments.");
+        }
+
+        clip->pause();
+
+        return 0;
+    }
+
+    SDC_LAPI _audiostop(_L) {
+        auto clip = *getClip(L);
+
+        int argc = lua_gettop(L);
+
+        if(argc != 0) {
+            return luaL_error(L, "Error: AudioClip.stop() takes 0 arguments.");
+        }
+
+        clip->stop();
+
+        return 0;
+    }
+
+    static const luaL_Reg audioLib[] = {
+            {"load", _audioload},
+            {"destroy", _audiodestroy},
+            {"set_loop", _audioloop},
+            {"set_volume", _audiovolume},
+            {"play", _audioplay},
+            {"pause", _audiopause},
+            {"stop", _audiostop},
+            {0,0}
+    };
+
+    static const luaL_Reg audioMetaLib[] = {
+            {"__gc", _audiodestroy},
+            {0,0}
+    };
+
+    void initialize_audio() {
+        auto L = reinterpret_cast<lua_State*>(Stardust_Celeste::Scripting::LuaContext::get().lua_context);
+
+        int lib_id, meta_id;
+
+        // new class = {}
+        lua_createtable(L, 0, 0);
+        lib_id = lua_gettop(L);
+
+        // meta table = {}
+        luaL_newmetatable(L, "AudioClip");
+        meta_id = lua_gettop(L);
+        luaL_setfuncs(L, audioMetaLib, 0);
+
+        // meta table = methods
+        luaL_newlib(L, audioLib);
+        lua_setfield(L, meta_id, "__index");
+
+        // meta table.metatable = metatable
+        luaL_newlib(L, audioMetaLib);
+        lua_setfield(L, meta_id, "__metatable");
+
+        // class.metatable = metatable
+        lua_setmetatable(L, lib_id);
+
+        // AudioClip
+        lua_setglobal(L, "AudioClip");
     }
 }
 
@@ -413,6 +564,8 @@ namespace Stardust_Celeste::Scripting {
 
         Modules::Rendering::initialize_rendering();
         Modules::Rendering::initialize_texture();
+
+        Modules::Audio::initialize_audio();
     }
 
     auto LuaContext::cleanup() -> void {
