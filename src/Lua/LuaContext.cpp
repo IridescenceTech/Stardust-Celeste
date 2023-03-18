@@ -104,6 +104,31 @@ namespace Modules::Utilities {
 namespace Modules::Rendering {
     using namespace Stardust_Celeste;
 
+    SDC_LAPI _colorcreate(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 4)
+            return luaL_error(L, "Error: Color.create() takes 4 arguments.");
+
+        int r = luaL_checkinteger(L, 1);
+        int g = luaL_checkinteger(L, 2);
+        int b = luaL_checkinteger(L, 3);
+        int a = luaL_checkinteger(L, 4);
+
+        GI::Color color{};
+        color.rgba.r = r;
+        color.rgba.g = g;
+        color.rgba.b = b;
+        color.rgba.a = a;
+
+        lua_pushinteger(L, color.color);
+        return 1;
+    }
+
+    static const luaL_Reg colorLib[] = {
+            {"create", _colorcreate},
+            {0, 0}
+    };
+
     SDC_LAPI _rctxclear(_L) {
         int argc = lua_gettop(L);
         if (argc != 0) {
@@ -118,18 +143,25 @@ namespace Modules::Rendering {
 
     SDC_LAPI _rctxclearcolor(_L) {
         int argc = lua_gettop(L);
-        if (argc != 4) {
-            return luaL_error(L, "Error: RenderContext.clearColor() takes 4 arguments.");
+        if (argc != 4 && argc != 1) {
+            return luaL_error(L, "Error: RenderContext.clearColor() takes 1 or 4 arguments.");
         }
 
         auto rctx = &(Stardust_Celeste::Rendering::RenderContext::get());
 
-        u8 r = luaL_checkinteger(L, 1);
-        u8 g = luaL_checkinteger(L, 2);
-        u8 b = luaL_checkinteger(L, 3);
-        u8 a = luaL_checkinteger(L, 4);
+        if(argc == 1) {
+            auto col = luaL_checkinteger(L, 1);
+            GI::Color c;
+            c.color = col;
+            rctx->set_color(c);
+        } else {
+            u8 r = luaL_checkinteger(L, 1);
+            u8 g = luaL_checkinteger(L, 2);
+            u8 b = luaL_checkinteger(L, 3);
+            u8 a = luaL_checkinteger(L, 4);
 
-        rctx->set_color({r, g, b, a});
+            rctx->set_color({r, g, b, a});
+        }
 
         return 0;
     }
@@ -312,6 +344,7 @@ namespace Modules::Rendering {
     };
 
     void initialize_rendering() {
+        registerLibrary("Color", colorLib);
         registerLibrary("RenderContext", rctxLib);
     }
 

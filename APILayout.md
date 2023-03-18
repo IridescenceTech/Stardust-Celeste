@@ -25,6 +25,6 @@
 
 ### Utilities
 - [ ] Input State
-- [ ] Color
+- [x] Color
 - [ ] Timer
 - [x] Logger
