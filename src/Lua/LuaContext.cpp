@@ -1,6 +1,7 @@
 #include <Lua/LuaContext.hpp>
 #include <Rendering/RenderContext.hpp>
 #include <Rendering/Texture.hpp>
+#include <Utilities/Utilities.hpp>
 
 extern "C" {
 #include <lua.h>
@@ -23,6 +24,83 @@ void registerLibrary(const char* libname, const luaL_Reg* library) {
 
 #define _L lua_State* L
 #define SDC_LAPI static int
+
+namespace Modules::Utilities {
+
+    SDC_LAPI _logtrace(_L) {
+        int argc = lua_gettop(L);
+        if(argc != 1) {
+            return luaL_error(L, "Error: Logger.trace() takes 1 argument.");
+        }
+
+        auto msg = luaL_checkstring(L, 1);
+        SC_APP_TRACE("{}", msg);
+
+        return 0;
+    }
+
+    SDC_LAPI _logdebug(_L) {
+        int argc = lua_gettop(L);
+        if(argc != 1) {
+            return luaL_error(L, "Error: Logger.trace() takes 1 argument.");
+        }
+
+        auto msg = luaL_checkstring(L, 1);
+        SC_APP_DEBUG("{}", msg);
+
+        return 0;
+    }
+
+    SDC_LAPI _loginfo(_L) {
+        int argc = lua_gettop(L);
+        if(argc != 1) {
+            return luaL_error(L, "Error: Logger.trace() takes 1 argument.");
+        }
+
+        auto msg = luaL_checkstring(L, 1);
+        SC_APP_INFO("{}", msg);
+
+        return 0;
+    }
+
+    SDC_LAPI _logwarn(_L) {
+        int argc = lua_gettop(L);
+        if(argc != 1) {
+            return luaL_error(L, "Error: Logger.trace() takes 1 argument.");
+        }
+
+        auto msg = luaL_checkstring(L, 1);
+        SC_APP_WARN("{}", msg);
+
+        return 0;
+    }
+
+    SDC_LAPI _logerror(_L) {
+        int argc = lua_gettop(L);
+        if(argc != 1) {
+            return luaL_error(L, "Error: Logger.trace() takes 1 argument.");
+        }
+
+        auto msg = luaL_checkstring(L, 1);
+        SC_APP_ERROR("{}", msg);
+
+        return 0;
+    }
+
+    static const luaL_Reg logLib [] = {
+            {"trace", _logtrace},
+            {"debug", _logdebug},
+            {"info", _loginfo},
+            {"warn", _logwarn},
+            {"error", _logerror},
+            {0, 0}
+    };
+
+    void initialize_utils() {
+        registerLibrary("Logger", logLib);
+    }
+}
+
 namespace Modules::Rendering {
     using namespace Stardust_Celeste;
 
@@ -255,7 +333,7 @@ namespace Modules::Rendering {
             return luaL_error(L, "Error: TextureManager.load() takes 1 argument.");
         }
 
-        auto file = luaL_checkstring(L, 256);
+        auto file = luaL_checkstring(L, 1);
 
         auto x = Stardust_Celeste::Rendering::TextureManager::get().load_texture(file, SC_TEX_FILTER_NEAREST, SC_TEX_FILTER_NEAREST, true);
 
@@ -298,6 +376,8 @@ namespace Stardust_Celeste::Scripting {
         luaL_openlibs(reinterpret_cast<lua_State*>(lua_context));
 
         // Load Modules
+        Modules::Utilities::initialize_utils();
+
         Modules::Rendering::initialize_rendering();
         Modules::Rendering::initialize_texture();
     }

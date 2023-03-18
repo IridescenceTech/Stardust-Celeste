@@ -27,4 +27,4 @@
 - [ ] Input State
 - [ ] Color
 - [ ] Timer
-- [ ] Logger
+- [x] Logger
