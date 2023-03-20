@@ -3,6 +3,7 @@
 #include <Rendering/Texture.hpp>
 #include <Utilities/Utilities.hpp>
 #include <Audio/Clip.hpp>
+#include <Graphics/2D/Sprite.hpp>
 
 extern "C" {
 #include <lua.h>
@@ -139,11 +140,11 @@ namespace Modules::Audio {
 
         int argc = lua_gettop(L);
 
-        if(argc != 1) {
-            return luaL_error(L, "Error: AudioClip.set_loop() takes 1 argument.");
+        if(argc != 2) {
+            return luaL_error(L, "Error: AudioClip.set_loop() takes 2 argument.");
         }
 
-        bool b = luaL_checkinteger(L, 1);
+        bool b = luaL_checkinteger(L, 2);
         clip->set_looping(b);
 
         return 0;
@@ -154,11 +155,11 @@ namespace Modules::Audio {
 
         int argc = lua_gettop(L);
 
-        if(argc != 1) {
-            return luaL_error(L, "Error: AudioClip.set_volume() takes 1 argument.");
+        if(argc != 2) {
+            return luaL_error(L, "Error: AudioClip.set_volume() takes 2 arguments.");
         }
 
-        float b = luaL_checknumber(L, 1);
+        float b = luaL_checknumber(L, 2);
         clip->set_volume(b);
 
         return 0;
@@ -169,8 +170,8 @@ namespace Modules::Audio {
 
         int argc = lua_gettop(L);
 
-        if(argc != 0) {
-            return luaL_error(L, "Error: AudioClip.play() takes 0 arguments.");
+        if(argc != 1) {
+            return luaL_error(L, "Error: AudioClip.play() takes 1 argument.");
         }
 
         clip->play();
@@ -183,8 +184,8 @@ namespace Modules::Audio {
 
         int argc = lua_gettop(L);
 
-        if(argc != 0) {
-            return luaL_error(L, "Error: AudioClip.pause() takes 0 arguments.");
+        if(argc != 1) {
+            return luaL_error(L, "Error: AudioClip.pause() takes 1 argument.");
         }
 
         clip->pause();
@@ -449,7 +450,7 @@ namespace Modules::Rendering {
     SDC_LAPI _rctxmatrixortho(_L) {
         int argc = lua_gettop(L);
         if(argc != 6) {
-            return luaL_error(L, "Error: RenderContext.matrixOrtho() takes 4 arguments.");
+            return luaL_error(L, "Error: RenderContext.matrixOrtho() takes 6 arguments.");
         }
 
         auto x = luaL_checknumber(L, 1);
@@ -550,6 +551,185 @@ namespace Modules::Rendering {
     }
 }
 
+namespace Modules::Graphics {
+
+    SDC_LAPI _spritecreate(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 3)
+            return luaL_error(L, "Error: Sprite.create() takes 3 arguments.");
+
+        u32 tex = luaL_checkinteger(L, 1);
+        float sx = luaL_checknumber(L, 2);
+        float sy = luaL_checknumber(L, 3);
+
+        void* pptr_location = lua_newuserdata(L, sizeof(Stardust_Celeste::Graphics::G2D::Sprite*));
+        Stardust_Celeste::Graphics::G2D::Sprite** pptr = static_cast<Stardust_Celeste::Graphics::G2D::Sprite**>(pptr_location);
+        *pptr = new Stardust_Celeste::Graphics::G2D::Sprite(tex, {{0, 0}, {sx, sy}});
+
+        luaL_getmetatable(L, "Sprite");
+        lua_setmetatable(L, -2);
+
+        return 1;
+    }
+
+    Stardust_Celeste::Graphics::G2D::Sprite** getSprite(lua_State* L){
+        return (Stardust_Celeste::Graphics::G2D::Sprite**)luaL_checkudata(L, 1, "Sprite");
+    }
+
+    SDC_LAPI _spritedestroy(_L) {
+        auto sprite = getSprite(L);
+        delete (*sprite);
+
+        return 0;
+    }
+
+    SDC_LAPI _spriteupdate(_L) {
+        int argc = lua_gettop(L);
+        if(argc != 2)
+            return luaL_error(L, "Error: Sprite.update() takes 2 arguments.");
+
+        auto sprite = *getSprite(L);
+
+        auto dt = luaL_checknumber(L, 2);
+        sprite->update(dt);
+
+        return 0;
+    }
+
+    SDC_LAPI _spritedraw(_L) {
+        int argc = lua_gettop(L);
+        if(argc != 1)
+            return luaL_error(L, "Error: Sprite.draw() takes 1 argument.");
+
+        auto sprite = *getSprite(L);
+        sprite->draw();
+
+        return 0;
+    }
+
+    SDC_LAPI _spritesetpos(_L) {
+        int argc = lua_gettop(L);
+        if(argc != 3)
+            return luaL_error(L, "Error: Sprite.setPosition() takes 3 arguments.");
+
+        auto x = luaL_checknumber(L, 2);
+        auto y = luaL_checknumber(L, 3);
+
+        auto sprite = *getSprite(L);
+        sprite->set_position({static_cast<float>(x), static_cast<float>(y)});
+
+        return 0;
+    }
+
+    SDC_LAPI _spritesetsize(_L) {
+        int argc = lua_gettop(L);
+        if(argc != 3)
+            return luaL_error(L, "Error: Sprite.setSize() takes 3 arguments.");
+
+        auto x = luaL_checknumber(L, 2);
+        auto y = luaL_checknumber(L, 3);
+
+        auto sprite = *getSprite(L);
+        sprite->set_size({static_cast<float>(x), static_cast<float>(y)});
+
+        return 0;
+    }
+
+    SDC_LAPI _spritesetlayer(_L) {
+        int argc = lua_gettop(L);
+        if(argc != 2)
+            return luaL_error(L, "Error: Sprite.setLayer() takes 2 argument.");
+
+        auto x = luaL_checkinteger(L, 2);
+
+        auto sprite = *getSprite(L);
+        sprite->set_layer(x);
+
+        return 0;
+    }
+
+    SDC_LAPI _spritesetcolor(_L) {
+        int argc = lua_gettop(L);
+        if(argc != 2)
+            return luaL_error(L, "Error: Sprite.setColor() takes 2 argument.");
+
+        auto x = luaL_checkinteger(L, 2);
+
+        auto sprite = *getSprite(L);
+
+        GI::Color c;
+        c.color = x;
+
+        sprite->set_color(c);
+        return 0;
+    }
+
+
+    SDC_LAPI _spritesettexsel(_L) {
+        int argc = lua_gettop(L);
+        if(argc != 5)
+            return luaL_error(L, "Error: Sprite.setTexSel() takes 5 arguments.");
+
+        auto x = static_cast<float>(luaL_checknumber(L, 2));
+        auto y = static_cast<float>(luaL_checknumber(L, 3));
+        auto w = static_cast<float>(luaL_checknumber(L, 4));
+        auto h = static_cast<float>(luaL_checknumber(L, 5));
+
+        auto sprite = *getSprite(L);
+        sprite->set_selection({ {x, y}, {w, h}});
+
+        return 0;
+    }
+
+    static const luaL_Reg spriteLib[] = {
+            {"create", _spritecreate},
+            {"destroy", _spritedestroy},
+            {"update", _spriteupdate},
+            {"draw", _spritedraw},
+            {"setPosition", _spritesetpos},
+            {"setSize", _spritesetsize},
+            {"setLayer", _spritesetlayer},
+            {"setColor", _spritesetcolor},
+            {"setTexSel", _spritesettexsel},
+            {0,0}
+    };
+
+    static const luaL_Reg spriteMetaLib[] = {
+            {"__gc", _spritedestroy},
+            {0,0}
+    };
+
+    void initialize_sprites() {
+        auto L = reinterpret_cast<lua_State*>(Stardust_Celeste::Scripting::LuaContext::get().lua_context);
+
+        int lib_id, meta_id;
+
+        // new class = {}
+        lua_createtable(L, 0, 0);
+        lib_id = lua_gettop(L);
+
+        // meta table = {}
+        luaL_newmetatable(L, "Sprite");
+        meta_id = lua_gettop(L);
+        luaL_setfuncs(L, spriteMetaLib, 0);
+
+        // meta table = methods
+        luaL_newlib(L, spriteLib);
+        lua_setfield(L, meta_id, "__index");
+
+        // meta table.metatable = metatable
+        luaL_newlib(L, spriteMetaLib);
+        lua_setfield(L, meta_id, "__metatable");
+
+        // class.metatable = metatable
+        lua_setmetatable(L, lib_id);
+
+        // AudioClip
+        lua_setglobal(L, "Sprite");
+    }
+
+}
+
 namespace Stardust_Celeste::Scripting {
     LuaContext::~LuaContext() {
         cleanup();
@@ -560,12 +740,14 @@ namespace Stardust_Celeste::Scripting {
         luaL_openlibs(reinterpret_cast<lua_State*>(lua_context));
 
         // Load Modules
-        Modules::Utilities::initialize_utils();
+        Modules::Audio::initialize_audio();
 
         Modules::Rendering::initialize_rendering();
         Modules::Rendering::initialize_texture();
 
-        Modules::Audio::initialize_audio();
+        Modules::Utilities::initialize_utils();
+
+        Modules::Graphics::initialize_sprites();
     }
 
     auto LuaContext::cleanup() -> void {

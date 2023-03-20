@@ -9,11 +9,10 @@
 - [x] Render Context Global
 - [x] Texture Loader Global
 - [ ] Mesh Object
-- [ ] Rectangle Object
 - [ ] Camera Object
 
 ### Graphics
-- [ ] Sprite Object
+- [x] Sprite Object
 - [ ] Animated Sprite Object
 - [ ] Tilemap Object
 - [ ] Animated Tilemap Object
