@@ -8,22 +8,21 @@
 ### Rendering
 - [x] Render Context Global
 - [x] Texture Loader Global
-- [ ] Mesh Object
 - [ ] Camera Object
+- [ ] Mesh Object
 
 ### Graphics
 - [x] Sprite Object
-  - [x] Animated Sprite Object
+- [x] Animated Sprite Object
 - [ ] Tilemap Object
 - [ ] Animated Tilemap Object
 - [ ] Font Renderer
 
 ### Math
-- [ ] Vector Object
-- [ ] Math Utils Global
+- [x] Math Utils Global
 
 ### Utilities
 - [ ] Input State
 - [x] Color
-- [ ] Timer
+- [X] Timer
 - [x] Logger

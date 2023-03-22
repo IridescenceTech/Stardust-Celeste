@@ -5,6 +5,7 @@
 #include <Audio/Clip.hpp>
 #include <Graphics/2D/Sprite.hpp>
 #include <Graphics/2D/AnimatedSprite.hpp>
+#include <Math/MathUtils.hpp>
 
 extern "C" {
 #include <lua.h>
@@ -99,8 +100,206 @@ namespace Modules::Utilities {
             {0, 0}
     };
 
+    SDC_LAPI _timercreate(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 0)
+            return luaL_error(L, "Error: Timer.create() takes 0 arguments.");
+
+        void* ptimer = lua_newuserdata(L,sizeof(Stardust_Celeste::Utilities::Timer));
+        auto timer = static_cast<Stardust_Celeste::Utilities::Timer*>(ptimer);
+        timer = new Stardust_Celeste::Utilities::Timer();
+        timer->reset();
+
+        luaL_getmetatable(L, "Timer");
+        lua_setmetatable(L, -2);
+
+        return 1;
+    }
+
+    Stardust_Celeste::Utilities::Timer* getTimer(lua_State* L){
+        return (Stardust_Celeste::Utilities::Timer*)luaL_checkudata(L, 1, "Timer");
+    }
+
+    SDC_LAPI _timerdestroy(_L) {
+        auto t = getTimer(L);
+        delete t;
+
+        return 0;
+    }
+
+    static int _timerdelta(lua_State* L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Timer.delta() takes 1 argument.");
+
+        auto t = getTimer(L);
+        float delta = t->get_delta_time();
+
+        lua_pushnumber(L, delta);
+        return 1;
+    }
+
+    static int _timerreset(lua_State* L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Timer.reset() takes 1 argument.");
+
+        auto t = getTimer(L);
+        t->reset();
+
+        return 0;
+    }
+
+    static int _timerelapsed(lua_State* L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Timer.elapsed() takes 1 argument.");
+
+        auto t = getTimer(L);
+        float elapsed = t->elapsed();
+
+        lua_pushnumber(L, elapsed);
+        return 1;
+    }
+
+    static const luaL_Reg timerLib [] = { // Timer methods
+            {"create", _timercreate},
+            {"destroy", _timerdestroy},
+            {"delta", _timerdelta},
+            {"reset", _timerreset},
+            {"elapsed", _timerelapsed},
+            {0,0}
+    };
+
+    static const luaL_Reg timerMetaLib [] = {
+            {"__gc", _timerdestroy},
+            {0,0}
+    };
+
+    SDC_LAPI _todeg(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: MathUtil.toDeg() takes 1 argument.");
+
+        auto x = luaL_checknumber(L, 1);
+
+        auto r = Stardust_Celeste::Math::toDegrees(x);
+
+        lua_pushnumber(L, r);
+        return 1;
+    }
+
+    SDC_LAPI _torad(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: MathUtil.toRad() takes 1 argument.");
+
+        auto x = luaL_checknumber(L, 1);
+
+        auto r = Stardust_Celeste::Math::toRadians(x);
+
+        lua_pushnumber(L, r);
+        return 1;
+    }
+
+    SDC_LAPI _sign(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: MathUtil.sign() takes 1 argument.");
+
+        auto x = luaL_checknumber(L, 1);
+
+        auto r = Stardust_Celeste::Math::sign(x);
+
+        lua_pushnumber(L, r);
+        return 1;
+    }
+
+    SDC_LAPI _clamp(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 3)
+            return luaL_error(L, "Error: MathUtil.clamp() takes 3 arguments.");
+
+        auto x = luaL_checknumber(L, 1);
+        auto y = luaL_checknumber(L, 2);
+        auto z = luaL_checknumber(L, 3);
+
+        auto r = Stardust_Celeste::Math::clamp(x, y, z);
+
+        lua_pushnumber(L, r);
+        return 1;
+    }
+
+    SDC_LAPI _lerp(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 3)
+            return luaL_error(L, "Error: MathUtil.lerp() takes 3 arguments.");
+
+        auto x = luaL_checknumber(L, 1);
+        auto y = luaL_checknumber(L, 2);
+        auto z = luaL_checknumber(L, 3);
+
+        auto r = Stardust_Celeste::Math::lerp(x, y, z);
+
+        lua_pushnumber(L, r);
+        return 1;
+    }
+
+    SDC_LAPI _smoothstep(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 3)
+            return luaL_error(L, "Error: MathUtil.smoothstep() takes 3 arguments.");
+
+        auto x = luaL_checknumber(L, 1);
+        auto y = luaL_checknumber(L, 2);
+        auto z = luaL_checknumber(L, 3);
+
+        auto r = Stardust_Celeste::Math::smoothstep(x, y, z);
+
+        lua_pushnumber(L, r);
+        return 1;
+    }
+
+    static const luaL_Reg mathuLib [] = {
+            {"toDeg", _todeg},
+            {"toRad", _torad},
+            {"sign", _sign},
+            {"clamp", _clamp},
+            {"lerp", _lerp},
+            {"smoothstep", _smoothstep},
+            {0, 0}
+    };
+
     void initialize_utils() {
         registerLibrary("Logger", logLib);
+        registerLibrary("MathUtil", mathuLib);
+
+        auto L = reinterpret_cast<lua_State*>(Stardust_Celeste::Scripting::LuaContext::get().lua_context);
+
+        int lib_id, meta_id;
+
+        // new class = {}
+        lua_createtable(L, 0, 0);
+        lib_id = lua_gettop(L);
+
+        // meta table = {}
+        luaL_newmetatable(L, "Timer");
+        meta_id = lua_gettop(L);
+        luaL_setfuncs(L, timerMetaLib, 0);
+
+        // meta table = methods
+        luaL_newlib(L, timerLib);
+        lua_setfield(L, meta_id, "__index");
+
+        // meta table.metatable = metatable
+        luaL_newlib(L, timerMetaLib);
+        lua_setfield(L, meta_id, "__metatable");
+
+        // class.metatable = metatable
+        lua_setmetatable(L, lib_id);
+
+        // AudioClip
+        lua_setglobal(L, "Timer");
     }
 }
 
