@@ -13,7 +13,7 @@
 
 ### Graphics
 - [x] Sprite Object
-- [ ] Animated Sprite Object
+  - [x] Animated Sprite Object
 - [ ] Tilemap Object
 - [ ] Animated Tilemap Object
 - [ ] Font Renderer

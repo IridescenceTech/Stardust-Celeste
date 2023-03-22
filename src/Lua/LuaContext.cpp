@@ -4,6 +4,7 @@
 #include <Utilities/Utilities.hpp>
 #include <Audio/Clip.hpp>
 #include <Graphics/2D/Sprite.hpp>
+#include <Graphics/2D/AnimatedSprite.hpp>
 
 extern "C" {
 #include <lua.h>
@@ -572,6 +573,27 @@ namespace Modules::Graphics {
         return 1;
     }
 
+    SDC_LAPI _spritecreatea(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 3)
+            return luaL_error(L, "Error: Sprite.createAnimated() takes 5 arguments.");
+
+        u32 tex = luaL_checkinteger(L, 1);
+        float sx = luaL_checknumber(L, 2);
+        float sy = luaL_checknumber(L, 3);
+        float su = luaL_checknumber(L, 4);
+        float sv = luaL_checknumber(L, 5);
+
+        void* pptr_location = lua_newuserdata(L, sizeof(Stardust_Celeste::Graphics::G2D::Sprite*));
+        Stardust_Celeste::Graphics::G2D::Sprite** pptr = static_cast<Stardust_Celeste::Graphics::G2D::Sprite**>(pptr_location);
+        *pptr = new Stardust_Celeste::Graphics::G2D::AnimatedSprite(tex, {{0, 0}, {sx, sy}}, {su, sv});
+
+        luaL_getmetatable(L, "Sprite");
+        lua_setmetatable(L, -2);
+
+        return 1;
+    }
+
     Stardust_Celeste::Graphics::G2D::Sprite** getSprite(lua_State* L){
         return (Stardust_Celeste::Graphics::G2D::Sprite**)luaL_checkudata(L, 1, "Sprite");
     }
@@ -681,10 +703,37 @@ namespace Modules::Graphics {
         return 0;
     }
 
+    SDC_LAPI _spritetick(_L) {
+        int argc = lua_gettop(L);
+        if(argc != 1)
+            return luaL_error(L, "Error: Sprite.update() takes 1 argument.");
+
+        auto sprite = static_cast<Stardust_Celeste::Graphics::G2D::AnimatedSprite*>(*getSprite(L));
+        sprite->tick();
+
+        return 0;
+    }
+
+    SDC_LAPI _spritetickrate(_L) {
+        int argc = lua_gettop(L);
+        if(argc != 2)
+            return luaL_error(L, "Error: Sprite.setTickRate() takes 2 arguments.");
+
+        auto sprite = static_cast<Stardust_Celeste::Graphics::G2D::AnimatedSprite*>(*getSprite(L));
+
+        auto x = luaL_checknumber(L, 2);
+        sprite->ticksPerSec = x;
+
+        return 0;
+    }
+
     static const luaL_Reg spriteLib[] = {
             {"create", _spritecreate},
+            {"createAnimated", _spritecreatea},
             {"destroy", _spritedestroy},
             {"update", _spriteupdate},
+            {"tick", _spritetick},
+            {"setTickRate", _spritetickrate},
             {"draw", _spritedraw},
             {"setPosition", _spritesetpos},
             {"setSize", _spritesetsize},
