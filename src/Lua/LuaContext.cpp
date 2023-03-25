@@ -6,6 +6,7 @@
 #include <Graphics/2D/Sprite.hpp>
 #include <Graphics/2D/AnimatedSprite.hpp>
 #include <Math/MathUtils.hpp>
+#include <Rendering/Camera.hpp>
 
 extern "C" {
 #include <lua.h>
@@ -298,7 +299,6 @@ namespace Modules::Utilities {
         // class.metatable = metatable
         lua_setmetatable(L, lib_id);
 
-        // AudioClip
         lua_setglobal(L, "Timer");
     }
 }
@@ -753,6 +753,126 @@ namespace Modules::Rendering {
 
 namespace Modules::Graphics {
 
+    SDC_LAPI _cameracreate(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 4)
+            return luaL_error(L, "Error: Camera.create() takes 4 arguments.");
+
+        float x = luaL_checknumber(L, 1);
+        float y = luaL_checknumber(L, 2);
+        float z = luaL_checknumber(L, 3);
+        float w = luaL_checknumber(L, 4);
+
+        void* pptr_location = lua_newuserdata(L, sizeof(Stardust_Celeste::Rendering::Camera*));
+        Stardust_Celeste::Rendering::Camera** pptr = static_cast<Stardust_Celeste::Rendering::Camera**>(pptr_location);
+        *pptr = new Stardust_Celeste::Rendering::Camera({0, 0, 0}, {0, 0, 0}, x, y, z, w);
+
+        luaL_getmetatable(L, "Camera");
+        lua_setmetatable(L, -2);
+
+        return 1;
+    }
+
+    Stardust_Celeste::Rendering::Camera** getCam(lua_State* L){
+        return (Stardust_Celeste::Rendering::Camera**)luaL_checkudata(L, 1, "Camera");
+    }
+
+
+    SDC_LAPI _cameradestroy(_L) {
+        auto cam = *getCam(L);
+        delete cam;
+
+        return 0;
+    }
+
+    SDC_LAPI _camerasetpos(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 4)
+            return luaL_error(L, "Error: Camera.setPosition() takes 4 arguments.");
+
+        auto cam = *getCam(L);
+        auto x = luaL_checknumber(L, 2);
+        auto y = luaL_checknumber(L, 3);
+        auto z = luaL_checknumber(L, 4);
+
+        cam->pos = {static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)};
+
+        return 0;
+    }
+    SDC_LAPI _camerasetrot(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 4)
+            return luaL_error(L, "Error: Camera.setRotation() takes 4 arguments.");
+
+        auto cam = *getCam(L);
+        auto x = luaL_checknumber(L, 2);
+        auto y = luaL_checknumber(L, 3);
+        auto z = luaL_checknumber(L, 4);
+
+        cam->rot = {static_cast<float>(x), static_cast<float>(y), static_cast<float>(z)};
+
+        return 0;
+    }
+
+    SDC_LAPI _camerasetproj(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 5)
+            return luaL_error(L, "Error: Camera.setProjection() takes 5 arguments.");
+
+        auto cam = *getCam(L);
+        auto x = luaL_checknumber(L, 2);
+        auto y = luaL_checknumber(L, 3);
+        auto z = luaL_checknumber(L, 4);
+        auto w = luaL_checknumber(L, 5);
+
+        cam->set_proj(x, y, z, w);
+
+        return 0;
+    }
+
+    static const luaL_Reg camLib[] = {
+            {"create", _cameracreate},
+	        {"destroy", _cameradestroy},
+	        {"setRotation", _camerasetrot},
+	        {"setPosition", _camerasetpos},
+            {"setProjection", _camerasetproj},
+            {0, 0}
+    };
+
+    static const luaL_Reg cameraMetaLib[] = {
+	        {"__gc", _cameradestroy},
+	        {0,0}
+    };
+
+    void initialize_camera() {
+        auto L = reinterpret_cast<lua_State*>(Stardust_Celeste::Scripting::LuaContext::get().lua_context);
+
+        int lib_id, meta_id;
+
+        // new class = {}
+        lua_createtable(L, 0, 0);
+        lib_id = lua_gettop(L);
+
+        // meta table = {}
+        luaL_newmetatable(L, "Camera");
+        meta_id = lua_gettop(L);
+        luaL_setfuncs(L, cameraMetaLib, 0);
+
+        // meta table = methods
+        luaL_newlib(L, camLib);
+        lua_setfield(L, meta_id, "__index");
+
+        // meta table.metatable = metatable
+        luaL_newlib(L, cameraMetaLib);
+        lua_setfield(L, meta_id, "__metatable");
+
+        // class.metatable = metatable
+        lua_setmetatable(L, lib_id);
+
+        // Camera
+        lua_setglobal(L, "Camera");
+    }
+
     SDC_LAPI _spritecreate(_L) {
         int argc = lua_gettop(L);
         if (argc != 3)
@@ -992,6 +1112,7 @@ namespace Stardust_Celeste::Scripting {
 
         Modules::Rendering::initialize_rendering();
         Modules::Rendering::initialize_texture();
+        Modules::Rendering::initialize_camera();
 
         Modules::Utilities::initialize_utils();
 
