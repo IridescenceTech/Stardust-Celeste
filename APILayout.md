@@ -9,7 +9,7 @@
 - [x] Render Context Global
 - [x] Texture Loader Global
 - [x] Camera Object
-- [ ] Mesh Object
+- [x] Mesh Object
 
 ### Graphics
 - [x] Sprite Object

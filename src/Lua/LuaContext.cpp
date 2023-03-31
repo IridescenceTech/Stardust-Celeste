@@ -754,35 +754,114 @@ namespace Modules::Rendering {
 namespace Modules::Graphics {
 
     SDC_LAPI _meshcreate(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 0)
+            return luaL_error(L, "Error: Mesh.create() takes 0 arguments.");
 
+        void* pptr_location = lua_newuserdata(L, sizeof(Stardust_Celeste::Rendering::Camera*));
+        auto pptr = static_cast<Stardust_Celeste::Rendering::Mesh<GI::Vertex>**>(pptr_location);
+        *pptr = new Stardust_Celeste::Rendering::Mesh<GI::Vertex>();
+
+        luaL_getmetatable(L, "Mesh");
+        lua_setmetatable(L, -2);
+
+        return 1;
+    }
+
+    Stardust_Celeste::Rendering::Mesh<GI::Vertex>** getMesh(lua_State* L){
+        return static_cast<Stardust_Celeste::Rendering::Mesh<GI::Vertex>**>(luaL_checkudata(L, 1, "Mesh"));
     }
 
     SDC_LAPI _meshdestroy(_L) {
+        auto mesh = getMesh(L);
+        delete *mesh;
 
+        return 0;
     }
 
     SDC_LAPI _meshsetup(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Mesh.setupBuffer() takes 1 argument.");
 
+        auto mesh = *getMesh(L);
+        mesh->setup_buffer();
+
+        return 0;
     }
 
     SDC_LAPI _meshclear(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Mesh.clearData() takes 1 argument.");
 
+        auto mesh = *getMesh(L);
+        mesh->clear_data();
+
+        return 0;
     }
 
     SDC_LAPI _meshdelete(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Mesh.deleteData() takes 1 argument.");
 
+        auto mesh = *getMesh(L);
+        mesh->delete_data();
+
+        return 0;
     }
 
     SDC_LAPI _meshdraw(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Mesh.draw() takes 1 argument.");
 
+        auto mesh = *getMesh(L);
+        mesh->draw();
+
+        return 0;
     }
 
     SDC_LAPI _meshaddvert(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Mesh.draw() takes 7 arguments.");
 
+        auto mesh = *getMesh(L);
+        auto x = luaL_checknumber(L, 2);
+        auto y = luaL_checknumber(L, 3);
+        auto z = luaL_checknumber(L, 4);
+
+        GI::Color col;
+        col.color = luaL_checkinteger(L, 5);
+
+        auto u = luaL_checknumber(L, 6);
+        auto v = luaL_checknumber(L, 7);
+
+        GI::Vertex vert;
+        vert.x = x;
+        vert.y = y;
+        vert.z = z;
+        vert.color = col;
+        vert.u = u;
+        vert.v = v;
+
+        mesh->vertices.push_back(vert);
+
+        return 0;
     }
 
     SDC_LAPI _meshaddindex(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Mesh.draw() takes 2 arguments.");
 
+        auto mesh = *getMesh(L);
+        auto x = luaL_checkinteger(L, 2);
+        mesh->indices.push_back(x);
+
+        return 0;
     }
 
     static const luaL_Reg meshLib[] = {
