@@ -753,6 +753,85 @@ namespace Modules::Rendering {
 
 namespace Modules::Graphics {
 
+    SDC_LAPI _meshcreate(_L) {
+
+    }
+
+    SDC_LAPI _meshdestroy(_L) {
+
+    }
+
+    SDC_LAPI _meshsetup(_L) {
+
+    }
+
+    SDC_LAPI _meshclear(_L) {
+
+    }
+
+    SDC_LAPI _meshdelete(_L) {
+
+    }
+
+    SDC_LAPI _meshdraw(_L) {
+
+    }
+
+    SDC_LAPI _meshaddvert(_L) {
+
+    }
+
+    SDC_LAPI _meshaddindex(_L) {
+
+    }
+
+    static const luaL_Reg meshLib[] = {
+            {"create", _meshcreate},
+            {"destroy", _meshdestroy},
+            {"setupBuffer", _meshsetup},
+            {"clearData", _meshclear},
+            {"deleteData", _meshdelete},
+            {"draw", _meshdraw},
+            {"addVertex", _meshaddvert},
+            {"addIndex", _meshaddindex},
+            {0, 0}
+    };
+
+    static const luaL_Reg meshMetaLib[] = {
+            {"__gc", _meshdestroy},
+            {0,0}
+    };
+
+    void initialize_mesh() {
+        auto L = reinterpret_cast<lua_State *>(Stardust_Celeste::Scripting::LuaContext::get().lua_context);
+
+        int lib_id, meta_id;
+
+        // new class = {}
+        lua_createtable(L, 0, 0);
+        lib_id = lua_gettop(L);
+
+        // meta table = {}
+        luaL_newmetatable(L, "Mesh");
+        meta_id = lua_gettop(L);
+        luaL_setfuncs(L, meshMetaLib, 0);
+
+        // meta table = methods
+        luaL_newlib(L, meshLib);
+        lua_setfield(L, meta_id, "__index");
+
+        // meta table.metatable = metatable
+        luaL_newlib(L, meshMetaLib);
+        lua_setfield(L, meta_id, "__metatable");
+
+        // class.metatable = metatable
+        lua_setmetatable(L, lib_id);
+
+        // Camera
+        lua_setglobal(L, "Mesh");
+
+    }
+
     SDC_LAPI _cameracreate(_L) {
         int argc = lua_gettop(L);
         if (argc != 4)
@@ -1111,8 +1190,9 @@ namespace Stardust_Celeste::Scripting {
         Modules::Audio::initialize_audio();
 
         Modules::Rendering::initialize_rendering();
-        Modules::Rendering::initialize_texture();
-        Modules::Rendering::initialize_camera();
+        Modules::Rendering::initialize_texture();;
+        Modules::Graphics::initialize_camera();;
+        Modules::Graphics::initialize_mesh();
 
         Modules::Utilities::initialize_utils();
 
