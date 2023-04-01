@@ -17,6 +17,8 @@ extern "C" {
 #include <lauxlib.h>
 }
 
+using namespace Stardust_Celeste;
+
 void registerLibrary(const char* libname, const luaL_Reg* library) {
     auto L = reinterpret_cast<lua_State*>(Stardust_Celeste::Scripting::LuaContext::get().lua_context);
     lua_getglobal(L, libname);
@@ -274,9 +276,103 @@ namespace Modules::Utilities {
             {0, 0}
     };
 
-    void initialize_utils() {
+    RefPtr<Stardust_Celeste::Utilities::Input::ControllerCollection> cc = nullptr;
+
+    SDC_LAPI _inputkb(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Input.getKbState() takes 1 argument.");
+
+        auto key = luaL_checkinteger(L, 1);
+
+        auto res = ((Stardust_Celeste::Utilities::Input::KeyboardController*)cc->keyboard_controller)->get_state(key);
+
+        lua_pushboolean(L, res);
+        return 1;
+    }
+
+    SDC_LAPI _inputmb(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Input.getMouseState() takes 1 argument.");
+
+        auto key = luaL_checkinteger(L, 1);
+
+        auto res = ((Stardust_Celeste::Utilities::Input::MouseController*)cc->mouse_controller)->get_state(key);
+
+        lua_pushboolean(L, res);
+        return 1;
+    }
+
+    SDC_LAPI _inputpb(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Input.getPSPState() takes 1 argument.");
+
+        auto key = luaL_checkinteger(L, 1);
+
+        auto res = ((Stardust_Celeste::Utilities::Input::PSPController*)cc->psp_controller)->get_state(key);
+
+        lua_pushboolean(L, res);
+        return 1;
+    }
+
+    SDC_LAPI _input3b(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Input.get3DSState() takes 1 argument.");
+
+        auto key = luaL_checkinteger(L, 1);
+
+        auto res = ((Stardust_Celeste::Utilities::Input::N3DSController*)cc->n3ds_controller)->get_state(key);
+
+        lua_pushboolean(L, res);
+        return 1;
+    }
+
+    SDC_LAPI _inputvb(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Input.getVitaState() takes 1 argument.");
+
+        auto key = luaL_checkinteger(L, 1);
+
+        auto res = ((Stardust_Celeste::Utilities::Input::VitaController*)cc->vita_controller)->get_state(key);
+
+        lua_pushboolean(L, res);
+        return 1;
+    }
+
+
+    SDC_LAPI _inputaxis(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 2)
+            return luaL_error(L, "Error: Input.getAxis() takes 2 arguments.");
+
+        std::string device = luaL_checkstring(L, 1);
+        std::string axis = luaL_checkstring(L, 2);
+
+        auto res = Stardust_Celeste::Utilities::Input::get_axis(device, axis);
+
+        lua_pushnumber(L, res);
+        return 1;
+    }
+
+    static const luaL_Reg inputLib [] = {
+            {"getKbState", _inputkb},
+            {"getMouseState", _inputmb},
+            {"getPSPState", _inputpb},
+            {"getVitaState", _inputvb},
+            {"get3DSState", _input3b},
+            {"getAxis", _inputaxis},
+            {0, 0}
+    };
+
+    void initialize_utils(RefPtr<Stardust_Celeste::Utilities::Input::ControllerCollection> c) {
         registerLibrary("Logger", logLib);
         registerLibrary("MathUtil", mathuLib);
+        registerLibrary("Input", inputLib);
+        cc = c;
 
         auto L = reinterpret_cast<lua_State*>(Stardust_Celeste::Scripting::LuaContext::get().lua_context);
 
@@ -1543,7 +1639,7 @@ namespace Stardust_Celeste::Scripting {
         cleanup();
     }
 
-    auto LuaContext::init() -> void {
+    auto LuaContext::init(RefPtr<Utilities::Input::ControllerCollection> c) -> void {
         lua_context = luaL_newstate();
         luaL_openlibs(reinterpret_cast<lua_State*>(lua_context));
 
@@ -1556,7 +1652,7 @@ namespace Stardust_Celeste::Scripting {
         Modules::Graphics::initialize_mesh();
         Modules::Graphics::initialize_tilemap();
 
-        Modules::Utilities::initialize_utils();
+        Modules::Utilities::initialize_utils(c);
 
         Modules::Graphics::initialize_sprites();
     }

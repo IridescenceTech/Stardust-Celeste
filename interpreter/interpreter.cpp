@@ -1,6 +1,7 @@
 #include <Stardust-Celeste.hpp>
 #include <Lua/LuaContext.hpp>
 #include <Lua/LuaScript.hpp>
+#include <Utilities/Controllers/ControllerCollection.hpp>
 
 using namespace Stardust_Celeste;
 using namespace Stardust_Celeste::Utilities::Input;
@@ -19,7 +20,8 @@ public:
     }
 
     void on_start() {
-        Scripting::LuaContext::get().init();
+        c = ControllerCollection::create_controller_collection();
+        Scripting::LuaContext::get().init(c);
 
         l = new Stardust_Celeste::Scripting::LuaScript("./script.lua");
         l->run();
@@ -30,6 +32,7 @@ public:
     }
 
 private:
+    RefPtr<ControllerCollection> c;
     Scripting::LuaScript* l;
 };
 

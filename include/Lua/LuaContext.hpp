@@ -1,5 +1,6 @@
 #pragma once
 #include <Utilities/Singleton.hpp>
+#include <Utilities/Controllers/ControllerCollection.hpp>
 
 namespace Stardust_Celeste::Scripting {
 
@@ -14,7 +15,7 @@ namespace Stardust_Celeste::Scripting {
         /**
          * Initialize the Lua Context and open libraries
          */
-        auto init() -> void;
+        auto init(RefPtr<Utilities::Input::ControllerCollection> c) -> void;
 
         /**
          * Cleanup the Lua Context
