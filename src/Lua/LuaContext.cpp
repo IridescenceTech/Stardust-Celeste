@@ -934,6 +934,27 @@ namespace Modules::Graphics {
     }
 
 
+    SDC_LAPI _tmapcreatea(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 3)
+            return luaL_error(L, "Error: Tilemap.createA() takes 3 arguments.");
+
+        void* pptr_location = lua_newuserdata(L, sizeof(Stardust_Celeste::Graphics::G2D::Tilemap*));
+        auto pptr = static_cast<Stardust_Celeste::Graphics::G2D::Tilemap**>(pptr_location);
+
+        auto tex = luaL_checkinteger(L, 1);
+        auto x = luaL_checkinteger(L, 2);
+        auto y = luaL_checkinteger(L, 3);
+
+        *pptr = new Stardust_Celeste::Graphics::G2D::AnimatedTilemap(tex, {static_cast<float>(x), static_cast<float>(y)});
+
+        luaL_getmetatable(L, "Tilemap");
+        lua_setmetatable(L, -2);
+
+        return 1;
+    }
+
+
     Stardust_Celeste::Graphics::G2D::Tilemap** getTMap(lua_State* L){
         return static_cast<Stardust_Celeste::Graphics::G2D::Tilemap**>(luaL_checkudata(L, 1, "Tilemap"));
     }
@@ -993,10 +1014,36 @@ namespace Modules::Graphics {
         return 0;
     }
 
+    SDC_LAPI _tmaptick(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Tilemap.tick() takes 2 arguments.");
+
+        auto dt = luaL_checknumber(L, 2);
+
+        auto tmap = (Stardust_Celeste::Graphics::G2D::AnimatedTilemap*)*getTMap(L);
+        tmap->tick();
+
+        return 0;
+    }
+
+    SDC_LAPI _tmapsettick(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Tilemap.setTickRate() takes 2 arguments.");
+
+        auto rate = luaL_checknumber(L, 2);
+
+        auto tmap = (Stardust_Celeste::Graphics::G2D::AnimatedTilemap*)*getTMap(L);
+        tmap->ticksPerSec = rate;
+
+        return 0;
+    }
+
     SDC_LAPI _tmapaddtile(_L) {
         int argc = lua_gettop(L);
         if (argc != 1)
-            return luaL_error(L, "Error: Tilemap.addTile() takes 9 arguments.");
+            return luaL_error(L, "Error: Tilemap.addTile() takes 8 arguments.");
 
         auto tmap = *getTMap(L);
 
@@ -1014,14 +1061,41 @@ namespace Modules::Graphics {
         return 0;
     }
 
+    SDC_LAPI _tmapaddtilea(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Tilemap.addTile() takes 10 arguments.");
+
+        auto tmap = (Stardust_Celeste::Graphics::G2D::AnimatedTilemap*)*getTMap(L);
+
+        Stardust_Celeste::Graphics::G2D::AnimatedTile tile;
+        tile.bounds.position.x = luaL_checknumber(L, 2);
+        tile.bounds.position.y = luaL_checknumber(L, 3);
+        tile.bounds.extent.x = luaL_checknumber(L, 4);
+        tile.bounds.extent.y = luaL_checknumber(L, 5);
+        tile.index = luaL_checkinteger(L, 6);
+        tile.color.color = luaL_checkinteger(L, 7);
+        tile.layer = luaL_checknumber(L, 8);
+        tile.start_idx = luaL_checkinteger(L, 9);
+        tile.final_idx = luaL_checkinteger(L, 10);
+
+        tmap->add_tile(tile);
+
+        return 0;
+    }
+
     static const luaL_Reg tmapLib[] = {
             {"create", _tmapcreate},
+            {"createA", _tmapcreate},
             {"destroy", _tmapdestroy},
             {"addTile", _tmapaddtile},
+            {"addTileA", _tmapaddtilea},
             {"clear", _tmapclear},
             {"generateMap", _tmapgenerate},
             {"update", _tmapupdate},
             {"draw", _tmapdraw},
+            {"tick", _tmaptick},
+            {"setTickRate", _tmapsettick},
             {0, 0}
     };
 

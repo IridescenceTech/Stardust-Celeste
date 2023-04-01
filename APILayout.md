@@ -15,7 +15,7 @@
 - [x] Sprite Object
 - [x] Animated Sprite Object
 - [x] Tilemap Object
-- [ ] Animated Tilemap Object
+- [x] Animated Tilemap Object
 - [ ] Font Renderer
 
 ### Math
