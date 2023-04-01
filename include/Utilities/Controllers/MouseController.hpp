@@ -22,6 +22,8 @@ class MouseController final : public Controller {
     ~MouseController() = default;
 
     auto update() -> void;
+
+    auto get_state(int key) -> bool;
   private:
     auto setup_scroll() -> void;
 };

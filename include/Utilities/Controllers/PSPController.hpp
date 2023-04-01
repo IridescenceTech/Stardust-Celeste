@@ -34,5 +34,7 @@ class PSPController final : public Controller {
     ~PSPController() = default;
 
     auto update() -> void;
+
+    auto get_state(int key) -> bool;
 };
 } // namespace Stardust_Celeste::Utilities::Input

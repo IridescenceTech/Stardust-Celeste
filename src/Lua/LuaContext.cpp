@@ -1145,7 +1145,7 @@ namespace Modules::Graphics {
             {"createA", _tmapcreatea},
             {"createFontRenderer", _tmapcreatef},
             {"addText", _tmapaddtext},
-            {"calculateSize", _tmapcalculatesize}
+            {"calculateSize", _tmapcalculatesize},
             {"destroy", _tmapdestroy},
             {"addTile", _tmapaddtile},
             {"addTileA", _tmapaddtilea},

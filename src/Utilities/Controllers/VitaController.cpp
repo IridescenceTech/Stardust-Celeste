@@ -40,4 +40,12 @@ auto VitaController::update() -> void {
 
 #endif
 }
+
+
+    auto VitaController::get_state(int key) -> bool {
+#if BUILD_PLAT == BUILD_VITA
+        return currentPadData.buttons & key;
+#endif
+        return false;
+    }
 } // namespace Stardust_Celeste::Utilities::Input

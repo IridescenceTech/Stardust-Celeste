@@ -121,7 +121,10 @@ target_include_directories(SC-Entry PUBLIC include/)
 # Lua Interpreter
 add_executable(SC-Interpreter interpreter/interpreter.cpp)
 target_include_directories(SC-Interpreter PUBLIC ../include/)
-target_link_libraries(SC-Interpreter SC-Entry Stardust-Celeste ws2_32)
+target_link_libraries(SC-Interpreter SC-Entry Stardust-Celeste)
+if(WIN32)
+    target_link_libraries(SC-Interpreter ws2_32 stdc++)
+endif()
 
 # Vulkan
 if(EXPERIMENTAL_GRAPHICS)

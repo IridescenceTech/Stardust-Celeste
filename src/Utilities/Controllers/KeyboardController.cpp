@@ -44,4 +44,8 @@ auto KeyboardController::update() -> void {
 
 #endif
 }
+
+auto KeyboardController::get_state(int key) -> bool {
+    return keysNow[key];
+}
 } // namespace Stardust_Celeste::Utilities::Input

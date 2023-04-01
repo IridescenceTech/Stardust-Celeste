@@ -33,5 +33,7 @@ class VitaController final : public Controller {
     ~VitaController() = default;
 
     auto update() -> void;
+
+    auto get_state(int key) -> bool;
 };
 } // namespace Stardust_Celeste::Utilities::Input

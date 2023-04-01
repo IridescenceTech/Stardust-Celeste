@@ -46,5 +46,7 @@ class N3DSController final : public Controller {
     ~N3DSController() = default;
 
     auto update() -> void;
+
+    auto get_state(int key) -> bool;
 };
 } // namespace Stardust_Celeste::Utilities::Input

@@ -131,5 +131,7 @@ class KeyboardController final : public Controller {
     ~KeyboardController() = default;
 
     auto update() -> void;
+
+    auto get_state(int key) -> bool;
 };
 } // namespace Stardust_Celeste::Utilities::Input

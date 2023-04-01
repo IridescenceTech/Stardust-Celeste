@@ -40,4 +40,11 @@ auto PSPController::update() -> void {
 
 #endif
 }
+
+    auto PSPController::get_state(int key) -> bool {
+#if BUILD_PLAT == BUILD_PSP
+        return currentPadData.Buttons & key;
+#endif
+        return false;
+    }
 } // namespace Stardust_Celeste::Utilities::Input

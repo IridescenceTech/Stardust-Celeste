@@ -51,6 +51,10 @@ auto MouseController::update() -> void {
 #endif
 }
 
+auto MouseController::get_state(int key) -> bool {
+    return mouseNow[key];
+}
+
 /** Tells GLFW to check command_map and call the registered commands accordingly
  */
 auto MouseController::setup_scroll() -> void {

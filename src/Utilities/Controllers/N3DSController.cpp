@@ -38,4 +38,13 @@ auto N3DSController::update() -> void {
 
 #endif
 }
+
+
+
+    auto N3DSController::get_state(int key) -> bool {
+#if BUILD_PLAT == BUILD_3DS
+        return current & key;
+#endif
+        return false;
+    }
 } // namespace Stardust_Celeste::Utilities::Input
