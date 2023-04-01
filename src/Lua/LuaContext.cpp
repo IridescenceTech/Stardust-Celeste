@@ -8,6 +8,7 @@
 #include <Math/MathUtils.hpp>
 #include <Rendering/Camera.hpp>
 #include <Graphics/2D/AnimatedTilemap.hpp>
+#include <Graphics/2D/FontRenderer.hpp>
 #include <Graphics/2D/Tilemap.hpp>
 
 extern "C" {
@@ -954,6 +955,26 @@ namespace Modules::Graphics {
         return 1;
     }
 
+    SDC_LAPI _tmapcreatef(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 3)
+            return luaL_error(L, "Error: Tilemap.createFontRenderer() takes 3 arguments.");
+
+        void* pptr_location = lua_newuserdata(L, sizeof(Stardust_Celeste::Graphics::G2D::Tilemap*));
+        auto pptr = static_cast<Stardust_Celeste::Graphics::G2D::Tilemap**>(pptr_location);
+
+        auto tex = luaL_checkinteger(L, 1);
+        auto x = luaL_checkinteger(L, 2);
+        auto y = luaL_checkinteger(L, 3);
+
+        *pptr = new Stardust_Celeste::Graphics::G2D::FontRenderer(tex, {static_cast<float>(x), static_cast<float>(y)});
+
+        luaL_getmetatable(L, "Tilemap");
+        lua_setmetatable(L, -2);
+
+        return 1;
+    }
+
 
     Stardust_Celeste::Graphics::G2D::Tilemap** getTMap(lua_State* L){
         return static_cast<Stardust_Celeste::Graphics::G2D::Tilemap**>(luaL_checkudata(L, 1, "Tilemap"));
@@ -1061,6 +1082,41 @@ namespace Modules::Graphics {
         return 0;
     }
 
+    SDC_LAPI _tmapaddtext(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Tilemap.addText() takes 6 arguments.");
+
+        auto tmap = (Stardust_Celeste::Graphics::G2D::FontRenderer*)*getTMap(L);
+
+        std::string text = luaL_checkstring(L, 2);
+        auto x = luaL_checknumber(L, 3);
+        auto y = luaL_checknumber(L, 4);
+
+        GI::Color col;
+        col.color = luaL_checkinteger(L, 5);
+        auto z = luaL_checknumber(L, 6);
+
+        tmap->add_text(text, {static_cast<float>(x), static_cast<float>(y)}, col, z);
+
+        return 0;
+    }
+
+    SDC_LAPI _tmapcalculatesize(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Tilemap.calculateSize() takes 2 arguments.");
+
+        auto tmap = (Stardust_Celeste::Graphics::G2D::FontRenderer*)*getTMap(L);
+
+        std::string text = luaL_checkstring(L, 2);
+
+        auto s = tmap->calculate_size(text);
+
+        lua_pushnumber(L, s);
+        return 1;
+    }
+
     SDC_LAPI _tmapaddtilea(_L) {
         int argc = lua_gettop(L);
         if (argc != 1)
@@ -1086,7 +1142,10 @@ namespace Modules::Graphics {
 
     static const luaL_Reg tmapLib[] = {
             {"create", _tmapcreate},
-            {"createA", _tmapcreate},
+            {"createA", _tmapcreatea},
+            {"createFontRenderer", _tmapcreatef},
+            {"addText", _tmapaddtext},
+            {"calculateSize", _tmapcalculatesize}
             {"destroy", _tmapdestroy},
             {"addTile", _tmapaddtile},
             {"addTileA", _tmapaddtilea},
