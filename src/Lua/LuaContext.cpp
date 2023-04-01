@@ -7,6 +7,8 @@
 #include <Graphics/2D/AnimatedSprite.hpp>
 #include <Math/MathUtils.hpp>
 #include <Rendering/Camera.hpp>
+#include <Graphics/2D/AnimatedTilemap.hpp>
+#include <Graphics/2D/Tilemap.hpp>
 
 extern "C" {
 #include <lua.h>
@@ -911,6 +913,153 @@ namespace Modules::Graphics {
 
     }
 
+    SDC_LAPI _tmapcreate(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 3)
+            return luaL_error(L, "Error: Tilemap.create() takes 3 arguments.");
+
+        void* pptr_location = lua_newuserdata(L, sizeof(Stardust_Celeste::Graphics::G2D::Tilemap*));
+        auto pptr = static_cast<Stardust_Celeste::Graphics::G2D::Tilemap**>(pptr_location);
+
+        auto tex = luaL_checkinteger(L, 1);
+        auto x = luaL_checkinteger(L, 2);
+        auto y = luaL_checkinteger(L, 3);
+
+        *pptr = new Stardust_Celeste::Graphics::G2D::Tilemap(tex, {static_cast<float>(x), static_cast<float>(y)});
+
+        luaL_getmetatable(L, "Tilemap");
+        lua_setmetatable(L, -2);
+
+        return 1;
+    }
+
+
+    Stardust_Celeste::Graphics::G2D::Tilemap** getTMap(lua_State* L){
+        return static_cast<Stardust_Celeste::Graphics::G2D::Tilemap**>(luaL_checkudata(L, 1, "Tilemap"));
+    }
+
+    SDC_LAPI _tmapdestroy(_L) {
+        auto tmap = getTMap(L);
+        delete *tmap;
+        return 0;
+    }
+
+    SDC_LAPI _tmapclear(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Tilemap.clear() takes 1 argument.");
+
+
+        auto tmap = *getTMap(L);
+        tmap->clear_tiles();
+
+        return 0;
+    }
+
+    SDC_LAPI _tmapgenerate(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Tilemap.generateMap() takes 1 argument.");
+
+
+        auto tmap = *getTMap(L);
+        tmap->generate_map();
+
+        return 0;
+    }
+
+    SDC_LAPI _tmapdraw(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Tilemap.draw() takes 1 argument.");
+
+
+        auto tmap = *getTMap(L);
+        tmap->draw();
+
+        return 0;
+    }
+
+    SDC_LAPI _tmapupdate(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Tilemap.update() takes 2 arguments.");
+
+        auto dt = luaL_checknumber(L, 2);
+
+        auto tmap = *getTMap(L);
+        tmap->update(dt);
+
+        return 0;
+    }
+
+    SDC_LAPI _tmapaddtile(_L) {
+        int argc = lua_gettop(L);
+        if (argc != 1)
+            return luaL_error(L, "Error: Tilemap.addTile() takes 9 arguments.");
+
+        auto tmap = *getTMap(L);
+
+        Stardust_Celeste::Graphics::G2D::Tile tile;
+        tile.bounds.position.x = luaL_checknumber(L, 2);
+        tile.bounds.position.y = luaL_checknumber(L, 3);
+        tile.bounds.extent.x = luaL_checknumber(L, 4);
+        tile.bounds.extent.y = luaL_checknumber(L, 5);
+        tile.index = luaL_checkinteger(L, 6);
+        tile.color.color = luaL_checkinteger(L, 7);
+        tile.layer = luaL_checknumber(L, 8);
+
+        tmap->add_tile(tile);
+
+        return 0;
+    }
+
+    static const luaL_Reg tmapLib[] = {
+            {"create", _tmapcreate},
+            {"destroy", _tmapdestroy},
+            {"addTile", _tmapaddtile},
+            {"clear", _tmapclear},
+            {"generateMap", _tmapgenerate},
+            {"update", _tmapupdate},
+            {"draw", _tmapdraw},
+            {0, 0}
+    };
+
+    static const luaL_Reg tmapMetaLib[] = {
+            {"__gc", _tmapdestroy},
+            {0,0}
+    };
+
+    void initialize_tilemap() {
+        auto L = reinterpret_cast<lua_State *>(Stardust_Celeste::Scripting::LuaContext::get().lua_context);
+
+        int lib_id, meta_id;
+
+        // new class = {}
+        lua_createtable(L, 0, 0);
+        lib_id = lua_gettop(L);
+
+        // meta table = {}
+        luaL_newmetatable(L, "Tilemap");
+        meta_id = lua_gettop(L);
+        luaL_setfuncs(L, tmapMetaLib, 0);
+
+        // meta table = methods
+        luaL_newlib(L, tmapLib);
+        lua_setfield(L, meta_id, "__index");
+
+        // meta table.metatable = metatable
+        luaL_newlib(L, tmapMetaLib);
+        lua_setfield(L, meta_id, "__metatable");
+
+        // class.metatable = metatable
+        lua_setmetatable(L, lib_id);
+
+        // Camera
+        lua_setglobal(L, "Tilemap");
+
+    }
+
     SDC_LAPI _cameracreate(_L) {
         int argc = lua_gettop(L);
         if (argc != 4)
@@ -1269,9 +1418,10 @@ namespace Stardust_Celeste::Scripting {
         Modules::Audio::initialize_audio();
 
         Modules::Rendering::initialize_rendering();
-        Modules::Rendering::initialize_texture();;
-        Modules::Graphics::initialize_camera();;
+        Modules::Rendering::initialize_texture();
+        Modules::Graphics::initialize_camera();
         Modules::Graphics::initialize_mesh();
+        Modules::Graphics::initialize_tilemap();
 
         Modules::Utilities::initialize_utils();
 
