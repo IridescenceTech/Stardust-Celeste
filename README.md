@@ -12,20 +12,6 @@ Stardust-Celeste is a 2D and 3D Game Engine designed and specialized around bein
 
 ## Work In Progress
 
-This project is currently in development.
-
-Current Modules Until Intial V0.6 Release:
-
-- [x] Graphics Base
-- [x] Input / Game Utils
-- [x] Graphics 2D
-- [x] Graphics Intermediate Layer
-- [x] Audio Core
-- [x] Mathematics Library
-- [x] Vulkan
-- [x] Model loading
-- [ ] Scripting System
-
 v0.7 Release: 
 - [ ] Scene Manager
 - [ ] Graphics 3D
