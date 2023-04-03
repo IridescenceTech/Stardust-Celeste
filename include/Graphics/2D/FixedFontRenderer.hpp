@@ -22,7 +22,7 @@ template <size_t N> class FixedFontRenderer : public FixedTilemap<N> {
      * @param texture Texture ID
      * @param atlasSize Texture Atlas Size
      */
-    FixedFontRenderer(u32 texture, glm::vec2 atlasSize)
+    FixedFontRenderer(u32 texture, Math::Vector2<float> atlasSize)
         : FixedTilemap<N>(texture, atlasSize) {
 
         SC_CORE_ASSERT(texture != 0, "Tilemap construction: Texture ID is 0!");
@@ -84,7 +84,7 @@ template <size_t N> class FixedFontRenderer : public FixedTilemap<N> {
      * @param color Color of text
      * @param layer Layer of text
      */
-    virtual auto add_text(std::string text, glm::vec2 position,
+    virtual auto add_text(std::string text, Math::Vector2<float> position,
                           Rendering::Color color, float layer) -> void {
         stringVector.push_back({text, position, color, layer});
     }
@@ -122,7 +122,7 @@ template <size_t N> class FixedFontRenderer : public FixedTilemap<N> {
                 }
 
                 FixedTilemap<N>::add_tile(
-                    {{pos, glm::vec2(8 * scale_factor, 8 * scale_factor)},
+                    {{pos, Math::Vector2<float>(8 * scale_factor, 8 * scale_factor)},
                      s.color,
                      static_cast<u16>(c),
                      s.layer});

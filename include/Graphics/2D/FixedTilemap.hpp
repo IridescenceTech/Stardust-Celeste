@@ -13,7 +13,7 @@ namespace Stardust_Celeste::Graphics::G2D {
  */
 template <size_t N> class FixedTilemap {
   public:
-    FixedTilemap(u32 tex, glm::vec2 atlasSize) {
+    FixedTilemap(u32 tex, Math::Vector2<float> atlasSize) {
         SC_CORE_ASSERT(tex != 0, "FixedTilemap construction: Texture ID is 0!");
         SC_CORE_ASSERT(atlasSize.x * atlasSize.y > 0,
                        "FixedTilemap construction: Atlas Size is <= 0!");
@@ -138,7 +138,7 @@ template <size_t N> class FixedTilemap {
     int count;
     std::array<Tile, N> tileMap;
     ScopePtr<Rendering::FixedMesh<Rendering::Vertex, 4 * N, 6 * N>> mesh;
-    glm::vec2 atlasDimensions;
+    Math::Vector2<float> atlasDimensions;
 };
 
 } // namespace Stardust_Celeste::Graphics::G2D

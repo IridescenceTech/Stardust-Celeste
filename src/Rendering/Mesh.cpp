@@ -1,11 +1,12 @@
 #include <Rendering/Mesh.hpp>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+//#include <assimp/Importer.hpp>
+//#include <assimp/scene.h>
+//#include <assimp/postprocess.h>
 
 namespace Stardust_Celeste::Rendering {
 
     Mesh<Rendering::Vertex>* LoadMeshFromFile(std::string filename) {
+        /*
         Assimp::Importer importer;
 
         const aiScene *scene = importer.ReadFile(filename, aiProcess_Triangulate | aiProcess_FlipUVs);
@@ -45,5 +46,6 @@ namespace Stardust_Celeste::Rendering {
         final_mesh->setup_buffer();
 
         return final_mesh;
+         */
     }
 }

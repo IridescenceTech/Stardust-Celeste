@@ -12,11 +12,6 @@ set(LUA_LIBRARY_SRC ext/lua/onelua.c)
 # Whether or not to use Vulkan / Direct X Mode
 option(EXPERIMENTAL_GRAPHICS "Use Vulkan and DirectX Mode" OFF)
 
-# No experimental graphics define
-if(NOT EXPERIMENTAL_GRAPHICS)
-    add_compile_definitions(NO_EXPERIMENTAL_GRAPHICS)
-endif()
-
 # Vulkan Include
 if(NOT PSP AND NOT 3DS AND NOT VITA)
     if(EXPERIMENTAL_GRAPHICS)
@@ -37,11 +32,14 @@ elseif(NOT VITA AND NOT 3DS AND NOT PSP)
     pkg_check_modules(SDL2mixer REQUIRED SDL2_mixer)
 endif()
 
+# ZLib Requirement
+add_subdirectory(ext/zlib)
+
 if(PSP)
     list(REMOVE_ITEM SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/glad.cpp")
     add_library(Stardust-Celeste STATIC ${LUA_LIBRARY_SRC} ${SRC_FILES} ${INC_FILES})
-    target_link_libraries(Stardust-Celeste PUBLIC pspgum pspgu pspge psputility pspdisplay pspctrl pspnet pspnet_apctl psppower pspaudio SDL2_mixer SDL2 pspvram xmp ogg vorbisfile vorbis psphprm GL GLU glut pspvfpu)
-    target_include_directories(Stardust-Celeste PUBLIC ext/ ext/gu2gl)
+    target_link_libraries(Stardust-Celeste PUBLIC pspgum pspgu pspge psputility pspdisplay pspctrl pspnet pspnet_apctl psppower pspaudio SDL2_mixer SDL2 pspvram xmp ogg vorbisfile vorbis psphprm GL GLU glut pspvfpu zlibstatic)
+    target_include_directories(Stardust-Celeste PUBLIC ext/ ext/gu2gl ext/zlib)
 elseif(VITA)
     list(REMOVE_ITEM SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/glad.cpp")
     include(setup_vita.cmake)
@@ -50,14 +48,14 @@ elseif(VITA)
     file(GLOB_RECURSE YAML_FILES ext/yaml/src/*.cpp)
 
     add_library(Stardust-Celeste STATIC  ${LUA_LIBRARY_SRC} ${SRC_FILES} ${INC_FILES} ${YAML_FILES})
-    target_link_libraries(Stardust-Celeste PUBLIC SDL2_mixer SDL2 SceTouch_stub SceHid_stub vitaGL SceCtrl_stub vitashark mathneon SceShaccCg_stub SceShaccCgExt SceIme_stub SceAppMgr_stub SceGxm_stub SceCommonDialog_stub SceProcessmgr_stub SceDisplay_stub SceKernelDmacMgr_stub ScePower_stub taihen_stub SceAudioIn_stub SceAudio_stub SceMotion_stub vorbisfile vorbis ogg FLAC mikmod pthread mpg123 modplug)
+    target_link_libraries(Stardust-Celeste PUBLIC SDL2_mixer SDL2 SceTouch_stub SceHid_stub vitaGL SceCtrl_stub vitashark mathneon SceShaccCg_stub SceShaccCgExt SceIme_stub SceAppMgr_stub SceGxm_stub SceCommonDialog_stub SceProcessmgr_stub SceDisplay_stub SceKernelDmacMgr_stub ScePower_stub taihen_stub SceAudioIn_stub SceAudio_stub SceMotion_stub vorbisfile vorbis ogg FLAC mikmod pthread mpg123 modplug zlibstatic)
 elseif(3DS)
     list(REMOVE_ITEM SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/glad.cpp")
 
     add_library(Stardust-Celeste STATIC ${LUA_LIBRARY_SRC} ${SRC_FILES} ${INC_FILES} ${YAML_FILES})
-    target_include_directories(Stardust-Celeste PUBLIC "$ENV{DEVKITPRO}/portlibs/3ds/include" "$ENV{DEVKITPRO}/picaGL/include")
+    target_include_directories(Stardust-Celeste PUBLIC "$ENV{DEVKITPRO}/portlibs/3ds/include" "$ENV{DEVKITPRO}/picaGL/include" ext/zlib)
     target_link_directories(Stardust-Celeste PUBLIC "$ENV{DEVKITPRO}/picaGL/lib")
-    target_link_libraries(Stardust-Celeste SDL_mixer SDL mad png vorbisidec ogg mikmod picaGL citro3d ctru)
+    target_link_libraries(Stardust-Celeste SDL_mixer SDL mad png vorbisidec ogg mikmod picaGL citro3d ctru zlibstatic)
 else()
     set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "Build GLFW without examples")
     set(GLFW_BUILD_TESTS OFF CACHE BOOL "Build GLFW without tests")
@@ -66,9 +64,15 @@ else()
 
     add_library(Stardust-Celeste STATIC  ${LUA_LIBRARY_SRC} ${SRC_FILES} ${INC_FILES})
 
-    target_include_directories(Stardust-Celeste PUBLIC ext/glfw/include/)
-    target_link_libraries(Stardust-Celeste PUBLIC glfw)
+    target_include_directories(Stardust-Celeste PUBLIC ext/glfw/include/ ext/zlib)
+    target_link_libraries(Stardust-Celeste PUBLIC glfw zlib)
 endif()
+
+# No experimental graphics define
+if(NOT EXPERIMENTAL_GRAPHICS)
+    target_compile_definitions(Stardust-Celeste PUBLIC NO_EXPERIMENTAL_GRAPHICS)
+endif()
+
 
 # SDL2 for WIN32/POSIX
 if(WIN32)
@@ -110,8 +114,8 @@ if(NOT VITA)
 endif()
 
 # Assimp
-set(BUILD_SHARED_LIBS OFF)
-add_subdirectory(ext/assimp)
+#set(BUILD_SHARED_LIBS OFF)
+#add_subdirectory(ext/assimp)
 
 # SC-Entry Library Artifact
 add_library(SC-Entry STATIC src/Core/Entry.cpp)
