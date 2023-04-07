@@ -76,7 +76,7 @@ endif()
 
 # SDL2 for WIN32/POSIX
 if(WIN32)
-    target_link_libraries(Stardust-Celeste PUBLIC SDL2_mixer::SDL2_mixer ${SDL2_LIBRARIES}
+    target_link_libraries(Stardust-Celeste PUBLIC ws2_32 SDL2_mixer::SDL2_mixer ${SDL2_LIBRARIES}
         ${SDL2_mixer_LIBRARIES}
         ${catkin_LIBRARIES})
 elseif(NOT VITA AND NOT 3DS AND NOT PSP)
@@ -121,6 +121,10 @@ endif()
 add_library(SC-Entry STATIC src/Core/Entry.cpp)
 # SC-Entry Include
 target_include_directories(SC-Entry PUBLIC include/)
+if(NOT EXPERIMENTAL_GRAPHICS)
+    target_compile_definitions(SC-Entry PUBLIC NO_EXPERIMENTAL_GRAPHICS)
+endif()
+
 
 # Lua Interpreter
 add_executable(SC-Interpreter interpreter/interpreter.cpp)
