@@ -70,7 +70,7 @@ namespace Stardust_Celeste::Math {
     Matrix Matrix::Rotate(float angle, const Vector3<float>& axis) {
         Matrix result(1.0f);
 
-        float r = toRadians(angle);
+        float r = angle;
         float c = cosf(r);
         float s = sinf(r);
         float omc = 1.0f - c;
