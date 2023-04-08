@@ -48,7 +48,7 @@ const std::string vert_source = R"(
     out vec3 position;
 
     void main() {
-        gl_Position = proj * view * model * vec4(aPos, 1.0);
+        gl_Position = transpose(proj) * transpose(view) * transpose(model) * vec4(aPos, 1.0);
         position = gl_Position.xyz;
         uv = aTex;
         color = aCol;
