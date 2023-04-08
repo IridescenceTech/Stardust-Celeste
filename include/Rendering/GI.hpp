@@ -99,6 +99,9 @@ using namespace Stardust_Celeste::Rendering;
 auto init(const RenderContextSettings app) -> void;
 auto terminate() -> void;
 
+auto make_context_current() -> void;
+auto release_context_current() -> void;
+
 auto enable(u32 state) -> void;
 auto disable(u32 state) -> void;
 

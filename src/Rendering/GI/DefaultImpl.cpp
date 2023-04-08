@@ -210,6 +210,14 @@ namespace GI {
         return prog;
     }
 
+    auto make_context_current() -> void {
+        glfwMakeContextCurrent(window);
+    }
+
+    auto release_context_current() -> void {
+        glfwMakeContextCurrent(NULL);
+    }
+
     auto loadShaders(const std::string& vs, const std::string& fs) -> GLuint {
         GLuint vertShader, fragShader;
 
@@ -490,6 +498,8 @@ namespace GI {
         }
     }
 
+    bool lastvsync = false;
+
     auto end_frame(bool vsync, bool dialog) -> void {
 #if BUILD_PC
         static auto startTime = std::chrono::high_resolution_clock::now();
@@ -512,10 +522,12 @@ namespace GI {
 #endif
         }
 
-        if (vsync)
-            glfwSwapInterval(1);
-        else
-            glfwSwapInterval(0);
+        if(lastvsync != vsync) {
+            if (vsync)
+                glfwSwapInterval(1);
+            else
+                glfwSwapInterval(0);
+        }
 
         if (glfwWindowShouldClose(window))
             Stardust_Celeste::Core::Application::get().exit();

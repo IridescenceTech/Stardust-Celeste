@@ -4,6 +4,8 @@
 #include "../Rendering/Rendering.hpp"
 #include "../Utilities/Utilities.hpp"
 #include "State.hpp"
+#include <future>
+#include "../Rendering/GI.hpp"
 
 /**
  * @brief Predeclared main
@@ -72,11 +74,87 @@ class Application {
     void exit() { running = false; }
 
   private:
+
+    void updateAsync() {
+        Utilities::Timer timer;
+
+        double updateTime = 1.0 / static_cast<double>(updateRate);
+        int updateMilli = static_cast<int>(250 * updateTime);
+
+
+        while(running) {
+            double dt = timer.get_delta_time();
+
+            if(timer.elapsed() > updateTime)
+                timer.reset();
+            else {
+                std::this_thread::sleep_for(std::chrono::milliseconds(updateMilli));
+                continue;
+            }
+
+            if (!stateStack.empty()) {
+                stateStack.back()->on_update(this, dt);
+            }
+        }
+    }
+
+    void drawAsync() {
+        Utilities::Timer timer;
+
+        double updateTime = 1.0 / static_cast<double>(drawRate);
+        int updateMilli = static_cast<int>(250 * updateTime);
+
+        double fTimer = 0.0;
+        int fps = 0;
+
+        while(running) {
+
+            double dt = timer.get_delta_time();
+            fTimer += dt;
+
+            if(drawRate > 0) {
+                if (timer.elapsed() > updateTime)
+                    timer.reset();
+                else {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(updateMilli));
+                    continue;
+                }
+            }
+
+            fps++;
+            if(fTimer > 1.0) {
+                fTimer = 0;
+                SC_APP_INFO("FPS: {}", fps);
+                fps = 0;
+            }
+
+            auto rctx = Rendering::RenderContext::get().initialized();
+
+            if (rctx) {
+                Rendering::RenderContext::get().clear();
+
+                stateStack.back()->on_draw(this, dt);
+
+                Rendering::RenderContext::get().render();
+            }
+        }
+    }
+
     /**
      * @brief Runs the base application
      *
      */
     void run() {
+
+        if(doubletime) {
+            SC_APP_INFO("Starting doubled time update.");
+            auto a1 = std::thread(&Application::updateAsync, this);
+            drawAsync();
+
+            a1.join();
+            return;
+        }
+
         Utilities::Timer timer;
 
         while (running) {
@@ -100,6 +178,11 @@ class Application {
 
     static Application *s_Instance;
 
+protected:
+
+    int16_t updateRate = 60;
+    int16_t drawRate = -1;
+    bool doubletime;
     bool running;
     double frameTime;
 
