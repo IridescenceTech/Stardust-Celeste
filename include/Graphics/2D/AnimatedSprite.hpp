@@ -42,6 +42,7 @@ class AnimatedSprite : public Sprite {
     inline auto set_animation_range(u32 startIDX, u32 endIDX) -> void {
         this->startIDX = startIDX;
         this->endIDX = endIDX;
+        this->currentIDX = startIDX;
     }
 
     /**
