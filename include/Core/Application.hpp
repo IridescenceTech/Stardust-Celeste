@@ -71,7 +71,7 @@ class Application {
      * @brief Exits the application
      *
      */
-    void exit() { running = false; }
+    void exit() { pop_state(); running = false; }
 
   private:
 
