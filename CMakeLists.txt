@@ -65,7 +65,7 @@ else()
     add_library(Stardust-Celeste STATIC  ${LUA_LIBRARY_SRC} ${SRC_FILES} ${INC_FILES})
 
     target_include_directories(Stardust-Celeste PUBLIC ext/glfw/include/ ext/zlib)
-    target_link_libraries(Stardust-Celeste PUBLIC glfw zlib)
+    target_link_libraries(Stardust-Celeste PUBLIC glfw zlibstatic)
 endif()
 
 # No experimental graphics define

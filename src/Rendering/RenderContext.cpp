@@ -71,6 +71,8 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
     c.color = 0xFFFFFFFF;
     is_init = true;
     _gfx_proj = &_gfx_ortho;
+    _gfx_view = Math::Matrix::Identity();
+    _gfx_model = Math::Matrix::Identity();
 }
 
 auto RenderContext::terminate() -> void { GI::terminate(); }
@@ -122,7 +124,7 @@ auto RenderContext::matrix_scale(Math::Vector3<float> v) -> void {
 
 auto RenderContext::matrix_perspective(float fovy, float aspect, float zn,
                                        float zf) -> void {
-    _gfx_persp = Math::Matrix::Perspective(Math::toRadians(fovy), aspect, zn, zf);
+    _gfx_persp = Math::Matrix::Perspective(fovy, aspect, zn, zf);
     if(rctxSettings.renderingApi == Vulkan) {
         _gfx_persp.rows[1].y *= -1;
     }
@@ -190,6 +192,10 @@ auto RenderContext::set_matrices() -> void {
         glBindBuffer(GL_UNIFORM_BUFFER, GI::ubo);
         glBufferSubData(GL_UNIFORM_BUFFER, sizeof(Math::Matrix) * 2, sizeof(Math::Matrix),
                         newModel.elements);
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(Math::Matrix), sizeof(Math::Matrix),
+                        _gfx_view.elements);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Math::Matrix),
+                        (*_gfx_proj).elements);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 #elif BUILD_PLAT == BUILD_VITA
