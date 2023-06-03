@@ -9,6 +9,9 @@ file(GLOB_RECURSE INC_FILES include/*.hpp)
 add_compile_definitions(MAKE_LIB)
 set(LUA_LIBRARY_SRC ext/lua/onelua.c)
 
+# YAML-CPP
+add_compile_definitions(YAML_CPP_STATIC_DEFINE)
+
 # Whether or not to use Vulkan / Direct X Mode
 option(EXPERIMENTAL_GRAPHICS "Use Vulkan and DirectX Mode" OFF)
 
@@ -24,12 +27,12 @@ endif()
 
 # SDL 2 Requirement
 if(WIN32)
-    find_package(SDL2 CONFIG REQUIRED)
-    find_package(SDL2_mixer CONFIG REQUIRED)
+    #find_package(SDL2 CONFIG REQUIRED)
+    #find_package(SDL2_mixer CONFIG REQUIRED)
 elseif(NOT VITA AND NOT 3DS AND NOT PSP)
-    find_package(SDL2 REQUIRED)
-    find_package(PkgConfig)
-    pkg_check_modules(SDL2mixer REQUIRED SDL2_mixer)
+    #find_package(SDL2 REQUIRED)
+    #find_package(PkgConfig)
+    #pkg_check_modules(SDL2mixer REQUIRED SDL2_mixer)
 endif()
 
 # ZLib Requirement
@@ -73,17 +76,20 @@ if(NOT EXPERIMENTAL_GRAPHICS)
     target_compile_definitions(Stardust-Celeste PUBLIC NO_EXPERIMENTAL_GRAPHICS)
 endif()
 
+if(WIN32)
+    target_link_libraries(Stardust-Celeste PUBLIC ws2_32)
+endif()
 
 # SDL2 for WIN32/POSIX
-if(WIN32)
-    target_link_libraries(Stardust-Celeste PUBLIC ws2_32 SDL2_mixer::SDL2_mixer ${SDL2_LIBRARIES}
-        ${SDL2_mixer_LIBRARIES}
-        ${catkin_LIBRARIES})
-elseif(NOT VITA AND NOT 3DS AND NOT PSP)
-    target_link_libraries(Stardust-Celeste PUBLIC ${SDL2_LIBRARIES}
-        ${SDL2mixer_LIBRARIES}
-        ${catkin_LIBRARIES})
-endif()
+#if(WIN32)
+#    target_link_libraries(Stardust-Celeste PUBLIC ws2_32 SDL2_mixer::SDL2_mixer ${SDL2_LIBRARIES}
+#        ${SDL2_mixer_LIBRARIES}
+#        ${catkin_LIBRARIES})
+#elseif(NOT VITA AND NOT 3DS AND NOT PSP)
+#   target_link_libraries(Stardust-Celeste PUBLIC ${SDL2_LIBRARIES}
+#        ${SDL2mixer_LIBRARIES}
+#        ${catkin_LIBRARIES})
+#endif()
 
 # Use EASTL
 option(USE_EASTL "Use EA Standard Template Library" OFF)
@@ -158,10 +164,13 @@ if(WIN32)
     add_compile_definitions(BUILD_PLAT=0)
 elseif(PSP)
     add_compile_definitions(BUILD_PLAT=2)
+    add_compile_definitions(IOAPI_NO_64)
 elseif(VITA)
     add_compile_definitions(BUILD_PLAT=3)
+    add_compile_definitions(IOAPI_NO_64)
 elseif(3DS)
     add_compile_definitions(BUILD_PLAT=7)
+    add_compile_definitions(IOAPI_NO_64)
 else()
     add_compile_definitions(BUILD_PLAT=1)
 endif()

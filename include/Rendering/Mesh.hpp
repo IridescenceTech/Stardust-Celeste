@@ -183,6 +183,6 @@ template <class T, size_t V, size_t I> class FixedMesh : public NonCopy {
 #endif
 };
 
-static Mesh<Rendering::Vertex>* LoadMeshFromFile(std::string filename);
+//static Mesh<Rendering::Vertex>* LoadMeshFromFile(std::string filename);
 
 } // namespace Stardust_Celeste::Rendering
