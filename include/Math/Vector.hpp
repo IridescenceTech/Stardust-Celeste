@@ -14,11 +14,11 @@ namespace Stardust_Celeste::Math {
             y = 0;
         }
 
-        Vector2(float scalar) {
+        Vector2(T scalar) {
             x = y = scalar;
         }
 
-        Vector2(float nx, float ny) {
+        Vector2(T nx, T ny) {
             x = nx;
             y = ny;
         }
@@ -215,11 +215,11 @@ namespace Stardust_Celeste::Math {
             z = 0;
         }
 
-        Vector3(float scalar) {
+        Vector3(T scalar) {
             x = y = z = scalar;
         }
 
-        Vector3(float nx, float ny, float nz) {
+        Vector3(T nx, T ny, T nz) {
             x = nx;
             y = ny;
             z = nz;
