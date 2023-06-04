@@ -20,7 +20,7 @@ namespace Stardust_Celeste::Math {
     Matrix Matrix::Perspective(float fov, float aspectRatio, float near, float far) {
         Matrix result(1.0f);
 
-        float q = 1.0f / tan(toRadians(0.5f * fov));
+        float q = 1.0f / tanf(toRadians(0.5f * fov));
         float a = q / aspectRatio;
 
         float b = (near + far) / (near - far);
@@ -68,28 +68,36 @@ namespace Stardust_Celeste::Math {
     }
 
     Matrix Matrix::Rotate(float angle, const Vector3<float>& axis) {
-        Matrix result(1.0f);
+        Matrix result;
 
-        float r = angle;
-        float c = cosf(r);
-        float s = sinf(r);
-        float omc = 1.0f - c;
+        float cosTheta = std::cos(angle);
+        float sinTheta = std::sin(angle);
 
         float x = axis.x;
         float y = axis.y;
         float z = axis.z;
 
-        result.elements[0 + 0 * 4] = x * x * omc + c;
-        result.elements[0 + 1 * 4] = y * x * omc + z * s;
-        result.elements[0 + 2 * 4] = x * z * omc - y * s;
+        float oneMinusCosTheta = 1.0f - cosTheta;
 
-        result.elements[1 + 0 * 4] = x * y * omc - z * s;
-        result.elements[1 + 1 * 4] = y * y * omc + c;
-        result.elements[1 + 2 * 4] = y * z * omc + x * s;
+        result.elements[0] = cosTheta + x * x * oneMinusCosTheta;
+        result.elements[1] = x * y * oneMinusCosTheta - z * sinTheta;
+        result.elements[2] = x * z * oneMinusCosTheta + y * sinTheta;
+        result.elements[3] = 0.0f;
 
-        result.elements[2 + 0 * 4] = x * z * omc + y * s;
-        result.elements[2 + 1 * 4] = y * z * omc - x * s;
-        result.elements[2 + 2 * 4] = z * z * omc + c;
+        result.elements[4] = y * x * oneMinusCosTheta + z * sinTheta;
+        result.elements[5] = cosTheta + y * y * oneMinusCosTheta;
+        result.elements[6] = y * z * oneMinusCosTheta - x * sinTheta;
+        result.elements[7] = 0.0f;
+
+        result.elements[8] = z * x * oneMinusCosTheta - y * sinTheta;
+        result.elements[9] = z * y * oneMinusCosTheta + x * sinTheta;
+        result.elements[10] = cosTheta + z * z * oneMinusCosTheta;
+        result.elements[11] = 0.0f;
+
+        result.elements[12] = 0.0f;
+        result.elements[13] = 0.0f;
+        result.elements[14] = 0.0f;
+        result.elements[15] = 1.0f;
 
         return result;
     }

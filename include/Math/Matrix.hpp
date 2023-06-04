@@ -41,22 +41,22 @@ namespace Stardust_Celeste::Math {
         }
 
         Matrix& mul(const Matrix& other) {
-            float data[16];
-            for (size_t row = 0; row < 4; row++)
-            {
-                for (size_t col = 0; col < 4; col++)
-                {
+            Matrix result;
+
+            for (size_t row = 0; row < 4; row++) {
+                for (size_t col = 0; col < 4; col++) {
                     float sum = 0.0f;
-                    for (size_t e = 0; e < 4; e++)
-                    {
+                    for (size_t e = 0; e < 4; e++) {
                         sum += elements[e + row * 4] * other.elements[col + e * 4];
                     }
-                    data[col + row * 4] = sum;
+                    result.elements[col + row * 4] = sum;
                 }
             }
-            memcpy(elements, data, 4 * 4 * sizeof(float));
+
+            *this = result;
             return *this;
         }
+
         friend Matrix operator*(Matrix left, const Matrix& right) {
             return left.mul(right);
         }
