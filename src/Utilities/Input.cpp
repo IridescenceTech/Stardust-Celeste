@@ -64,7 +64,8 @@ auto set_cursor_center() -> void {
         // Reset to center - hide cursor
         int w, h;
         glfwGetWindowSize(GI::window, &w, &h);
-        glfwSetCursorPos(GI::window, w / 2.0, h / 2.0);
+        glfwSetCursorPos(GI::window, w / 2, h / 2);
+        glfwSetInputMode(GI::window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
 #endif
 }
