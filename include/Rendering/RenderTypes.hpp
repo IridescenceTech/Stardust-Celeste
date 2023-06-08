@@ -62,6 +62,7 @@ struct Texture {
     u32 width, height;
 
     void *data;
+    void *pixData;
 
     u32 minFilter, magFilter;
     bool repeating;

@@ -130,7 +130,7 @@ auto TextureManager::load_texture_ram(u8 *buffer, size_t length, u32 magFilter, 
     tex->name = "";
 
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA || BUILD_PLAT == BUILD_3DS
-    stbi_image_free(data);
+    tex->pixData = data;
     tex->data = GI::create_texturehandle_memory(buffer, length, magFilter, minFilter, repeat, flip);
     tex->id = ((GI::TextureHandle*)tex->data)->id;
 #elif BUILD_PLAT == BUILD_PSP
