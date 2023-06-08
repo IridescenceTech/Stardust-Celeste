@@ -629,6 +629,18 @@ namespace GI {
         return nullptr;
     }
 
+    auto create_texturehandle_memory(u8* buffer, size_t length, u32 magFilter, u32 minFilter, bool repeat, bool flip) -> TextureHandle* {
+        if(rctxSettings.renderingApi == Vulkan) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
+            return detail::VKTextureHandle::create(filename, magFilter, minFilter, repeat, flip);
+#endif
+        } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
+            return detail::GLTextureHandle::create_ram(buffer, length, magFilter, minFilter, repeat, flip);
+        }
+
+        return nullptr;
+    }
+
     auto create_vertexbuffer(const Stardust_Celeste::Rendering::Vertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size) -> BufferObject* {
         if (rctxSettings.renderingApi == Vulkan) {
 #ifndef NO_EXPERIMENTAL_GRAPHICS

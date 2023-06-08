@@ -10,6 +10,7 @@ namespace GI::detail {
         ~GLTextureHandle() override { destroy();};
 
         static GLTextureHandle* create(std::string filename, u32 magFilter, u32 minFilter, bool repeat, bool flip);
+        static GLTextureHandle* create_ram(uint8_t* buf, size_t len, u32 magFilter, u32 minFilter, bool repeat, bool flip);
         void bind() override;
         void destroy() override;
     };

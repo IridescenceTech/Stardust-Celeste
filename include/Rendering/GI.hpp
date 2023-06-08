@@ -123,5 +123,6 @@ auto disable_textures() -> void;
 auto set_tex_scroll(float v) -> void;
 
 auto create_texturehandle(std::string filename, u32 magFilter, u32 minFilter, bool repeat, bool flip) -> TextureHandle*;
+auto create_texturehandle_memory(uint8_t* buf, size_t len, u32 magFilter, u32 minFilter, bool repeat, bool flip) -> TextureHandle*;
 auto create_vertexbuffer(const Stardust_Celeste::Rendering::Vertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size) -> BufferObject*;
 } // namespace GI

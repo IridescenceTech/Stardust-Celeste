@@ -37,6 +37,8 @@ endif()
 
 # ZLib Requirement
 add_subdirectory(ext/zlib)
+add_library(minizip STATIC ext/zlib/contrib/minizip/ioapi.c ext/zlib/contrib/minizip/unzip.c ext/zlib/contrib/minizip/miniunz.c)
+target_link_libraries(minizip zlibstatic)
 
 if(PSP)
     list(REMOVE_ITEM SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/glad.cpp")
@@ -67,8 +69,8 @@ else()
 
     add_library(Stardust-Celeste STATIC  ${LUA_LIBRARY_SRC} ${SRC_FILES} ${INC_FILES})
 
-    target_include_directories(Stardust-Celeste PUBLIC ext/glfw/include/ ext/zlib)
-    target_link_libraries(Stardust-Celeste PUBLIC glfw zlibstatic)
+    target_include_directories(Stardust-Celeste PUBLIC ext/glfw/include/ ext/zlib ext/zlib/contrib)
+    target_link_libraries(Stardust-Celeste PUBLIC glfw zlibstatic minizip)
 endif()
 
 # No experimental graphics define

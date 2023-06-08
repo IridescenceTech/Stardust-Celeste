@@ -98,6 +98,76 @@ auto TextureManager::get_texture(std::string name) -> u32 {
     return -1;
 }
 
+auto TextureManager::load_texture_ram(u8 *buffer, size_t length, u32 magFilter, u32 minFilter, bool repeat, bool flip,
+                                      bool vram) -> u32 {
+
+    if (flip)
+        stbi_set_flip_vertically_on_load(true);
+    else
+        stbi_set_flip_vertically_on_load(false);
+
+    int width, height, nrChannels;
+    unsigned char *data = stbi_load_from_memory(buffer, length, &width, &height, &nrChannels, STBI_rgb_alpha);
+    SC_CORE_ASSERT(data, "Could not load!");
+
+
+    Texture *tex = new Texture();
+    tex->width = width;
+    tex->height = height;
+
+    tex->pW = pow2(width);
+    tex->pH = pow2(height);
+
+    tex->ramSpace = 0; // TODO: Add option for PSP VRAM
+    tex->swizzle = 1;
+    tex->colorMode = 3; // GU_PSM_8888
+    tex->id = 0;
+
+    tex->repeating = repeat;
+    tex->magFilter = magFilter;
+    tex->minFilter = minFilter;
+
+    tex->name = "";
+
+#if BUILD_PC || BUILD_PLAT == BUILD_VITA || BUILD_PLAT == BUILD_3DS
+    stbi_image_free(data);
+    tex->data = GI::create_texturehandle_memory(buffer, length, magFilter, minFilter, repeat, flip);
+    tex->id = ((GI::TextureHandle*)tex->data)->id;
+#elif BUILD_PLAT == BUILD_PSP
+    unsigned int *dataBuffer =
+        (unsigned int *)memalign(16, tex->pH * tex->pW * 4);
+
+    for (unsigned int y = 0; y < height; y++) {
+        for (unsigned int x = 0; x < width; x++) {
+            dataBuffer[x + y * tex->pW] = ((unsigned int *)data)[x + y * width];
+        }
+    }
+
+    stbi_image_free(data);
+    tex->data = (uint16_t *)dataBuffer;
+
+    unsigned int *swizzled_pixels = nullptr;
+    if (!vram)
+        swizzled_pixels = (unsigned int *)memalign(16, tex->pH * tex->pW * 4);
+    else {
+        swizzled_pixels =
+            (unsigned int *)((int)offset + (int)sceGeEdramGetAddr());
+        offset += tex->pH * tex->pW * 4;
+    }
+
+    swizzle_fast((u8 *)swizzled_pixels, (const u8 *)dataBuffer, tex->pW * 4,
+                 tex->pH);
+
+    free(dataBuffer);
+    tex->data = (u16 *)swizzled_pixels;
+
+    sceKernelDcacheWritebackInvalidateAll();
+#endif
+
+    fullMap.emplace(texCount, tex);
+    return texCount++;
+}
+
 auto TextureManager::load_texture(std::string filename, u32 magFilter,
                                   u32 minFilter, bool repeat, bool flip,
                                   bool vram) -> u32 {
