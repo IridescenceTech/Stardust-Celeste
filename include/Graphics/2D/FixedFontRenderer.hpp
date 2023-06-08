@@ -38,13 +38,11 @@ template <size_t N> class FixedFontRenderer : public FixedTilemap<N> {
         for (int i = 0; i < atlasSize.x * atlasSize.y; i++)
             size_map[i] = 8;
 
-        int width, height, nrChannels;
-        Rendering::Color *data = (Rendering::Color *)stbi_load(
-            Rendering::TextureManager::get().get_texture(texture)->name.c_str(),
-            &width, &height, &nrChannels, STBI_rgb_alpha);
+        Rendering::Texture* tex = Rendering::TextureManager::get().get_texture(texture);
+        Rendering::Color *data = (Rendering::Color *)tex->pixData;
 
-        int w_per_char = width / atlasSize.x;
-        int h_per_char = height / atlasSize.y;
+        int w_per_char = tex->width / atlasSize.x;
+        int h_per_char = tex->height / atlasSize.y;
 
         for (int i = 0; i < atlasSize.x * atlasSize.y; i++) {
             int x = i % (int)atlasSize.x;
@@ -55,7 +53,7 @@ template <size_t N> class FixedFontRenderer : public FixedTilemap<N> {
             for (int sx = x * w_per_char; sx < (x + 1) * w_per_char; sx++) {
                 bool hit = false;
                 for (int sy = y * h_per_char; sy < (y + 1) * h_per_char; sy++) {
-                    auto idx = sx + sy * width;
+                    auto idx = sx + sy * tex->width;
                     if (data[idx].rgba.a != 0)
                         hit = true;
                 }
