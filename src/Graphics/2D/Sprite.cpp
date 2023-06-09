@@ -60,12 +60,12 @@ auto Sprite::draw() -> void {
     mesh->draw();
 }
 
-auto Sprite::set_position(Math::Vector2<float> position) -> void {
+auto Sprite::set_position(mathfu::Vector<float, 2> position) -> void {
     bounds.position = position;
     update_mesh();
 }
 
-auto Sprite::set_size(Math::Vector2<float> size) -> void {
+auto Sprite::set_size(mathfu::Vector<float, 2> size) -> void {
     bounds.extent = size;
     update_mesh();
 }

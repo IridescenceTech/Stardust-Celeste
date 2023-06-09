@@ -1,5 +1,5 @@
 #pragma once
-#include <Math/Math.hpp>
+#include <mathfu/vector.h>
 
 namespace Stardust_Celeste::Rendering {
 
@@ -10,7 +10,7 @@ namespace Stardust_Celeste::Rendering {
  */
 class Camera {
   public:
-    Camera(Math::Vector3<float> pos, Math::Vector3<float> rot, float fov, float aspect, float zN,
+    Camera(mathfu::Vector<float, 3> pos, mathfu::Vector<float, 3> rot, float fov, float aspect, float zN,
            float zF);
     virtual ~Camera() = default;
 
@@ -34,13 +34,13 @@ class Camera {
      * @brief Position of the Camera in 3D Space
      *
      */
-    Math::Vector3<float> pos;
+    mathfu::Vector<float, 3> pos;
 
     /**
      * @brief Rotation of the Camera in 3D Space in degrees
      *
      */
-    Math::Vector3<float> rot;
+    mathfu::Vector<float, 3> rot;
 
   protected:
     float fov, aspect, zNear, zFar;

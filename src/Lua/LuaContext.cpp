@@ -5,7 +5,6 @@
 #include <Audio/Clip.hpp>
 #include <Graphics/2D/Sprite.hpp>
 #include <Graphics/2D/AnimatedSprite.hpp>
-#include <Math/MathUtils.hpp>
 #include <Rendering/Camera.hpp>
 #include <Graphics/2D/AnimatedTilemap.hpp>
 #include <Graphics/2D/FontRenderer.hpp>
@@ -189,9 +188,9 @@ namespace Modules::Utilities {
 
         auto x = luaL_checknumber(L, 1);
 
-        auto r = Stardust_Celeste::Math::toDegrees(x);
+        //auto r = Stardust_Celeste::Math::toDegrees(x);
 
-        lua_pushnumber(L, r);
+        lua_pushnumber(L, 0);
         return 1;
     }
 
@@ -202,9 +201,9 @@ namespace Modules::Utilities {
 
         auto x = luaL_checknumber(L, 1);
 
-        auto r = Stardust_Celeste::Math::toRadians(x);
+        //auto r = Stardust_Celeste::Math::toRadians(x);
 
-        lua_pushnumber(L, r);
+        lua_pushnumber(L, 0);
         return 1;
     }
 
@@ -215,9 +214,9 @@ namespace Modules::Utilities {
 
         auto x = luaL_checknumber(L, 1);
 
-        auto r = Stardust_Celeste::Math::sign(x);
+        //auto r = Stardust_Celeste::Math::sign(x);
 
-        lua_pushnumber(L, r);
+        lua_pushnumber(L, 0);
         return 1;
     }
 
@@ -230,9 +229,9 @@ namespace Modules::Utilities {
         auto y = luaL_checknumber(L, 2);
         auto z = luaL_checknumber(L, 3);
 
-        auto r = Stardust_Celeste::Math::clamp(x, y, z);
+        //auto r = Stardust_Celeste::Math::clamp(x, y, z);
 
-        lua_pushnumber(L, r);
+        lua_pushnumber(L, 0);
         return 1;
     }
 
@@ -245,9 +244,9 @@ namespace Modules::Utilities {
         auto y = luaL_checknumber(L, 2);
         auto z = luaL_checknumber(L, 3);
 
-        auto r = Stardust_Celeste::Math::lerp(x, y, z);
+        //auto r = Stardust_Celeste::Math::lerp(x, y, z);
 
-        lua_pushnumber(L, r);
+        lua_pushnumber(L, 0);
         return 1;
     }
 
@@ -260,9 +259,9 @@ namespace Modules::Utilities {
         auto y = luaL_checknumber(L, 2);
         auto z = luaL_checknumber(L, 3);
 
-        auto r = Stardust_Celeste::Math::smoothstep(x, y, z);
+        //auto r = Stardust_Celeste::Math::smoothstep(x, y, z);
 
-        lua_pushnumber(L, r);
+        lua_pushnumber(L, 0);
         return 1;
     }
 

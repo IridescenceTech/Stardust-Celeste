@@ -3,7 +3,7 @@
 
 namespace Stardust_Celeste::Rendering {
 
-Camera::Camera(Math::Vector3<float> pos, Math::Vector3<float> rot, float fov, float aspect, float zN,
+Camera::Camera(mathfu::Vector<float, 3> pos, mathfu::Vector<float, 3> rot, float fov, float aspect, float zN,
                float zF) {
     this->pos = pos;
     this->rot = rot;
@@ -22,13 +22,15 @@ auto Camera::set_proj(float fov, float aspect, float zn, float zf) -> void {
 }
 
 auto Camera::update() -> void {
-    Math::Matrix matrix(1.f);
+    auto rot_x = mathfu::Matrix<float, 3, 3>::RotationX(rot.x / 180.0f * M_PI);
+    auto rot_y = mathfu::Matrix<float, 3, 3>::RotationY(rot.y / 180.0f * M_PI);
+    auto rot_z = mathfu::Matrix<float, 3, 3>::RotationZ(rot.z / 180.0f * M_PI);
 
-    matrix *= Math::Matrix::Rotate(rot.x, {1, 0, 0});
-    matrix *= Math::Matrix::Rotate(rot.y, {0, 1, 0});
-    matrix *= Math::Matrix::Rotate(rot.z, {0, 0, 1});
+    auto rotation = rot_x * rot_y * rot_z;
+    auto rotation_matrix = mathfu::Matrix<float, 4, 4>::FromRotationMatrix(rotation);
+    auto translation = mathfu::Matrix<float, 4, 4>::FromTranslationVector(pos);
 
-    matrix *= Math::Matrix::Translate({-pos.x, -pos.y, -pos.z});
+    auto matrix = rotation_matrix * translation;
 
     RenderContext::get().matrix_perspective(fov, aspect, zNear, zFar);
     RenderContext::get().matrix_view(matrix);

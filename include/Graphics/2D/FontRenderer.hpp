@@ -13,7 +13,7 @@ namespace Stardust_Celeste::Graphics::G2D {
  */
 struct TextData {
     std::string text;
-    Math::Vector2<float> pos;
+    mathfu::Vector<float, 2> pos;
     Rendering::Color color;
     float layer;
 };
@@ -30,7 +30,7 @@ class FontRenderer : public Tilemap {
      * @param texture Texture ID
      * @param atlasSize Texture Atlas Size
      */
-    FontRenderer(u32 texture, Math::Vector2<float> atlasSize);
+    FontRenderer(u32 texture, mathfu::Vector<float, 2> atlasSize);
 
     /**
      * @brief Destroy the Font Renderer object
@@ -46,7 +46,7 @@ class FontRenderer : public Tilemap {
      * @param color Color of text
      * @param layer Layer of text
      */
-    virtual auto add_text(std::string text, Math::Vector2<float> position,
+    virtual auto add_text(std::string text, mathfu::Vector<float, 2> position,
                           Rendering::Color color, float layer) -> void;
 
     /**

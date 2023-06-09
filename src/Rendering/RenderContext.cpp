@@ -71,8 +71,8 @@ auto RenderContext::initialize(const RenderContextSettings app) -> void {
     c.color = 0xFFFFFFFF;
     is_init = true;
     _gfx_proj = &_gfx_ortho;
-    _gfx_view = Math::Matrix::Identity();
-    _gfx_model = Math::Matrix::Identity();
+    _gfx_view = mathfu::Matrix<float, 4>::Identity();
+    _gfx_model = mathfu::Matrix<float, 4>::Identity();
 }
 
 auto RenderContext::terminate() -> void { GI::terminate(); }
@@ -89,7 +89,7 @@ auto RenderContext::render() -> void { GI::end_frame(vsync); }
 
 auto RenderContext::matrix_push() -> void {
     _matrixStack.push_back(_gfx_model);
-    _gfx_model = Math::Matrix::Identity();
+    _gfx_model = mathfu::Matrix<float, 4>::Identity();
 }
 
 auto RenderContext::matrix_pop() -> void {
@@ -98,7 +98,7 @@ auto RenderContext::matrix_pop() -> void {
 }
 
 auto RenderContext::matrix_clear() -> void {
-    _gfx_model = Math::Matrix::Identity();
+    _gfx_model = mathfu::Matrix<float, 4>::Identity();
 #if BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_MODEL);
     sceGumLoadIdentity();
@@ -108,28 +108,31 @@ auto RenderContext::matrix_clear() -> void {
 #endif
 }
 
-auto RenderContext::matrix_translate(Math::Vector3<float> v) -> void {
-    _gfx_model *= Math::Matrix::Translate(v);
+auto RenderContext::matrix_translate(mathfu::Vector<float, 3> v) -> void {
+    _gfx_model *= mathfu::Matrix<float, 4>::FromTranslationVector(v);
 }
 
-auto RenderContext::matrix_rotate(Math::Vector3<float> v) -> void {
-    _gfx_model *= Math::Matrix::Rotate(Math::toRadians(v.x), {1, 0, 0});
-    _gfx_model *= Math::Matrix::Rotate(Math::toRadians(v.y), {0, 1, 0});
-    _gfx_model *= Math::Matrix::Rotate(Math::toRadians(v.z), {0, 0, 1});
+auto RenderContext::matrix_rotate(mathfu::Vector<float, 3> v) -> void {
+    auto rot_x = mathfu::Matrix<float, 3, 3>::RotationX(v.x / 180.0f * M_PI);
+    auto rot_y = mathfu::Matrix<float, 3, 3>::RotationY(v.y / 180.0f * M_PI);
+    auto rot_z = mathfu::Matrix<float, 3, 3>::RotationZ(v.z / 180.0f * M_PI);
+
+    auto rotation = rot_z * rot_y * rot_x;
+    auto rotation_matrix = mathfu::Matrix<float, 4, 4>::FromRotationMatrix(rotation);
+
+    _gfx_model *= rotation_matrix;
 }
 
-auto RenderContext::matrix_scale(Math::Vector3<float> v) -> void {
-    _gfx_model *= Math::Matrix::Scale(v);
+auto RenderContext::matrix_scale(mathfu::Vector<float, 3> v) -> void {
+    _gfx_model *= mathfu::Matrix<float, 4>::FromScaleVector(v);
 }
 
 auto RenderContext::matrix_perspective(float fovy, float aspect, float zn,
                                        float zf) -> void {
-    _gfx_persp = Math::Matrix::Perspective(fovy, aspect, zn, zf);
-    if(rctxSettings.renderingApi == Vulkan) {
-        _gfx_persp.rows[1].y *= -1;
-    }
-    _gfx_view = Math::Matrix::Identity();
-    _gfx_model = Math::Matrix::Identity();
+    _gfx_persp = mathfu::Matrix<float, 4>::Perspective(
+        fovy / 180.0f * M_PI, aspect, zn, zf);
+    _gfx_view = mathfu::Matrix<float, 4>::Identity();
+    _gfx_model = mathfu::Matrix<float, 4>::Identity();
 #if BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_PROJECTION);
     ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(*_gfx_proj));
@@ -150,14 +153,9 @@ auto RenderContext::matrix_perspective(float fovy, float aspect, float zn,
 
 auto RenderContext::matrix_ortho(float l, float r, float b, float t, float zn,
                                  float zf) -> void {
-    if(rctxSettings.renderingApi == Vulkan) {
-        _gfx_ortho = Math::Matrix::Orthographic(l, r, b, t, zn, zf);
-    } else {
-        _gfx_ortho = Math::Matrix::Orthographic(l, r, b, t, zn, zf);
-    }
-
-    _gfx_view = Math::Matrix::Identity();
-    _gfx_model = Math::Matrix::Identity();
+    _gfx_ortho = mathfu::Matrix<float, 4>::Ortho(l, r, b, t, zn, zf);
+    _gfx_view = mathfu::Matrix<float, 4>::Identity();
+    _gfx_model = mathfu::Matrix<float, 4>::Identity();
 #if BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_PROJECTION);
     ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(*_gfx_proj));
@@ -178,7 +176,7 @@ auto RenderContext::matrix_ortho(float l, float r, float b, float t, float zn,
 
 auto RenderContext::set_matrices() -> void {
 #if BUILD_PC
-    Math::Matrix newModel = Math::Matrix::Identity();
+    auto newModel = mathfu::Matrix<float, 4>::Identity();
     for (int i = 0; i < _matrixStack.size(); i++) {
         newModel *= _matrixStack[i];
     }
@@ -190,12 +188,12 @@ auto RenderContext::set_matrices() -> void {
 #endif
     } else {
         glBindBuffer(GL_UNIFORM_BUFFER, GI::ubo);
-        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(Math::Matrix) * 2, sizeof(Math::Matrix),
-                        newModel.elements);
-        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(Math::Matrix), sizeof(Math::Matrix),
-                        _gfx_view.elements);
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Math::Matrix),
-                        (*_gfx_proj).elements);
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mathfu::Matrix<float, 4>) * 2, sizeof(mathfu::Matrix<float, 4>),
+                        newModel.data_);
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mathfu::Matrix<float, 4>), sizeof(mathfu::Matrix<float, 4>),
+                        _gfx_view.data_);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(mathfu::Matrix<float, 4>),
+                        (*_gfx_proj).data_);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 #elif BUILD_PLAT == BUILD_VITA
@@ -240,7 +238,7 @@ auto RenderContext::set_matrices() -> void {
 #endif
 }
 
-auto RenderContext::matrix_view(Math::Matrix mat) -> void {
+auto RenderContext::matrix_view(mathfu::Matrix<float, 4> mat) -> void {
 #if BUILD_PC
     _gfx_view = mat;
 
@@ -250,8 +248,8 @@ auto RenderContext::matrix_view(Math::Matrix mat) -> void {
 #endif
     } else {
         glBindBuffer(GL_UNIFORM_BUFFER, GI::ubo);
-        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(Math::Matrix), sizeof(Math::Matrix),
-                        _gfx_view.elements);
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mathfu::Matrix<float, 4>), sizeof(mathfu::Matrix<float, 4>),
+                        _gfx_view.data_);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 #elif BUILD_PLAT == BUILD_PSP
@@ -263,7 +261,7 @@ auto RenderContext::matrix_view(Math::Matrix mat) -> void {
 #endif
 }
 
-auto RenderContext::matrix_model(Math::Matrix mat) -> void {
+auto RenderContext::matrix_model(mathfu::Matrix<float, 4> mat) -> void {
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA || BUILD_PLAT == BUILD_3DS
     _gfx_model = mat;
 #elif BUILD_PLAT == BUILD_PSP
@@ -278,22 +276,22 @@ auto RenderContext::set_mode_2D() -> void {
 #if BUILD_PC
 
     if(rctxSettings.renderingApi == Vulkan) {
-        _gfx_view = Math::Matrix::Identity();
-        _gfx_model = Math::Matrix::Identity();
+        _gfx_view = mathfu::Matrix<float, 4>::Identity();
+        _gfx_model = mathfu::Matrix<float, 4>::Identity();
 #ifndef NO_EXPERIMENTAL_GRAPHICS
 
         GI::detail::VKPipeline::get().ubo.projview = *_gfx_proj * _gfx_view;
         GI::detail::VKPipeline::get().ubo.model = _gfx_model;
 #endif
     } else {
-        _gfx_view = Math::Matrix::Identity();
-        _gfx_model = Math::Matrix::Identity();
+        _gfx_view = mathfu::Matrix<float, 4>::Identity();
+        _gfx_model = mathfu::Matrix<float, 4>::Identity();
 
         glBindBuffer(GL_UNIFORM_BUFFER, GI::ubo);
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Math::Matrix),
-                        (*_gfx_proj).elements);
-        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(Math::Matrix), sizeof(Math::Matrix),
-                        _gfx_view.elements);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(mathfu::Matrix<float, 4>),
+                        (*_gfx_proj).data_);
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mathfu::Matrix<float, 4>), sizeof(mathfu::Matrix<float, 4>),
+                        _gfx_view.data_);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 #elif BUILD_PLAT == BUILD_PSP
@@ -312,8 +310,8 @@ auto RenderContext::set_mode_2D() -> void {
 auto RenderContext::set_mode_3D() -> void {
     _gfx_proj = &_gfx_persp;
 #if BUILD_PC
-    _gfx_view = Math::Matrix::Identity();
-    _gfx_model = Math::Matrix::Identity();
+    _gfx_view = mathfu::Matrix<float, 4>::Identity();
+    _gfx_model = mathfu::Matrix<float, 4>::Identity();
 
     if(rctxSettings.renderingApi == Vulkan) {
 #ifndef NO_EXPERIMENTAL_GRAPHICS
@@ -323,10 +321,10 @@ auto RenderContext::set_mode_3D() -> void {
 #endif
     } else {
         glBindBuffer(GL_UNIFORM_BUFFER, GI::ubo);
-        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(Math::Matrix),
-                        (*_gfx_proj).elements);
-        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(Math::Matrix), sizeof(Math::Matrix),
-                        _gfx_view.elements);
+        glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(mathfu::Matrix<float, 4>),
+                        (*_gfx_proj).data_);
+        glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mathfu::Matrix<float, 4>), sizeof(mathfu::Matrix<float, 4>),
+                        _gfx_view.data_);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 #elif BUILD_PLAT == BUILD_PSP

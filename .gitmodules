@@ -16,3 +16,6 @@
 [submodule "ext/zlib"]
 	path = ext/zlib
 	url = https://github.com/madler/zlib
+[submodule "ext/mathfu"]
+	path = ext/mathfu
+	url = https://github.com/google/mathfu.git

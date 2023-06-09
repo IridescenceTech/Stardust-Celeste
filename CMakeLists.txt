@@ -40,6 +40,14 @@ add_subdirectory(ext/zlib)
 add_library(minizip STATIC ext/zlib/contrib/minizip/ioapi.c ext/zlib/contrib/minizip/unzip.c ext/zlib/contrib/minizip/miniunz.c)
 target_link_libraries(minizip zlibstatic)
 
+# MathFu Requirement
+add_subdirectory(ext/mathfu)
+set(mathfu_enable_simd OFF)
+set(mathfu_build_tests OFF)
+set(mathfu_build_benchmarks OFF)
+
+add_compile_definitions(MATHFU_COMPILE_WITHOUT_SIMD_SUPPORT)
+
 if(PSP)
     list(REMOVE_ITEM SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/glad.cpp")
     add_library(Stardust-Celeste STATIC ${LUA_LIBRARY_SRC} ${SRC_FILES} ${INC_FILES})
@@ -69,7 +77,7 @@ else()
 
     add_library(Stardust-Celeste STATIC  ${LUA_LIBRARY_SRC} ${SRC_FILES} ${INC_FILES})
 
-    target_include_directories(Stardust-Celeste PUBLIC ext/glfw/include/ ext/zlib ext/zlib/contrib)
+    target_include_directories(Stardust-Celeste PUBLIC ext/glfw/include/ ext/zlib ext/zlib/contrib ext/mathfu/include)
     target_link_libraries(Stardust-Celeste PUBLIC glfw zlibstatic minizip)
 endif()
 
@@ -128,7 +136,7 @@ endif()
 # SC-Entry Library Artifact
 add_library(SC-Entry STATIC src/Core/Entry.cpp)
 # SC-Entry Include
-target_include_directories(SC-Entry PUBLIC include/)
+target_include_directories(SC-Entry PUBLIC include/ ext/mathfu/include)
 if(NOT EXPERIMENTAL_GRAPHICS)
     target_compile_definitions(SC-Entry PUBLIC NO_EXPERIMENTAL_GRAPHICS)
 endif()

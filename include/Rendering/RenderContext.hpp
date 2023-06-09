@@ -4,8 +4,9 @@
 #include "Utilities/Logger.hpp"
 #include "Utilities/Singleton.hpp"
 #include "Utilities/Types.hpp"
-#include <Math/Math.hpp>
 #include <vector>
+#include <mathfu/vector.h>
+#include <mathfu/matrix.h>
 
 #include "GI.hpp"
 #include "RenderTypes.hpp"
@@ -19,9 +20,9 @@ class RenderContext final : public Singleton {
     bool is_init = false;
     Color c;
 
-    Math::Matrix *_gfx_proj;
-    Math::Matrix _gfx_persp, _gfx_ortho, _gfx_view, _gfx_model;
-    std::vector<Math::Matrix> _matrixStack;
+    mathfu::Matrix<float, 4, 4> *_gfx_proj;
+    mathfu::Matrix<float, 4, 4> _gfx_persp, _gfx_ortho, _gfx_view, _gfx_model;
+    std::vector<mathfu::Matrix<float, 4, 4>> _matrixStack;
 
   public:
     RenderContext()
@@ -109,21 +110,21 @@ class RenderContext final : public Singleton {
      *
      * @param v Translation
      */
-    auto matrix_translate(Math::Vector3<float> v) -> void;
+    auto matrix_translate(mathfu::Vector<float, 3> v) -> void;
 
     /**
      * @brief Rotate model matrix by V (angle X, angle Y, angle Z)
      *
      * @param v Rotation
      */
-    auto matrix_rotate(Math::Vector3<float> v) -> void;
+    auto matrix_rotate(mathfu::Vector<float, 3> v) -> void;
 
     /**
      * @brief Scale mode matrix by V
      *
      * @param v Scale
      */
-    auto matrix_scale(Math::Vector3<float> v) -> void;
+    auto matrix_scale(mathfu::Vector<float, 3> v) -> void;
 
     /**
      * @brief Crerate perspective matrix
@@ -154,14 +155,14 @@ class RenderContext final : public Singleton {
      *
      * @param mat Matrix
      */
-    auto matrix_view(Math::Matrix mat) -> void;
+    auto matrix_view(mathfu::Matrix<float, 4, 4> mat) -> void;
 
     /**
      * @brief Set View Matrix
      *
      * @param mat Matrix
      */
-    auto matrix_model(Math::Matrix mat) -> void;
+    auto matrix_model(mathfu::Matrix<float, 4, 4> mat) -> void;
 
     /**
      * @brief Set the mode to 2D

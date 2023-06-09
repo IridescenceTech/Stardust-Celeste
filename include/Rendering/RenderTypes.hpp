@@ -1,8 +1,8 @@
 #pragma once
 #include <Utilities/Types.hpp>
 #include <array>
-#include <Math/Math.hpp>
 #include <string>
+#include <mathfu/vector.h>
 
 namespace Stardust_Celeste::Rendering {
 
@@ -50,8 +50,8 @@ struct VERT_PACKED Vertex {
  * extent -- Size of rectangle
  */
 struct Rectangle {
-    Math::Vector2<float> position;
-    Math::Vector2<float> extent;
+    mathfu::Vector<float, 2> position;
+    mathfu::Vector<float, 2> extent;
 };
 
 /**
@@ -83,7 +83,7 @@ struct Texture {
      * @param idx - The index to search for. Derived from x + y * width
      * @return Returns the 4 indices in counter-clockwise winding
      */
-    inline static std::array<float, 8> get_tile_uvs(Math::Vector2<float> dimensions,
+    inline static std::array<float, 8> get_tile_uvs(mathfu::Vector<float, 2> dimensions,
                                                     int idx) {
         int row = idx / (int)dimensions.x;
         int column = idx % (int)dimensions.x;

@@ -48,7 +48,7 @@ const std::string vert_source = R"(
     out vec3 position;
 
     void main() {
-        gl_Position = transpose(proj) * transpose(view) * transpose(model) * vec4(aPos, 1.0);
+        gl_Position = proj * view * model * vec4(aPos, 1.0);
         position = gl_Position.xyz;
         uv = aTex;
         color = aCol;
@@ -310,10 +310,10 @@ namespace GI {
             glUniformBlockBinding(GI::programID, ubi, 0);
             glGenBuffers(1, &ubo);
             glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-            glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(Math::Matrix), NULL,
+            glBufferData(GL_UNIFORM_BUFFER, 3 * sizeof(mathfu::Matrix<float, 4>), NULL,
                          GL_STATIC_DRAW);
             glBindBuffer(GL_UNIFORM_BUFFER, 0);
-            glBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo, 0, 3 * sizeof(Math::Matrix));
+            glBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo, 0, 3 * sizeof(mathfu::Matrix<float, 4>));
             glBindBuffer(GL_UNIFORM_BUFFER, GI::programID);
             glEnable(GL_FRAMEBUFFER_SRGB);
 #else
@@ -545,7 +545,7 @@ namespace GI {
 #endif
     }
 
-    auto to_vec4(Color &c) -> Math::Vector4<float> {
+    auto to_vec4(Color &c) -> mathfu::Vector<float, 4> {
         return {static_cast<float>(c.rgba.r) / 255.0f,
                 static_cast<float>(c.rgba.g) / 255.0f,
                 static_cast<float>(c.rgba.b) / 255.0f,

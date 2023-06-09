@@ -3,7 +3,7 @@
 
 namespace Stardust_Celeste::Graphics::G2D {
 AnimatedSprite::AnimatedSprite(u32 texture, Rendering::Rectangle bounds,
-                               Math::Vector2<float> atlasSize)
+                               mathfu::Vector<float, 2> atlasSize)
     : Sprite(texture, bounds), tickTimer(0.0f) {
     startIDX = 0;
     endIDX = atlasSize.x * atlasSize.y;
