@@ -117,7 +117,7 @@ auto RenderContext::matrix_rotate(mathfu::Vector<float, 3> v) -> void {
     auto rot_y = mathfu::Matrix<float, 3, 3>::RotationY(v.y / 180.0f * M_PI);
     auto rot_z = mathfu::Matrix<float, 3, 3>::RotationZ(v.z / 180.0f * M_PI);
 
-    auto rotation = rot_z * rot_y * rot_x;
+    auto rotation = rot_x * rot_y * rot_z;
     auto rotation_matrix = mathfu::Matrix<float, 4, 4>::FromRotationMatrix(rotation);
 
     _gfx_model *= rotation_matrix;
