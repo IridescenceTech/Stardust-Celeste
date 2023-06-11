@@ -45,6 +45,15 @@ struct VERT_PACKED Vertex {
 };
 
 /**
+ * @brief Packed simple vertex
+ */
+struct VERT_PACKED SimpleVertex {
+    uint16_t u, v;
+    uint16_t color;
+    uint16_t x, y, z;
+};
+
+/**
  * @brief Rectangle Structure
  * position -- Position of rectangle
  * extent -- Size of rectangle

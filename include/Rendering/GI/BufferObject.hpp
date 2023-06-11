@@ -12,6 +12,7 @@ namespace GI {
         virtual void draw(Rendering::PrimType p) = 0;
 
         virtual void update(const Stardust_Celeste::Rendering::Vertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size) = 0;
+        virtual void update(const Stardust_Celeste::Rendering::SimpleVertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size) = 0;
         virtual void destroy() = 0;
     };
 }

@@ -11,6 +11,13 @@ namespace GI::detail{
         vbo->update(vert_data, vert_size, indices, idx_size);
         return vbo;
     }
+    GLBufferObject* GLBufferObject::create(const Stardust_Celeste::Rendering::SimpleVertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size) {
+        GLBufferObject* vbo = new GLBufferObject();
+        vbo->setup = false;
+
+        vbo->update(vert_data, vert_size, indices, idx_size);
+        return vbo;
+    }
 
     void GLBufferObject::bind() {
         if(setup) {
@@ -117,10 +124,71 @@ namespace GI::detail{
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride,
                               reinterpret_cast<void *>(sizeof(float) * 3));
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, stride,
+        glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, stride,
                               reinterpret_cast<void *>(sizeof(float) * 2));
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, nullptr);
+
+        if (!setup) {
+            glGenBuffers(1, &ebo);
+            setup = true;
+        }
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * idx_size,
+                     indices, GL_STATIC_DRAW);
+
+        glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+#elif BUILD_PLAT == BUILD_VITA
+        if (idx_size <= 0 || vert_size <= 0)
+            return;
+
+        if (!setup) {
+            glGenBuffers(1, &vbo);
+        }
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Stardust_Celeste::Rendering::Vertex) * vert_size,
+                     vert_data, GL_STATIC_DRAW);
+
+        if (!setup) {
+            glGenBuffers(1, &ebo);
+            setup = true;
+        }
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(u16) * idx_size,
+                     indices, GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#elif BUILD_PLAT == BUILD_PSP
+        sceKernelDcacheWritebackInvalidateAll();
+#endif
+        idx_count = idx_size;
+    }
+
+    void GLBufferObject::update(const Stardust_Celeste::Rendering::SimpleVertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size) {
+#if BUILD_PC
+        if (!setup) {
+            glGenVertexArrays(1, &vao);
+            glGenBuffers(1, &vbo);
+        }
+        bind();
+
+        glBindVertexArray(vao);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Stardust_Celeste::Rendering::SimpleVertex) * vert_size,
+                     vert_data, GL_STATIC_DRAW);
+
+        const auto stride = sizeof(Stardust_Celeste::Rendering::SimpleVertex);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_UNSIGNED_SHORT, GL_FALSE, stride,
+                              reinterpret_cast<void *>(sizeof(uint16_t) * 3));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 1, GL_UNSIGNED_SHORT, GL_FALSE, stride,
+                              reinterpret_cast<void *>(sizeof(uint16_t) * 2));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_UNSIGNED_SHORT, GL_TRUE, stride, nullptr);
 
         if (!setup) {
             glGenBuffers(1, &ebo);

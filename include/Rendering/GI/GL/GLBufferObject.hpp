@@ -11,10 +11,12 @@ namespace GI::detail {
         ~GLBufferObject() { destroy(); }
 
         static GLBufferObject* create(const Stardust_Celeste::Rendering::Vertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size);
+        static GLBufferObject* create(const Stardust_Celeste::Rendering::SimpleVertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size);
         void bind() override;
         void draw(Rendering::PrimType p) override;
 
         void update(const Stardust_Celeste::Rendering::Vertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size) override;
+        void update(const Stardust_Celeste::Rendering::SimpleVertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size) override;
         void destroy() override;
 
     private:

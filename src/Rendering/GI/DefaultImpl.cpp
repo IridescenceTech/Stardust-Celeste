@@ -51,7 +51,18 @@ const std::string vert_source = R"(
         gl_Position = proj * view * model * vec4(aPos, 1.0);
         position = gl_Position.xyz;
         uv = aTex;
-        color = aCol;
+
+         if(aCol.r > 1.0f) {
+            uint aColPacked = uint(aCol.r);
+            float alpha = float((aColPacked >> 12) & 15) / 15.0;
+            float red = float((aColPacked >> 8) & 15) / 15.0;
+            float green = float((aColPacked >> 4) & 15) / 15.0;
+            float blue = float(aColPacked & 15) / 15.0;
+            color = vec4(red, green, blue, alpha);
+        } else {
+            color = aCol;
+        }
+
     }
 )";
 
@@ -78,12 +89,12 @@ const std::string frag_source = R"(
 
     void main() {
         vec4 texColor = texture(tex, vec2(uv.x + scroll, uv.y));
-        vec4 color1 = color * vec4(1.0f / 255.0f);
-        vec4 color2 = vec4(Convert_sRGB_ToLinear(color1.r), Convert_sRGB_ToLinear(color1.g), Convert_sRGB_ToLinear(color1.b), color1.a);
+
+        vec4 color1 = vec4(Convert_sRGB_ToLinear(color.r), Convert_sRGB_ToLinear(color.g), Convert_sRGB_ToLinear(color.b), color.a);
         if(noTex == 0) {
-            texColor *= color2;
+            texColor *= color1;
         } else if(noTex == 1) {
-            texColor = color2;
+            texColor = color1;
         }
 
         if(fog == 1) {
@@ -642,6 +653,18 @@ namespace GI {
     }
 
     auto create_vertexbuffer(const Stardust_Celeste::Rendering::Vertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size) -> BufferObject* {
+        if (rctxSettings.renderingApi == Vulkan) {
+#ifndef NO_EXPERIMENTAL_GRAPHICS
+            return detail::VKBufferObject::create(vert_data, vert_size, indices, idx_size);
+#endif
+        } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
+            return detail::GLBufferObject::create(vert_data, vert_size, indices, idx_size);
+        }
+
+        return nullptr;
+    }
+
+    auto create_vertexbuffer(const Stardust_Celeste::Rendering::SimpleVertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size) -> BufferObject* {
         if (rctxSettings.renderingApi == Vulkan) {
 #ifndef NO_EXPERIMENTAL_GRAPHICS
             return detail::VKBufferObject::create(vert_data, vert_size, indices, idx_size);
