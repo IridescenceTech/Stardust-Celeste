@@ -186,6 +186,16 @@ class RenderContext final : public Singleton {
      */
     auto set_mode_3D() -> void;
 
+    inline auto get_projection_matrix() -> mathfu::Matrix<float, 4, 4> & {
+        return _ubo.proj;
+    }
+    inline auto get_view_matrix() -> mathfu::Matrix<float, 4, 4> & {
+        return _ubo.view;
+    }
+    inline auto get_model_matrix() -> mathfu::Matrix<float, 4, 4> & {
+        return _ubo.model;
+    }
+
     /**
      * @brief VSYNC Enable / Disable
      *
