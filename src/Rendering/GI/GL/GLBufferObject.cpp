@@ -29,6 +29,7 @@ namespace GI::detail{
                     glDrawElements(GL_TRIANGLES, idx_count, GL_UNSIGNED_SHORT,
                                    nullptr);
                 } else {
+                    glLineWidth(4.0f);
                     glDrawElements(GL_LINE_STRIP, idx_count, GL_UNSIGNED_SHORT,
                                    nullptr);
                 }
