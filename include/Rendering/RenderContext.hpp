@@ -20,15 +20,25 @@ class RenderContext final : public Singleton {
     bool is_init = false;
     Color c;
 
-    mathfu::Matrix<float, 4, 4> *_gfx_proj;
-    mathfu::Matrix<float, 4, 4> _gfx_persp, _gfx_ortho, _gfx_view, _gfx_model;
+    mathfu::Matrix<float, 4, 4> _gfx_persp, _gfx_ortho;
+
+    struct UBOLayout {
+        mathfu::Matrix<float, 4, 4> proj;
+        mathfu::Matrix<float, 4, 4> view;
+        mathfu::Matrix<float, 4, 4> model;
+    };
+
+    UBOLayout _ubo;
+
     std::vector<mathfu::Matrix<float, 4, 4>> _matrixStack;
 
   public:
     RenderContext()
-        : _gfx_proj(&_gfx_ortho), _gfx_persp(1), _gfx_ortho(1), _gfx_view(1),
-          _gfx_model(1) {
+        : _gfx_persp(1), _gfx_ortho(1) {
         c = Rendering::Color{{0xFF, 0xFF, 0xFF, 0xFF}};
+        _ubo.proj = mathfu::Matrix<float, 4, 4>(1);
+        _ubo.view = mathfu::Matrix<float, 4, 4>(1);
+        _ubo.model = mathfu::Matrix<float, 4, 4>(1);
     };
 
     /**

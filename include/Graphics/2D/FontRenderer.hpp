@@ -89,6 +89,8 @@ class FontRenderer : public Tilemap {
     eastl::vector<TextData> stringVector;
 #else
     std::vector<TextData> stringVector;
+    std::vector<TextData> oldStringVector;
+    bool rebuildFlag = true;
 #endif
 };
 
