@@ -52,7 +52,16 @@ extern SceCtrlData currentPadData;
 
 bool diff_mode[5];
 
+double pc_lx, pc_ly;
+int pc_w, pc_h;
+
+
 auto update() -> void {
+#if BUILD_PC
+    glfwGetCursorPos(GI::window, &pc_lx, &pc_ly);
+    glfwGetWindowSize(GI::window, &pc_w, &pc_h);
+#endif
+
     for (auto &c : controller_map) {
         c->update();
     }
@@ -89,16 +98,10 @@ auto get_axis(std::string device, std::string axis) -> float {
 
     if (devIDX == 0) {
 #if BUILD_PC
-        double lx, ly;
-        glfwGetCursorPos(GI::window, &lx, &ly);
-
-        int w, h;
-        glfwGetWindowSize(GI::window, &w, &h);
-
         if (axis == "X") {
-            res = lx / (float)w;
+            res = pc_lx / (float)pc_w;
         } else if (axis == "Y") {
-            res = ly / (float)h;
+            res = pc_ly / (float)pc_h;
         }
 #endif
     } else if (devIDX == 1) {
@@ -112,9 +115,9 @@ auto get_axis(std::string device, std::string axis) -> float {
     } else if (devIDX == 2) {
 #if VITA
         if (axis == "LX") {
-            res = (float)currentPadData.lx / 255.0f;
+            res = (float)currentPadData.pc_lx / 255.0f;
         } else if (axis == "LY") {
-            res = (float)currentPadData.ly / 255.0f;
+            res = (float)currentPadData.pc_ly / 255.0f;
         } else if (axis == "RX") {
             res = (float)currentPadData.rx / 255.0f;
         } else if (axis == "RY") {

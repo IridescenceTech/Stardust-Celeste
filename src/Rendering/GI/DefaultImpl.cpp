@@ -48,21 +48,24 @@ const std::string vert_source = R"(
     out vec3 position;
 
     void main() {
-        gl_Position = proj * view * model * vec4(aPos, 1.0);
-        position = gl_Position.xyz;
-        uv = aTex;
+        vec3 aPos2 = aPos;
 
-         if(aCol.r > 1.0f) {
+        if(aCol.r > 1.0f) {
             uint aColPacked = uint(aCol.r);
             float alpha = float((aColPacked >> 12) & 15) / 15.0;
             float red = float((aColPacked >> 8) & 15) / 15.0;
             float green = float((aColPacked >> 4) & 15) / 15.0;
             float blue = float(aColPacked & 15) / 15.0;
             color = vec4(red, green, blue, alpha);
+
+            aPos2.y /= 32.0f;
         } else {
             color = aCol;
         }
 
+        uv = aTex;
+        gl_Position = proj * view * model * vec4(aPos2, 1.0);
+        position = gl_Position.xyz;
     }
 )";
 
