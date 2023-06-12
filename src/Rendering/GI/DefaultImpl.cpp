@@ -102,8 +102,8 @@ const std::string frag_source = R"(
 
         if(fog == 1) {
             float dist = abs(position.z);
-            const float fogMax = (256.0f * 0.8);
-            const float fogMin = (256.0f * 0.2);
+            const float fogMax = (192.0f * 0.8);
+            const float fogMin = (192.0f * 0.2);
             float fogFactor = (fogMax - dist) / (fogMax - fogMin);
             fogFactor = clamp(fogFactor, 0.0f, 1.0f);
             texColor = vec4(mix(fogColor.rgb, texColor.rgb, fogFactor), texColor.a);
@@ -369,7 +369,11 @@ namespace GI {
 #endif
             }
         } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
-            glEnable(state);
+            if(state == GI_FOG) {
+                glUniform1i(glGetUniformLocation(GI::programID, "fog"), 1);
+            } else {
+                glEnable(state);
+            }
         }
     }
     auto disable(u32 state) -> void {
@@ -384,7 +388,12 @@ namespace GI {
             if (state == GI_TEXTURE_2D)
                 glBindTexture(GL_TEXTURE_2D, 0);
 #endif
-            glDisable(state);
+
+            if(state == GI_FOG) {
+                glUniform1i(glGetUniformLocation(GI::programID, "fog"), 0);
+            } else {
+                glEnable(state);
+            }
         }
     }
 

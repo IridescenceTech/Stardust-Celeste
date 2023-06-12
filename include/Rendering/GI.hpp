@@ -27,7 +27,11 @@
 #define GI_BLEND GL_BLEND
 #define GI_CULL_FACE GL_CULL_FACE
 #define GI_DITHER GL_DITHER
+#ifndef GL_FOG
+#define GI_FOG 1
+#else
 #define GI_FOG GL_FOG
+#endif
 #define GI_CLIP_PLANES GL_CLIP_PLANES
 #define GI_TEXTURE_2D GL_TEXTURE_2D
 #define GI_LINE_SMOOTH GL_LINE_SMOOTH
