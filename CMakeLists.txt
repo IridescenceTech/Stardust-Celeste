@@ -40,12 +40,6 @@ add_subdirectory(ext/zlib)
 add_library(minizip STATIC ext/zlib/contrib/minizip/ioapi.c ext/zlib/contrib/minizip/unzip.c ext/zlib/contrib/minizip/miniunz.c)
 target_link_libraries(minizip zlibstatic)
 
-# MathFu Requirement
-add_subdirectory(ext/mathfu)
-set(mathfu_enable_simd OFF)
-set(mathfu_build_tests OFF)
-set(mathfu_build_benchmarks OFF)
-
 add_compile_definitions(MATHFU_COMPILE_WITHOUT_SIMD_SUPPORT)
 
 if(PSP)
