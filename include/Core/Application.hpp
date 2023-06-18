@@ -160,19 +160,19 @@ class Application {
         while (running) {
             frameTime = static_cast<float>(timer.get_delta_time());
 
-            if (!stateStack.empty()) {
+            if (!stateStack.empty())
                 stateStack.back()->on_update(this, frameTime);
 
-                auto rctx = Rendering::RenderContext::get().initialized();
+            auto rctx = Rendering::RenderContext::get().initialized();
 
-                if (rctx)
-                    Rendering::RenderContext::get().clear();
+            if (rctx)
+                Rendering::RenderContext::get().clear();
 
+            if (!stateStack.empty())
                 stateStack.back()->on_draw(this, frameTime);
 
-                if (rctx)
-                    Rendering::RenderContext::get().render();
-            }
+            if (rctx)
+                Rendering::RenderContext::get().render();
         }
     }
 
