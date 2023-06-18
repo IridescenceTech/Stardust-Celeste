@@ -2,9 +2,11 @@
 #define GUGL_IMPLEMENTATION
 #endif
 
-#include <Rendering/GI.hpp>
 #include <Utilities/Assertion.hpp>
 #include <string>
+
+#define BUILD_PC (BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX)
+#include <Rendering/GI.hpp>
 
 #if BUILD_PC
 #define GLFW_INCLUDE_NONE
@@ -21,9 +23,10 @@
 
 #include "Rendering/GI/DX11/DXContext.hpp"
 #elif BUILD_PLAT == BUILD_PSP
-#define GUGL_IMPLEMENTATION
 #include <gu2gl/gu2gl.h>
 #include <pspctrl.h>
+#include <Rendering/GI/GL/GLTextureHandle.hpp>
+#include <Rendering/GI/GL/GLBufferObject.hpp>
 #elif BUILD_PLAT == BUILD_VITA
 #include <vitaGL.h>
 #elif BUILD_PLAT == BUILD_3DS
@@ -49,6 +52,7 @@ const std::string vert_source = R"(
 
     void main() {
         vec3 aPos2 = aPos;
+        vec2 aTex2 = aTex;
 
         if(aCol.r > 1.0f) {
             uint aColPacked = uint(aCol.r);
@@ -58,12 +62,13 @@ const std::string vert_source = R"(
             float blue = float(aColPacked & 15) / 15.0;
             color = vec4(red, green, blue, alpha);
 
-            aPos2.y /= 32.0f;
+            aPos2 *= 2.0f;
+            aTex2 *= 2.0f;
         } else {
             color = aCol;
         }
 
-        uv = aTex;
+        uv = aTex2;
         gl_Position = proj * view * model * vec4(aPos2, 1.0);
         position = gl_Position.xyz;
     }
@@ -369,11 +374,19 @@ namespace GI {
 #endif
             }
         } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
+#if BUILD_PC
             if(state == GI_FOG) {
                 glUniform1i(glGetUniformLocation(GI::programID, "fog"), 1);
-            } else {
-                glEnable(state);
             }
+#elif BUILD_PLAT == BUILD_PSP
+            if(state == GI_FOG) {
+                glEnable(GL_FOG);
+                auto renderDistance = 3.0f * 16.0f;
+                sceGuFog(0.2f * renderDistance, 0.8f * renderDistance, 0x00FFFFFF);
+            }
+#endif
+
+            glEnable(state);
         }
     }
     auto disable(u32 state) -> void {
@@ -387,13 +400,12 @@ namespace GI {
 #ifndef PSP
             if (state == GI_TEXTURE_2D)
                 glBindTexture(GL_TEXTURE_2D, 0);
-#endif
 
             if(state == GI_FOG) {
                 glUniform1i(glGetUniformLocation(GI::programID, "fog"), 0);
-            } else {
-                glEnable(state);
             }
+#endif
+            glDisable(state);
         }
     }
 

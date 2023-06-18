@@ -1,6 +1,7 @@
 #include <Platform/Platform.hpp>
 #include <Rendering/GI/GL/GLBufferObject.hpp>
 #include "Rendering/RenderTypes.hpp"
+#include <Utilities/Logger.hpp>
 #define BUILD_PC (BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX)
 
 namespace GI::detail{
@@ -42,16 +43,25 @@ namespace GI::detail{
                 }
         #elif BUILD_PLAT == BUILD_PSP
                 sceGuShadeModel(GU_SMOOTH);
-                if (p == PRIM_TYPE_TRIANGLE) {
+                if(!simple) {
+                if (p == Rendering::PrimType::PRIM_TYPE_TRIANGLE) {
                     sceGumDrawArray(GU_TRIANGLES,
                                     GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
                                             GU_VERTEX_32BITF | GU_TRANSFORM_3D,
-                                    indices.size(), indices.data(), vertices.data());
+                                    idx_count, idx_buf, vtx_buf);
                 } else {
                     sceGumDrawArray(GU_LINE_STRIP,
                                     GU_INDEX_16BIT | GU_TEXTURE_32BITF | GU_COLOR_8888 |
                                             GU_VERTEX_32BITF | GU_TRANSFORM_3D,
-                                    indices.size(), indices.data(), vertices.data());
+                                    idx_count, idx_buf, vtx_buf);
+                }
+                } else {
+                    if (p == Rendering::PrimType::PRIM_TYPE_TRIANGLE) {
+                    sceGumDrawArray(GU_TRIANGLES,
+                                    GU_INDEX_16BIT | GU_TEXTURE_16BIT | GU_COLOR_4444 |
+                                            GU_VERTEX_16BIT | GU_TRANSFORM_3D,
+                                    idx_count, idx_buf, vtx_buf);
+                    }
                 }
         #elif BUILD_PLAT == BUILD_VITA
                 if (vertices.size() == 0 || indices.size() == 0)
@@ -161,6 +171,9 @@ namespace GI::detail{
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 #elif BUILD_PLAT == BUILD_PSP
+        vtx_size = vert_size;
+        vtx_buf = vert_data;
+        idx_buf = indices;
         sceKernelDcacheWritebackInvalidateAll();
 #endif
         idx_count = idx_size;
@@ -182,7 +195,7 @@ namespace GI::detail{
         const auto stride = sizeof(Stardust_Celeste::Rendering::SimpleVertex);
 
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_UNSIGNED_SHORT, GL_FALSE, stride,
+        glVertexAttribPointer(0, 3, GL_UNSIGNED_SHORT, GL_TRUE, stride,
                               reinterpret_cast<void *>(sizeof(uint16_t) * 3));
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 1, GL_UNSIGNED_SHORT, GL_FALSE, stride,
@@ -222,7 +235,11 @@ namespace GI::detail{
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 #elif BUILD_PLAT == BUILD_PSP
+        vtx_size = vert_size;
+        vtx_buf = vert_data;
+        idx_buf = indices;
         sceKernelDcacheWritebackInvalidateAll();
+        simple = true;
 #endif
         idx_count = idx_size;
     }

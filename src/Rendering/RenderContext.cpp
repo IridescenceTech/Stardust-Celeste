@@ -135,7 +135,7 @@ auto RenderContext::matrix_perspective(float fovy, float aspect, float zn,
     _ubo.model = mathfu::Matrix<float, 4>::Identity();
 #if BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_PROJECTION);
-    ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(*_gfx_proj));
+    ScePspFMatrix4 m1 = *(ScePspFMatrix4*)(_gfx_persp.data_);
     sceGumLoadMatrix(&m1);
 
     sceGumMatrixMode(GU_VIEW);
@@ -158,7 +158,7 @@ auto RenderContext::matrix_ortho(float l, float r, float b, float t, float zn,
     _ubo.model = mathfu::Matrix<float, 4>::Identity();
 #if BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_PROJECTION);
-    ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(*_gfx_proj));
+    ScePspFMatrix4 m1 = *(ScePspFMatrix4*)(_gfx_ortho.data_);
     sceGumLoadMatrix(&m1);
 
     sceGumMatrixMode(GU_VIEW);
@@ -195,11 +195,12 @@ auto RenderContext::set_matrices() -> void {
     }
 #elif BUILD_PLAT == BUILD_VITA
 
-    glm::mat4 newModel = glm::mat4(1.0f);
+    auto newModel = mathfu::Matrix<float, 4>::Identity();
     for (int i = 0; i < _matrixStack.size(); i++) {
         newModel *= _matrixStack[i];
     }
-    newModel *= _gfx_model;
+    newModel *= _ubo.model;
+    _ubo.model = newModel;
 
     glUniformMatrix4fv(GI::projLoc, 1,
                        GL_FALSE, glm::value_ptr(*_gfx_proj));
@@ -210,14 +211,15 @@ auto RenderContext::set_matrices() -> void {
 
 #elif BUILD_PLAT == BUILD_PSP
 
-    glm::mat4 newModel = glm::mat4(1.0f);
+    auto newModel = mathfu::Matrix<float, 4>::Identity();
     for (int i = 0; i < _matrixStack.size(); i++) {
         newModel *= _matrixStack[i];
     }
-    newModel *= _gfx_model;
+    newModel *= _ubo.model;
+    _ubo.model = newModel;
 
     sceGumMatrixMode(GU_MODEL);
-    ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(newModel));
+    ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)_ubo.model.data_);
     sceGumLoadMatrix(&m1);
 
 #elif BUILD_PLAT == BUILD_3DS
@@ -250,8 +252,9 @@ auto RenderContext::matrix_view(mathfu::Matrix<float, 4> mat) -> void {
 
     }
 #elif BUILD_PLAT == BUILD_PSP
+    _ubo.view = mat;
     sceGumMatrixMode(GU_VIEW);
-    ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(mat));
+    ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)_ubo.view.data_);
     sceGumLoadMatrix(&m1);
 #elif BUILD_PLAT == BUILD_VITA || BUILD_PLAT == BUILD_3DS
     _gfx_view = mat;
@@ -262,8 +265,9 @@ auto RenderContext::matrix_model(mathfu::Matrix<float, 4> mat) -> void {
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA || BUILD_PLAT == BUILD_3DS
     _ubo.model = mat;
 #elif BUILD_PLAT == BUILD_PSP
+    _ubo.model = mat;
     sceGumMatrixMode(GU_MODEL);
-    ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(mat));
+    ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)_ubo.model.data_);
     sceGumLoadMatrix(&m1);
 #endif
 }
@@ -291,7 +295,7 @@ auto RenderContext::set_mode_2D() -> void {
     }
 #elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_PROJECTION);
-    ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(*_gfx_proj));
+    ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)_ubo.proj.data_);
     sceGumLoadMatrix(&m1);
     sceGumMatrixMode(GU_VIEW);
     sceGumLoadIdentity();
@@ -322,7 +326,7 @@ auto RenderContext::set_mode_3D() -> void {
     }
 #elif BUILD_PLAT == BUILD_PSP
     sceGumMatrixMode(GU_PROJECTION);
-    ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)glm::value_ptr(*_gfx_proj));
+    ScePspFMatrix4 m1 = *((ScePspFMatrix4 *)_ubo.proj.data_);
     sceGumLoadMatrix(&m1);
     sceGumMatrixMode(GU_VIEW);
     sceGumLoadIdentity();

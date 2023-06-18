@@ -5,12 +5,15 @@
 namespace GI::detail {
 
     void GLTextureHandle::bind() {
+#ifndef PSP
         GI::enable(GI_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, id);
+#endif
     }
 
 
     GLTextureHandle* GLTextureHandle::create_ram(uint8_t* buf, size_t len, u32 magFilter, u32 minFilter, bool repeat, bool flip) {
+#ifndef PSP
         GLTextureHandle* tex = new GLTextureHandle();
 
         int texWidth, texHeight, texChannels;
@@ -45,10 +48,12 @@ namespace GI::detail {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
 
         return tex;
+#endif
     }
 
 
     GLTextureHandle* GLTextureHandle::create(std::string filename, u32 magFilter, u32 minFilter, bool repeat, bool flip) {
+#ifndef PSP
         GLTextureHandle* tex = new GLTextureHandle();
 
         int texWidth, texHeight, texChannels;
@@ -83,9 +88,12 @@ namespace GI::detail {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
 
         return tex;
+#endif
     }
 
     void GLTextureHandle::destroy() {
+#ifndef PSP
         glDeleteTextures(1, &id);
+#endif
     }
 }

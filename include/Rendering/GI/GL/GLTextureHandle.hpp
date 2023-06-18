@@ -1,5 +1,7 @@
 #pragma once
+#if BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX
 #include <glad/glad.hpp>
+#endif
 #include <Rendering/GI/TextureHandle.hpp>
 #include "Rendering/RenderTypes.hpp"
 

@@ -118,9 +118,9 @@ auto TextureManager::load_texture_ram(u8 *buffer, size_t length, u32 magFilter, 
     tex->pW = pow2(width);
     tex->pH = pow2(height);
 
-    tex->ramSpace = 0; // TODO: Add option for PSP VRAM
+    tex->ramSpace = 1; // USE VRAM BY DEFAULT
     tex->swizzle = 1;
-    tex->colorMode = 3; // GU_PSM_8888
+    tex->colorMode = 2; // GU_PSM_4444
     tex->id = 0;
 
     tex->repeating = repeat;
@@ -134,28 +134,37 @@ auto TextureManager::load_texture_ram(u8 *buffer, size_t length, u32 magFilter, 
     tex->data = GI::create_texturehandle_memory(buffer, length, magFilter, minFilter, repeat, flip);
     tex->id = ((GI::TextureHandle*)tex->data)->id;
 #elif BUILD_PLAT == BUILD_PSP
-    unsigned int *dataBuffer =
-        (unsigned int *)memalign(16, tex->pH * tex->pW * 4);
+    uint16_t *dataBuffer =
+        (uint16_t *)memalign(16, tex->pH * tex->pW * 2);
 
-    for (unsigned int y = 0; y < height; y++) {
-        for (unsigned int x = 0; x < width; x++) {
-            dataBuffer[x + y * tex->pW] = ((unsigned int *)data)[x + y * width];
+    for (uint16_t y = 0; y < height; y++) {
+        for (uint16_t x = 0; x < width; x++) {
+            auto rgba8 = ((unsigned int *)data)[x + y * width];
+            auto r = (rgba8 & 0xFF000000) >> 24;
+            auto g = (rgba8 & 0x00FF0000) >> 16;
+            auto b = (rgba8 & 0x0000FF00) >> 8;
+            auto a = (rgba8 & 0x000000FF);
+
+            auto r4 = (r >> 4) & 0xF;
+            auto g4 = (g >> 4) & 0xF;
+            auto b4 = (b >> 4) & 0xF;
+            auto a4 = (a >> 4) & 0xF;
+
+            auto rgba4 = (r4 << 12) | (g4 << 8) | (b4 << 4) | a4;
+
+            dataBuffer[x + y * tex->pW] = rgba4;
         }
     }
 
-    stbi_image_free(data);
+    tex->pixData = data;
     tex->data = (uint16_t *)dataBuffer;
 
-    unsigned int *swizzled_pixels = nullptr;
-    if (!vram)
-        swizzled_pixels = (unsigned int *)memalign(16, tex->pH * tex->pW * 4);
-    else {
-        swizzled_pixels =
-            (unsigned int *)((int)offset + (int)sceGeEdramGetAddr());
-        offset += tex->pH * tex->pW * 4;
+    uint16_t *swizzled_pixels = (uint16_t *)vramalloc(tex->pH * tex->pW * 2);;
+    if (vram == NULL) {
+        swizzled_pixels = (uint16_t *)memalign(16, tex->pH * tex->pW * 2);
     }
 
-    swizzle_fast((u8 *)swizzled_pixels, (const u8 *)dataBuffer, tex->pW * 4,
+    swizzle_fast((u8 *)swizzled_pixels, (const u8 *)dataBuffer, tex->pW * 2,
                  tex->pH);
 
     free(dataBuffer);
