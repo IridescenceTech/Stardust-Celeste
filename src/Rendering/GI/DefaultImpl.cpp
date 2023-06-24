@@ -81,7 +81,7 @@ const std::string frag_source = R"(
     uniform float scroll;
     uniform int fog;
 
-    const vec3 fogColor = vec3(0.6f, 0.8f, 0.9f);
+    uniform vec4 fogColor;
 
     in vec2 uv;
     in vec4 color;
@@ -160,6 +160,7 @@ float4 main(float2 vTexcoord : TEXCOORD0, float4 vColor : COLOR0, uniform sample
 namespace GI {
     RenderContextSettings rctxSettings;
 
+    Rendering::Color fogcol;
 #if BUILD_PC
     GLFWwindow *window;
     GLuint programID;
@@ -366,6 +367,10 @@ namespace GI {
 #endif
     }
 
+    auto fog_color(Color color) -> void {
+        fogcol = color;
+    }
+
     auto enable(u32 state) -> void {
         if (rctxSettings.renderingApi == Vulkan) {
             if(state == GI_DEPTH_TEST) {
@@ -377,15 +382,20 @@ namespace GI {
 #if BUILD_PC
             if(state == GI_FOG) {
                 glUniform1i(glGetUniformLocation(GI::programID, "fog"), 1);
+                glUniform4f(glGetUniformLocation(GI::programID, "fogColor"), (float)fogcol.rgba.r / 255.0f,
+                            (float)fogcol.rgba.g / 255.0f, (float)fogcol.rgba.b / 255.0f, (float)fogcol.rgba.a / 255.0f);
+            }
+
+            if (state == GI_TEXTURE_2D) {
+                glUniform1i(noTex, 0);
             }
 #elif BUILD_PLAT == BUILD_PSP
             if(state == GI_FOG) {
                 glEnable(GL_FOG);
-                auto renderDistance = 3.0f * 16.0f;
-                sceGuFog(0.2f * renderDistance, 0.8f * renderDistance, 0x00FFFFFF);
+                auto renderDistance = 3.707f * 16.0f;
+                sceGuFog(0.2f * renderDistance, 0.8f * renderDistance, fogcol.color);
             }
 #endif
-
             glEnable(state);
         }
     }
@@ -398,8 +408,10 @@ namespace GI {
             }
         } else if(rctxSettings.renderingApi == OpenGL || rctxSettings.renderingApi == DefaultAPI) {
 #ifndef PSP
-            if (state == GI_TEXTURE_2D)
+            if (state == GI_TEXTURE_2D) {
                 glBindTexture(GL_TEXTURE_2D, 0);
+                glUniform1i(noTex, 1);
+            }
 
             if(state == GI_FOG) {
                 glUniform1i(glGetUniformLocation(GI::programID, "fog"), 0);

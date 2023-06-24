@@ -122,6 +122,8 @@ auto clear_color(Color color) -> void;
 auto clear(u32 mask) -> void;
 auto clearDepth() -> void;
 
+auto fog_color(Color color) -> void;
+
 auto enable_textures() -> void;
 auto disable_textures() -> void;
 auto set_tex_scroll(float v) -> void;
