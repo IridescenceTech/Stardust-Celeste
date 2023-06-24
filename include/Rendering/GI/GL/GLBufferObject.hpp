@@ -37,8 +37,8 @@ namespace GI::detail {
         size_t vtx_size;
         const void* vtx_buf;
         const void* idx_buf;
-        bool simple = false;
 #endif
+        bool simple = false;
         bool setup;
         size_t idx_count;
     };

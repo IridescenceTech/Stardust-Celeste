@@ -4,6 +4,12 @@
 #include <Utilities/Logger.hpp>
 #define BUILD_PC (BUILD_PLAT == BUILD_WINDOWS || BUILD_PLAT == BUILD_POSIX)
 
+#if BUILD_PC
+namespace GI {
+    extern GLuint programID;
+}
+#endif
+
 namespace GI::detail{
     GLBufferObject* GLBufferObject::create(const Stardust_Celeste::Rendering::Vertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size) {
         GLBufferObject* vbo = new GLBufferObject();
@@ -33,6 +39,11 @@ namespace GI::detail{
 
     void GLBufferObject::draw(Rendering::PrimType p) {
         #if BUILD_PC
+        if(simple) {
+            glUniform1i(glGetUniformLocation(programID, "simple"), 1);
+        } else {
+            glUniform1i(glGetUniformLocation(programID, "simple"), 0);
+        }
                 if (p == Rendering::PrimType::PRIM_TYPE_TRIANGLE) {
                     glDrawElements(GL_TRIANGLES, idx_count, GL_UNSIGNED_SHORT,
                                    nullptr);
@@ -58,7 +69,7 @@ namespace GI::detail{
                 } else {
                     if (p == Rendering::PrimType::PRIM_TYPE_TRIANGLE) {
                     sceGumDrawArray(GU_TRIANGLES,
-                                    GU_INDEX_16BIT | GU_TEXTURE_16BIT | GU_COLOR_4444 |
+                                    GU_INDEX_16BIT | GU_TEXTURE_16BIT | GU_COLOR_8888 |
                                             GU_VERTEX_16BIT | GU_TRANSFORM_3D,
                                     idx_count, idx_buf, vtx_buf);
                     }
@@ -117,6 +128,7 @@ namespace GI::detail{
 
     void GLBufferObject::update(const Stardust_Celeste::Rendering::Vertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size) {
 #if BUILD_PC
+        simple = false;
         if (!setup) {
             glGenVertexArrays(1, &vao);
             glGenBuffers(1, &vbo);
@@ -181,6 +193,7 @@ namespace GI::detail{
 
     void GLBufferObject::update(const Stardust_Celeste::Rendering::SimpleVertex* vert_data, size_t vert_size, const uint16_t* indices, size_t idx_size) {
 #if BUILD_PC
+        simple = true;
         if (!setup) {
             glGenVertexArrays(1, &vao);
             glGenBuffers(1, &vbo);
@@ -196,9 +209,9 @@ namespace GI::detail{
 
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_UNSIGNED_SHORT, GL_TRUE, stride,
-                              reinterpret_cast<void *>(sizeof(uint16_t) * 3));
+                              reinterpret_cast<void *>(sizeof(uint16_t) * 2 + sizeof(uint32_t)));
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 1, GL_UNSIGNED_SHORT, GL_FALSE, stride,
+        glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, stride,
                               reinterpret_cast<void *>(sizeof(uint16_t) * 2));
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(2, 2, GL_UNSIGNED_SHORT, GL_TRUE, stride, nullptr);

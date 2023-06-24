@@ -49,11 +49,11 @@ struct VERT_PACKED Vertex {
  */
 struct VERT_PACKED SimpleVertex {
     uint16_t u, v;
-    uint16_t color;
-    uint16_t x, y, z;
+    uint32_t color;
+    uint16_t x, y, z, pad;
 
     SimpleVertex() = default;
-    SimpleVertex(uint16_t u, uint16_t v, uint16_t color, uint16_t x, uint16_t y, uint16_t z) : u(u), v(v), color(color), x(x), y(y), z(z) {}
+    SimpleVertex(uint16_t u, uint16_t v, uint32_t color, uint16_t x, uint16_t y, uint16_t z) : u(u), v(v), color(color), x(x), y(y), z(z) {}
 };
 
 /**

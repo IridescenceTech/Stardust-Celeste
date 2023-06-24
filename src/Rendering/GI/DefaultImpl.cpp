@@ -49,23 +49,16 @@ const std::string vert_source = R"(
     out vec2 uv;
     out vec4 color;
     out vec3 position;
+    uniform int simple;
 
     void main() {
         vec3 aPos2 = aPos;
         vec2 aTex2 = aTex;
 
-        if(aCol.r > 1.0f) {
-            uint aColPacked = uint(aCol.r);
-            float alpha = float((aColPacked >> 12) & 15) / 15.0;
-            float red = float((aColPacked >> 8) & 15) / 15.0;
-            float green = float((aColPacked >> 4) & 15) / 15.0;
-            float blue = float(aColPacked & 15) / 15.0;
-            color = vec4(red, green, blue, alpha);
-
+        color = aCol;
+        if(simple == 1) {
             aPos2 *= 2.0f;
             aTex2 *= 2.0f;
-        } else {
-            color = aCol;
         }
 
         uv = aTex2;
