@@ -41,7 +41,7 @@ class TextureManager final : public Singleton {
                       bool repeat, bool flip = false, bool vram = false) -> u32;
 
     auto load_texture_ram(u8* buffer, size_t length, u32 magFilter, u32 minFilter,
-                          bool repeat, bool flip = false, bool vram = false) -> u32;
+                          bool repeat, bool flip = false, bool vram = false, bool needPix = false) -> u32;
 
     auto get_texture(std::string name) -> u32;
 

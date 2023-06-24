@@ -99,7 +99,7 @@ auto TextureManager::get_texture(std::string name) -> u32 {
 }
 
 auto TextureManager::load_texture_ram(u8 *buffer, size_t length, u32 magFilter, u32 minFilter, bool repeat, bool flip,
-                                      bool vram) -> u32 {
+                                      bool vram, bool needPix) -> u32 {
 
     if (flip)
         stbi_set_flip_vertically_on_load(true);
@@ -130,7 +130,11 @@ auto TextureManager::load_texture_ram(u8 *buffer, size_t length, u32 magFilter, 
     tex->name = "";
 
 #if BUILD_PC || BUILD_PLAT == BUILD_VITA || BUILD_PLAT == BUILD_3DS
-    tex->pixData = data;
+    if(needPix) {
+        tex->pixData = data;
+    } else {
+        free(data);
+    }
     tex->data = GI::create_texturehandle_memory(buffer, length, magFilter, minFilter, repeat, flip);
     tex->id = ((GI::TextureHandle*)tex->data)->id;
 #elif BUILD_PLAT == BUILD_PSP
@@ -156,7 +160,11 @@ auto TextureManager::load_texture_ram(u8 *buffer, size_t length, u32 magFilter, 
         }
     }
 
-    tex->pixData = data;
+    if(needPix) {
+        tex->pixData = data;
+    } else {
+        free(data);
+    }
     tex->data = (uint16_t *)dataBuffer;
 
     uint16_t *swizzled_pixels = (uint16_t *)vramalloc(tex->pH * tex->pW * 2);;
